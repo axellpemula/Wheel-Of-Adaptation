@@ -467,6 +467,14 @@ speed_lines(
     "reflect_bolt", 2, shape("point", direction=vec("ward_dir")), "math.random(0.12, 0.2)",
     "math.random(20.0, 30.0)", 1.2, 1.6, 0.07, gold_fade(), 8.0,
 )
+effect(
+    "heal_sever", "particles_blend", "soft_dot", once(9),
+    shape("sphere", radius=0.45, direction="outwards"),
+    life("math.random(0.5, 0.85)"), speed("math.random(0.4, 1.3)"),
+    motion(drag=2.0, accel=[0, -3.5, 0]),
+    billboard(f"0.11 * (1 - {T} * 0.7)"),
+    tint(grad((0, (1.0, 0.4, 0.35), 0.95), (0.45, (0.75, 0.1, 0.15), 0.85), (1, (0.3, 0.0, 0.05), 0))),
+)
 
 
 def main():

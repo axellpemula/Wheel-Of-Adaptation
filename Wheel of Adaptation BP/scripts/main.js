@@ -88,6 +88,7 @@ var f = { turn1: 1, turn2: 2, turn3: 3, turn4: 4, turn5: 5, turn6: 6, turn7: 7, 
         quakeRing: "xvoid:quake_ring",
         quakeDust: "xvoid:quake_dust",
         reflectBolt: "xvoid:reflect_bolt",
+        healSever: "xvoid:heal_sever",
     },
     fe = {
         stab: "animation.extermination_sword.stab",
@@ -5559,6 +5560,9 @@ var woa = {
             "minecraft:wind_charge_projectile",
             "minecraft:breeze_wind_charge_projectile",
         ]),
+        healCut: 0.75,
+        healCutTicks: 200,
+        healFxGap: 20,
         hudAtkTicks: 100,
         hudAtkSwap: 40,
         armorPierce: 1,
@@ -5568,7 +5572,8 @@ var woa = {
         pierceCap: 5,
     },
     woaQuiet = !1,
-    woaReflected = new Map();
+    woaReflected = new Map(),
+    woaWounds = new Map();
 function woaFull(e, t) {
     let n = e.map.get(t);
     return !!n && n.s >= n.n;
@@ -5677,7 +5682,36 @@ function woaOffense(e, t, n, r) {
     let o = Be.currentTick,
         i = woaAttackHit(t, r, n, o),
         s = 1 + woa.attackBonus * i;
-    return i >= 1 && (s *= woaPierce(n, e.damageSource.cause)), s * woaCounterUse(t, r, n, o);
+    return i > 0 && woaWound(n, o, i), i >= 1 && (s *= woaPierce(n, e.damageSource.cause)), s * woaCounterUse(t, r, n, o);
+}
+function woaWound(e, t, n) {
+    let r = a(() => e.id),
+        o = Math.min(1, woa.healCut * n);
+    if (!r || o <= 0) return;
+    let i = woaWounds.get(r),
+        s = i && i.until >= t;
+    if ((woaWounds.set(r, { until: t + woa.healCutTicks, cut: s ? Math.max(i.cut, o) : o, fxAt: s ? i.fxAt : -1e9 }), woaWounds.size > 128))
+        for (let [c, d] of woaWounds) d.until < t && woaWounds.delete(c);
+}
+function woaHealCut(e) {
+    if (woaWounds.size === 0) return;
+    let t = e.healedEntity,
+        n = a(() => t.id),
+        r = n ? woaWounds.get(n) : void 0;
+    if (!r) return;
+    let o = Be.currentTick;
+    if (r.until < o) {
+        woaWounds.delete(n);
+        return;
+    }
+    if (e.cancel || e.healing <= 0 || e.healSource.cause === "TotemOfUndying") return;
+    let i = e.healing * (1 - r.cut);
+    i <= 0.001 ? (e.cancel = !0) : (e.healing = i),
+        o - r.fxAt >= woa.healFxGap &&
+            ((r.fxAt = o),
+            Be.run(() => {
+                t.isValid && v(t.dimension, I.healSever, pe(t));
+            }));
 }
 function woaBurnAttacker(e, t, n) {
     if (e.damageSource.cause !== nr.entityAttack) return;
@@ -6348,7 +6382,12 @@ function L_(e) {
 }
 function woaListAtk(e) {
     let t = e.entry.s >= e.entry.n,
-        n = x(`\xA7r${l.sword} ${Ee(e.key)} \xA7f`, Qr(e.key), ` \xA7${t ? "6" : "a"}+${woaAtkBonus(e)}%`);
+        r = Math.round(Math.min(1, (woa.healCut * e.entry.s) / e.entry.n) * 100),
+        n = x(
+            `\xA7r${l.sword} ${Ee(e.key)} \xA7f`,
+            Qr(e.key),
+            ` \xA7${t ? "6" : "a"}+${woaAtkBonus(e)}%` + (r > 0 ? ` \xA7r${l.heartDim}\xA7c-${r}%` : "")
+        );
     return t
         ? x(n, _e.pierce)
         : x(
@@ -7154,6 +7193,7 @@ N(re.afterEvents.entitySpawn, "main.entitySpawn", (e) => {
         );
 });
 N(re.afterEvents.entityHitEntity, "sword.hit", ku);
+re.beforeEvents.entityHeal && N(re.beforeEvents.entityHeal, "heal.cut", woaHealCut);
 N(re.afterEvents.projectileHitBlock, "reflect.hitBlock", (e) => {
     let t = a(() => e.projectile.id);
     t && woaReflected.has(t) && (v(e.dimension, I.guardFlash, e.location), woaReflectDrop(t));
