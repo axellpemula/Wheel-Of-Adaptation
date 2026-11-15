@@ -1,0 +1,33 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xvoid:sword_of_extermination_aura",
+      "menu_category": {
+        "category": "none",
+        "is_hidden_in_commands": true
+      }
+    },
+    "components": {
+      "minecraft:icon": "xvoid_sword_of_extermination",
+      "minecraft:display_name": {
+        "value": "item.xvoid.sword_of_extermination"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:rarity": "epic",
+      "minecraft:hand_equipped": true,
+      "minecraft:damage": 8,
+      "minecraft:can_destroy_in_creative": false,
+      "minecraft:cooldown": {
+        "category": "xvoid:positive_slash",
+        "duration": 7.0
+      },
+      "minecraft:tags": {
+        "tags": [
+          "minecraft:is_sword",
+          "xvoid:mahoraga"
+        ]
+      }
+    }
+  }
+}

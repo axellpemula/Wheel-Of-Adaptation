@@ -1,0 +1,31 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xvoid:wheel_of_adaptation_first",
+      "menu_category": {
+        "category": "none",
+        "is_hidden_in_commands": true
+      }
+    },
+    "components": {
+      "minecraft:icon": "xvoid_wheel_of_adaptation",
+      "minecraft:display_name": {
+        "value": "item.xvoid.wheel_of_adaptation"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:rarity": "epic",
+      "minecraft:wearable": {
+        "slot": "slot.armor.head",
+        "protection": 3
+      },
+      "minecraft:enchantable": {
+        "slot": "armor_head",
+        "value": 10
+      },
+      "minecraft:tags": {
+        "tags": ["xvoid:mahoraga"]
+      }
+    }
+  }
+}

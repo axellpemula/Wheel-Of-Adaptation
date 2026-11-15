@@ -1,0 +1,13 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.xvoid.mahoraga.hide_head_first_person": {
+      "loop": true,
+      "bones": {
+        "head": {
+          "scale": 0
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "format_version": "1.10.0",
+  "particle_effect": {
+    "description": {
+      "identifier": "xvoid:air_ring",
+      "basic_render_parameters": {
+        "material": "particles_blend",
+        "texture": "textures/particle/xvoid/ring"
+      }
+    },
+    "components": {
+      "minecraft:emitter_rate_instant": {
+        "num_particles": 1
+      },
+      "minecraft:emitter_lifetime_once": {
+        "active_time": 0.05
+      },
+      "minecraft:emitter_shape_point": {
+        "direction": [
+          "v.blast_dir.x",
+          "v.blast_dir.y",
+          "v.blast_dir.z"
+        ]
+      },
+      "minecraft:particle_lifetime_expression": {
+        "max_lifetime": 0.35
+      },
+      "minecraft:particle_initial_speed": 0.2,
+      "minecraft:particle_motion_dynamic": {},
+      "minecraft:particle_appearance_billboard": {
+        "size": [
+          "0.4 + v.particle_age / v.particle_lifetime * 2.2",
+          "0.4 + v.particle_age / v.particle_lifetime * 2.2"
+        ],
+        "facing_camera_mode": "direction_z",
+        "uv": {
+          "texture_width": 1,
+          "texture_height": 1,
+          "uv": [
+            0,
+            0
+          ],
+          "uv_size": [
+            1,
+            1
+          ]
+        }
+      },
+      "minecraft:particle_appearance_tinting": {
+        "color": {
+          "interpolant": "v.particle_age / v.particle_lifetime",
+          "gradient": {
+            "0.00": [
+              0.88,
+              0.96,
+              1.0,
+              0.85
+            ],
+            "0.50": [
+              0.75,
+              0.9,
+              1.0,
+              0.45
+            ],
+            "1.00": [
+              0.7,
+              0.85,
+              1.0,
+              0.0
+            ]
+          }
+        }
+      }
+    }
+  }
+}

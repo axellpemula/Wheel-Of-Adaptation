@@ -1,0 +1,2943 @@
+{
+  "namespace": "xvoid_hud",
+  "root": {
+    "type": "panel",
+    "size": [
+      "100%",
+      "100%"
+    ],
+    "layer": 30,
+    "controls": [
+      {
+        "left@xvoid_hud.left": {}
+      },
+      {
+        "right@xvoid_hud.right": {}
+      },
+      {
+        "watermark@xvoid_hud.watermark": {}
+      }
+    ]
+  },
+  "glow_pulse_a": {
+    "anim_type": "alpha",
+    "easing": "linear",
+    "duration": 0.45,
+    "from": 0.45,
+    "to": 0.12,
+    "next": "@xvoid_hud.glow_pulse_b"
+  },
+  "glow_pulse_b": {
+    "anim_type": "alpha",
+    "easing": "linear",
+    "duration": 0.45,
+    "from": 0.12,
+    "to": 0.45,
+    "next": "@xvoid_hud.glow_pulse_a"
+  },
+  "emblem_spin_flipbook": {
+    "anim_type": "flip_book",
+    "initial_uv": [
+      0,
+      0
+    ],
+    "frame_count": 4,
+    "frame_step": 27,
+    "fps": 16,
+    "reversible": false,
+    "easing": "linear"
+  },
+  "emblem_spin_fast_flipbook": {
+    "anim_type": "flip_book",
+    "initial_uv": [
+      0,
+      0
+    ],
+    "frame_count": 4,
+    "frame_step": 27,
+    "fps": 32,
+    "reversible": false,
+    "easing": "linear"
+  },
+  "left": {
+    "type": "stack_panel",
+    "orientation": "horizontal",
+    "$hud_corner|default": "bottom_left",
+    "$hud_offset|default": [
+      0,
+      -4
+    ],
+    "variables": [
+      {
+        "requires": "(not $desktop_screen)",
+        "$hud_corner": "top_left",
+        "$hud_offset": [
+          6,
+          6
+        ]
+      }
+    ],
+    "anchor_from": "$hud_corner",
+    "anchor_to": "$hud_corner",
+    "offset": "$hud_offset",
+    "size": [
+      "100%c",
+      30
+    ],
+    "controls": [
+      {
+        "body": {
+          "type": "image",
+          "texture": "textures/ui/xvoid/hud_back_solid",
+          "size": [
+            "100%cm",
+            "100%"
+          ],
+          "layer": 1,
+          "keep_ratio": false,
+          "controls": [
+            {
+              "content": {
+                "type": "stack_panel",
+                "orientation": "horizontal",
+                "size": [
+                  "100%c",
+                  "100%"
+                ],
+                "layer": 1,
+                "controls": [
+                  {
+                    "gap_a": {
+                      "type": "panel",
+                      "size": [
+                        4,
+                        "100%"
+                      ]
+                    }
+                  },
+                  {
+                    "emblem_box": {
+                      "type": "panel",
+                      "size": [
+                        27,
+                        "100%"
+                      ],
+                      "controls": [
+                        {
+                          "glow_static": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/hud_emblem_glow",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 2,
+                            "keep_ratio": false,
+                            "alpha": 0.35,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((#hud_title_text_string - '§p§s§d§r') = #hud_title_text_string)",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "glow": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/hud_emblem_glow",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 2,
+                            "keep_ratio": false,
+                            "anims": [
+                              "@xvoid_hud.glow_pulse_a"
+                            ],
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "(not ((#hud_title_text_string - '§s§h§g§r') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_0_0_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_0_0_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§0§0§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_1_0_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_1_0_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§1§0§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_1_0_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_1_0_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§1§0§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_1_1_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_1_1_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§1§1§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_2_0_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_2_0_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§2§0§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_2_0_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_2_0_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§2§0§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_2_1_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_2_1_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§2§1§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_2_1_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_2_1_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§2§1§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_2_2_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_2_2_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§2§2§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_3_0_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_3_0_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§3§0§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_3_0_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_3_0_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§3§0§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_3_1_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_3_1_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§3§1§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_3_1_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_3_1_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§3§1§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_3_2_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_3_2_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§3§2§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_3_2_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_3_2_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§3§2§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_3_3_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_3_3_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§3§3§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_4_0_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_4_0_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§4§0§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_4_0_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_4_0_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§4§0§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_4_1_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_4_1_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§4§1§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_4_1_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_4_1_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§4§1§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_4_2_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_4_2_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§4§2§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_4_2_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_4_2_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§4§2§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_4_3_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_4_3_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§4§3§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_4_3_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_4_3_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§4§3§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_4_4_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_4_4_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§4§4§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_5_0_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_5_0_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§5§0§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_5_0_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_5_0_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§5§0§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_5_1_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_5_1_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§5§1§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_5_1_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_5_1_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§5§1§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_5_2_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_5_2_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§5§2§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_5_2_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_5_2_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§5§2§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_5_3_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_5_3_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§5§3§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_5_3_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_5_3_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§5§3§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_5_4_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_5_4_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§5§4§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_5_4_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_5_4_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§5§4§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_5_5_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_5_5_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§5§5§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_0_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_0_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§0§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_0_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_0_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§0§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_1_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_1_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§1§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_1_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_1_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§1§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_2_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_2_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§2§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_2_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_2_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§2§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_3_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_3_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§3§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_3_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_3_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§3§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_4_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_4_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§4§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_4_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_4_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§4§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_5_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_5_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§5§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_5_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_5_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§5§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_6_6_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_6_6_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§6§6§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_0_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_0_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§0§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_0_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_0_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§0§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_1_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_1_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§1§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_1_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_1_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§1§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_2_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_2_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§2§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_2_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_2_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§2§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_3_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_3_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§3§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_3_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_3_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§3§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_4_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_4_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§4§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_4_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_4_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§4§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_5_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_5_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§5§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_5_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_5_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§5§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_6_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_6_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§6§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_6_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_6_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§6§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_7_7_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_7_7_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§7§7§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_0_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_0_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§0§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_0_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_0_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§0§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_1_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_1_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§1§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_1_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_1_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§1§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_2_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_2_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§2§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_2_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_2_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§2§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_3_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_3_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§3§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_3_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_3_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§3§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_4_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_4_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§4§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_4_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_4_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§4§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_5_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_5_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§5§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_5_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_5_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§5§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_6_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_6_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§6§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_6_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_6_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§6§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_7_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_7_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§7§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_7_1": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_7_1",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§7§1') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_8_8_0": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/emblem/emblem_8_8_0",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§u§u§8§8§0') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_spin": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/hud_emblem_spin",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 4,
+                            "keep_ratio": false,
+                            "uv": "@xvoid_hud.emblem_spin_flipbook",
+                            "uv_size": [
+                              27,
+                              27
+                            ],
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((not ((#hud_title_text_string - '§s§p§i§n') = #hud_title_text_string)) and ((#hud_title_text_string - '§s§h§f§s') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "emblem_spin_fast": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/hud_emblem_spin",
+                            "size": [
+                              27,
+                              27
+                            ],
+                            "layer": 4,
+                            "keep_ratio": false,
+                            "uv": "@xvoid_hud.emblem_spin_fast_flipbook",
+                            "uv_size": [
+                              27,
+                              27
+                            ],
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "(not ((#hud_title_text_string - '§s§h§f§s') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "gap_b": {
+                      "type": "panel",
+                      "size": [
+                        3,
+                        "100%"
+                      ]
+                    }
+                  },
+                  {
+                    "rule": {
+                      "type": "panel",
+                      "size": [
+                        1,
+                        "100%"
+                      ],
+                      "controls": [
+                        {
+                          "line": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/hud_rule",
+                            "size": [
+                              1,
+                              26
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "gap_c": {
+                      "type": "panel",
+                      "size": [
+                        4,
+                        "100%"
+                      ]
+                    }
+                  },
+                  {
+                    "label": {
+                      "type": "panel",
+                      "size": [
+                        "100%cm",
+                        "100%"
+                      ],
+                      "controls": [
+                        {
+                          "text": {
+                            "type": "label",
+                            "anchor_from": "left_middle",
+                            "anchor_to": "left_middle",
+                            "size": [
+                              "default",
+                              "default"
+                            ],
+                            "text_alignment": "left",
+                            "font_type": "default",
+                            "font_scale_factor": 0.7,
+                            "shadow": true,
+                            "localize": false,
+                            "color": [
+                              1,
+                              1,
+                              1
+                            ],
+                            "layer": 4,
+                            "line_padding": 2.0,
+                            "text": "#text",
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "(((((#hud_title_text_string - '§s§h§s§h') - '§s§h§g§r') - '§s§p§i§n') - '§s§h§f§s') - '§p§s§d§r')",
+                                "target_property_name": "#text"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((#hud_title_text_string - '§u§n') = #hud_title_text_string)",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "text_unicode": {
+                            "type": "label",
+                            "anchor_from": "left_middle",
+                            "anchor_to": "left_middle",
+                            "size": [
+                              "default",
+                              "default"
+                            ],
+                            "text_alignment": "left",
+                            "font_type": "unicode",
+                            "font_scale_factor": 0.7,
+                            "shadow": true,
+                            "localize": false,
+                            "color": [
+                              1,
+                              1,
+                              1
+                            ],
+                            "layer": 4,
+                            "line_padding": 2.0,
+                            "text": "#text",
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "(((((#hud_title_text_string - '§s§h§s§h') - '§s§h§g§r') - '§s§p§i§n') - '§s§h§f§s') - '§p§s§d§r')",
+                                "target_property_name": "#text"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "(not ((#hud_title_text_string - '§u§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "gap_d": {
+                      "type": "panel",
+                      "size": [
+                        4,
+                        "100%"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "edge": {
+                "type": "image",
+                "texture": "textures/ui/xvoid/hud_edge_gold",
+                "size": [
+                  2,
+                  "100%"
+                ],
+                "layer": 3,
+                "keep_ratio": false,
+                "anchor_from": "left_middle",
+                "anchor_to": "left_middle"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "fade": {
+          "type": "image",
+          "texture": "textures/ui/xvoid/hud_back_fade_l",
+          "size": [
+            24,
+            "100%"
+          ],
+          "layer": 1,
+          "keep_ratio": false
+        }
+      }
+    ],
+    "bindings": [
+      {
+        "binding_name": "#hud_title_text_string",
+        "binding_type": "global"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not ((#hud_title_text_string - '§s§h§s§h') = #hud_title_text_string))",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+  "right": {
+    "type": "stack_panel",
+    "orientation": "horizontal",
+    "$hud_corner|default": "bottom_right",
+    "$hud_offset|default": [
+      0,
+      -4
+    ],
+    "variables": [
+      {
+        "requires": "(not $desktop_screen)",
+        "$hud_corner": "top_right",
+        "$hud_offset": [
+          -6,
+          34
+        ]
+      }
+    ],
+    "anchor_from": "$hud_corner",
+    "anchor_to": "$hud_corner",
+    "offset": "$hud_offset",
+    "size": [
+      "100%c",
+      30
+    ],
+    "controls": [
+      {
+        "fade": {
+          "type": "image",
+          "texture": "textures/ui/xvoid/hud_back_fade_r",
+          "size": [
+            24,
+            "100%"
+          ],
+          "layer": 1,
+          "keep_ratio": false
+        }
+      },
+      {
+        "body": {
+          "type": "image",
+          "texture": "textures/ui/xvoid/hud_back_solid",
+          "size": [
+            "100%cm",
+            "100%"
+          ],
+          "layer": 1,
+          "keep_ratio": false,
+          "controls": [
+            {
+              "content": {
+                "type": "stack_panel",
+                "orientation": "horizontal",
+                "size": [
+                  "100%c",
+                  "100%"
+                ],
+                "layer": 1,
+                "controls": [
+                  {
+                    "gap_a": {
+                      "type": "panel",
+                      "size": [
+                        4,
+                        "100%"
+                      ]
+                    }
+                  },
+                  {
+                    "label": {
+                      "type": "panel",
+                      "size": [
+                        "100%cm",
+                        "100%"
+                      ],
+                      "controls": [
+                        {
+                          "text": {
+                            "type": "label",
+                            "anchor_from": "right_middle",
+                            "anchor_to": "right_middle",
+                            "size": [
+                              "default",
+                              "default"
+                            ],
+                            "text_alignment": "right",
+                            "font_type": "default",
+                            "font_scale_factor": 1.0,
+                            "shadow": true,
+                            "localize": false,
+                            "color": [
+                              1,
+                              1,
+                              1
+                            ],
+                            "layer": 4,
+                            "line_padding": 2.0,
+                            "text": "#text",
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_name": "#hud_subtitle_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "#hud_subtitle_text_string",
+                                "target_property_name": "#text"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((#hud_title_text_string - '§u§n') = #hud_title_text_string)",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "text_unicode": {
+                            "type": "label",
+                            "anchor_from": "right_middle",
+                            "anchor_to": "right_middle",
+                            "size": [
+                              "default",
+                              "default"
+                            ],
+                            "text_alignment": "right",
+                            "font_type": "unicode",
+                            "font_scale_factor": 1.0,
+                            "shadow": true,
+                            "localize": false,
+                            "color": [
+                              1,
+                              1,
+                              1
+                            ],
+                            "layer": 4,
+                            "line_padding": 2.0,
+                            "text": "#text",
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_title_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_name": "#hud_subtitle_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "#hud_subtitle_text_string",
+                                "target_property_name": "#text"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "(not ((#hud_title_text_string - '§u§n') = #hud_title_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "gap_b": {
+                      "type": "panel",
+                      "size": [
+                        4,
+                        "100%"
+                      ]
+                    }
+                  },
+                  {
+                    "rule": {
+                      "type": "panel",
+                      "size": [
+                        1,
+                        "100%"
+                      ],
+                      "controls": [
+                        {
+                          "line": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/hud_rule",
+                            "size": [
+                              1,
+                              26
+                            ],
+                            "layer": 3,
+                            "keep_ratio": false
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "gap_c": {
+                      "type": "panel",
+                      "size": [
+                        3,
+                        "100%"
+                      ]
+                    }
+                  },
+                  {
+                    "mode_box": {
+                      "type": "panel",
+                      "size": [
+                        27,
+                        "100%"
+                      ],
+                      "controls": [
+                        {
+                          "mode_attack": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/hud_mode_attack",
+                            "size": [
+                              22,
+                              22
+                            ],
+                            "layer": 4,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_subtitle_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "(not ((#hud_subtitle_text_string - '§t§t§0') = #hud_subtitle_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "mode_balance": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/hud_mode_balance",
+                            "size": [
+                              22,
+                              22
+                            ],
+                            "layer": 4,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_subtitle_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "(not ((#hud_subtitle_text_string - '§t§t§1') = #hud_subtitle_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "mode_defense": {
+                            "type": "image",
+                            "texture": "textures/ui/xvoid/hud_mode_defense",
+                            "size": [
+                              22,
+                              22
+                            ],
+                            "layer": 4,
+                            "keep_ratio": false,
+                            "bindings": [
+                              {
+                                "binding_name": "#hud_subtitle_text_string",
+                                "binding_type": "global"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "(not ((#hud_subtitle_text_string - '§t§t§2') = #hud_subtitle_text_string))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "gap_d": {
+                      "type": "panel",
+                      "size": [
+                        4,
+                        "100%"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "edge_red": {
+                "type": "image",
+                "texture": "textures/ui/xvoid/hud_edge_red",
+                "size": [
+                  2,
+                  "100%"
+                ],
+                "layer": 3,
+                "keep_ratio": false,
+                "anchor_from": "right_middle",
+                "anchor_to": "right_middle",
+                "bindings": [
+                  {
+                    "binding_name": "#hud_subtitle_text_string",
+                    "binding_type": "global"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(not ((#hud_subtitle_text_string - '§t§t§0') = #hud_subtitle_text_string))",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            },
+            {
+              "edge_gold": {
+                "type": "image",
+                "texture": "textures/ui/xvoid/hud_edge_gold",
+                "size": [
+                  2,
+                  "100%"
+                ],
+                "layer": 3,
+                "keep_ratio": false,
+                "anchor_from": "right_middle",
+                "anchor_to": "right_middle",
+                "bindings": [
+                  {
+                    "binding_name": "#hud_subtitle_text_string",
+                    "binding_type": "global"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(not ((#hud_subtitle_text_string - '§t§t§1') = #hud_subtitle_text_string))",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            },
+            {
+              "edge_blue": {
+                "type": "image",
+                "texture": "textures/ui/xvoid/hud_edge_blue",
+                "size": [
+                  2,
+                  "100%"
+                ],
+                "layer": 3,
+                "keep_ratio": false,
+                "anchor_from": "right_middle",
+                "anchor_to": "right_middle",
+                "bindings": [
+                  {
+                    "binding_name": "#hud_subtitle_text_string",
+                    "binding_type": "global"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(not ((#hud_subtitle_text_string - '§t§t§2') = #hud_subtitle_text_string))",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "bindings": [
+      {
+        "binding_name": "#hud_title_text_string",
+        "binding_type": "global"
+      },
+      {
+        "binding_name": "#hud_subtitle_text_string",
+        "binding_type": "global"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "((not ((#hud_title_text_string - '§s§h§s§h') = #hud_title_text_string)) and (not (#hud_subtitle_text_string = ' ')) and (not (#hud_subtitle_text_string = '')))",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+  "watermark": {
+    "type": "panel",
+    "size": [
+      "100%",
+      "100%"
+    ],
+    "layer": 40,
+    "$watermark_offset|default": [
+      -4,
+      4
+    ],
+    "$watermark_pc_off|default": false,
+    "$watermark_phone_off|default": true,
+    "variables": [
+      {
+        "requires": "(not $desktop_screen)",
+        "$watermark_offset": [
+          -6,
+          66
+        ],
+        "$watermark_pc_off": true,
+        "$watermark_phone_off": false
+      }
+    ],
+    "controls": [
+      {
+        "anchor": {
+          "type": "panel",
+          "anchor_from": "top_right",
+          "anchor_to": "top_right",
+          "offset": "$watermark_offset",
+          "size": [
+            1,
+            1
+          ],
+          "controls": [
+            {
+              "pc": {
+                "type": "image",
+                "texture": "textures/ui/xvoid/watermark_plate",
+                "keep_ratio": false,
+                "layer": 1,
+                "anchor_from": "top_right",
+                "anchor_to": "top_right",
+                "size": [
+                  "100%cm",
+                  "100%cm"
+                ],
+                "ignored": "$watermark_pc_off",
+                "controls": [
+                  {
+                    "row": {
+                      "type": "stack_panel",
+                      "orientation": "horizontal",
+                      "size": [
+                        "100%c",
+                        "100%cm"
+                      ],
+                      "controls": [
+                        {
+                          "pad_left": {
+                            "type": "panel",
+                            "size": [
+                              3,
+                              0
+                            ]
+                          }
+                        },
+                        {
+                          "column": {
+                            "type": "stack_panel",
+                            "orientation": "vertical",
+                            "size": [
+                              "100%cm",
+                              "100%c"
+                            ],
+                            "controls": [
+                              {
+                                "pad_top": {
+                                  "type": "panel",
+                                  "size": [
+                                    0,
+                                    2
+                                  ]
+                                }
+                              },
+                              {
+                                "line_0": {
+                                  "type": "label",
+                                  "anchor_from": "top_right",
+                                  "anchor_to": "top_right",
+                                  "size": [
+                                    "default",
+                                    "default"
+                                  ],
+                                  "text_alignment": "right",
+                                  "font_type": "default",
+                                  "font_scale_factor": 0.8,
+                                  "shadow": true,
+                                  "localize": true,
+                                  "color": [
+                                    1,
+                                    1,
+                                    1
+                                  ],
+                                  "layer": 2,
+                                  "text": "xvoid.watermark.hud"
+                                }
+                              },
+                              {
+                                "pad_bottom": {
+                                  "type": "panel",
+                                  "size": [
+                                    0,
+                                    2
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "pad_right": {
+                            "type": "panel",
+                            "size": [
+                              3,
+                              0
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "phone": {
+                "type": "image",
+                "texture": "textures/ui/xvoid/watermark_plate",
+                "keep_ratio": false,
+                "layer": 1,
+                "anchor_from": "top_right",
+                "anchor_to": "top_right",
+                "size": [
+                  "100%cm",
+                  "100%cm"
+                ],
+                "ignored": "$watermark_phone_off",
+                "controls": [
+                  {
+                    "row": {
+                      "type": "stack_panel",
+                      "orientation": "horizontal",
+                      "size": [
+                        "100%c",
+                        "100%cm"
+                      ],
+                      "controls": [
+                        {
+                          "pad_left": {
+                            "type": "panel",
+                            "size": [
+                              3,
+                              0
+                            ]
+                          }
+                        },
+                        {
+                          "column": {
+                            "type": "stack_panel",
+                            "orientation": "vertical",
+                            "size": [
+                              "100%cm",
+                              "100%c"
+                            ],
+                            "controls": [
+                              {
+                                "pad_top": {
+                                  "type": "panel",
+                                  "size": [
+                                    0,
+                                    2
+                                  ]
+                                }
+                              },
+                              {
+                                "line_0": {
+                                  "type": "label",
+                                  "anchor_from": "top_right",
+                                  "anchor_to": "top_right",
+                                  "size": [
+                                    "default",
+                                    "default"
+                                  ],
+                                  "text_alignment": "right",
+                                  "font_type": "default",
+                                  "font_scale_factor": 0.8,
+                                  "shadow": true,
+                                  "localize": true,
+                                  "color": [
+                                    1,
+                                    1,
+                                    1
+                                  ],
+                                  "layer": 2,
+                                  "text": "xvoid.watermark.hud_name"
+                                }
+                              },
+                              {
+                                "line_1": {
+                                  "type": "label",
+                                  "anchor_from": "top_right",
+                                  "anchor_to": "top_right",
+                                  "size": [
+                                    "default",
+                                    "default"
+                                  ],
+                                  "text_alignment": "right",
+                                  "font_type": "default",
+                                  "font_scale_factor": 0.8,
+                                  "shadow": true,
+                                  "localize": true,
+                                  "color": [
+                                    1,
+                                    1,
+                                    1
+                                  ],
+                                  "layer": 2,
+                                  "text": "xvoid.watermark.hud_version"
+                                }
+                              },
+                              {
+                                "pad_bottom": {
+                                  "type": "panel",
+                                  "size": [
+                                    0,
+                                    2
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "pad_right": {
+                            "type": "panel",
+                            "size": [
+                              3,
+                              0
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

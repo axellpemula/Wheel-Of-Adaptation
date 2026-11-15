@@ -1,0 +1,33 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "xvoid:mahoraga_chest",
+      "materials": {
+        "default": "armor",
+        "enchanted": "armor_enchanted"
+      },
+      "textures": {
+        "default": "textures/entity/xvoid/mahoraga_armor",
+        "enchanted": "textures/misc/enchanted_actor_glint"
+      },
+      "geometry": {
+        "default": "geometry.xvoid.mahoraga_chest"
+      },
+      "scripts": {
+        "parent_setup": "variable.chest_layer_visible = 0.0;",
+        "animate": [
+          {
+            "hide_first_person": "c.is_first_person"
+          }
+        ]
+      },
+      "render_controllers": [
+        "controller.render.armor"
+      ],
+      "animations": {
+        "hide_first_person": "animation.xvoid.mahoraga.hide_head_first_person"
+      }
+    }
+  }
+}

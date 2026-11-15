@@ -1,0 +1,29 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "xvoid:mahoraga_chest",
+      "menu_category": {
+        "category": "equipment",
+        "group": "minecraft:itemGroup.name.chestplate"
+      }
+    },
+    "components": {
+      "minecraft:icon": "xvoid_mahoraga_chest",
+      "minecraft:display_name": {
+        "value": "item.xvoid.mahoraga_chest"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:wearable": {
+        "slot": "slot.armor.chest",
+        "protection": 6
+      },
+      "minecraft:tags": {
+        "tags": [
+          "xvoid:mahoraga",
+          "xvoid:cosmetic"
+        ]
+      }
+    }
+  }
+}

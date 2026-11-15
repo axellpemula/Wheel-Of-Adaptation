@@ -1,0 +1,63 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.xvoid_wheel_glow": {
+      "geometry": "Geometry.glow",
+      "materials": [
+        {
+          "*": "Material.glow"
+        }
+      ],
+      "textures": [
+        "Texture.glow"
+      ],
+      "uv_anim": {
+        "offset": [
+          0.0,
+          "math.clamp(math.floor(v.glow * 8), 0, 7) / 8"
+        ],
+        "scale": [
+          1.0,
+          0.125
+        ]
+      }
+    },
+    "controller.render.xvoid_wheel_lit": {
+      "arrays": {
+        "textures": {
+          "Array.lit": [
+            "Texture.lit_0",
+            "Texture.lit_1",
+            "Texture.lit_2",
+            "Texture.lit_3",
+            "Texture.lit_4",
+            "Texture.lit_5",
+            "Texture.lit_6",
+            "Texture.lit_7"
+          ]
+        }
+      },
+      "geometry": "Geometry.default",
+      "materials": [
+        {
+          "*": "(v.glow ?? 0) > 0.05 ? Material.lit : (v.is_enchanted ? Material.enchanted : Material.default)"
+        }
+      ],
+      "textures": [
+        "Array.lit[math.clamp(math.floor((v.glow ?? 0) * 8), 0, 7)]",
+        "Texture.enchanted"
+      ]
+    },
+    "controller.render.xvoid_wheel_novelty": {
+      "geometry": "Geometry.xvoid_wheel",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.xvoid_wheel"
+      ]
+    }
+  }
+}

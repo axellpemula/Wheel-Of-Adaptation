@@ -1,0 +1,36 @@
+{
+  "resource_pack_name": "wheel_of_adaptation",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "xvoid_wheel_of_adaptation": {
+      "textures": "textures/items/xvoid/wheel_of_adaptation"
+    },
+    "xvoid_sword_of_extermination": {
+      "textures": "textures/items/xvoid/sword_of_extermination"
+    },
+    "xvoid_adaptation_config": {
+      "textures": "textures/items/xvoid/adaptation_config"
+    },
+    "xvoid_mode_switcher": {
+      "textures": "textures/items/xvoid/mode_switcher"
+    },
+    "xvoid_mode_switcher_attack": {
+      "textures": "textures/items/xvoid/mode_switcher_attack"
+    },
+    "xvoid_mode_switcher_defense": {
+      "textures": "textures/items/xvoid/mode_switcher_defense"
+    },
+    "xvoid_barehand": {
+      "textures": "textures/items/xvoid/barehand"
+    },
+    "xvoid_mahoraga_chest": {
+      "textures": "textures/items/xvoid/mahoraga_chest"
+    },
+    "xvoid_mahoraga_legs": {
+      "textures": "textures/items/xvoid/mahoraga_legs"
+    },
+    "xvoid_mahoraga_boots": {
+      "textures": "textures/items/xvoid/mahoraga_boots"
+    }
+  }
+}

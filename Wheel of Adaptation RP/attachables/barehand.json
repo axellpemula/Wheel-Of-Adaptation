@@ -1,0 +1,38 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "xvoid:barehand",
+      "materials": {
+        "default": "entity_alphatest",
+        "enchanted": "entity_alphatest_glint"
+      },
+      "textures": {
+        "default": "textures/entity/xvoid/sword_of_extermination",
+        "enchanted": "textures/misc/enchanted_item_glint"
+      },
+      "geometry": {
+        "default": "geometry.xvoid.sword_of_extermination"
+      },
+      "animations": {
+        "hide_arm": "animation.xvoid.sword.hide_arm",
+        "first_person": "animation.xvoid.sword.first_person",
+        "no_blade": "animation.xvoid.barehand.no_blade"
+      },
+      "scripts": {
+        "animate": [
+          {
+            "hide_arm": "1.0"
+          },
+          {
+            "first_person": "c.is_first_person"
+          },
+          "no_blade"
+        ]
+      },
+      "render_controllers": [
+        "controller.render.xvoid.sword"
+      ]
+    }
+  }
+}
