@@ -5,12 +5,12 @@
       "identifier": "xvoid:blink_out",
       "basic_render_parameters": {
         "material": "particles_blend",
-        "texture": "textures/particle/xvoid/soft_dot"
+        "texture": "textures/particle/xvoid/fx_streak"
       }
     },
     "components": {
       "minecraft:emitter_rate_instant": {
-        "num_particles": 12
+        "num_particles": 14
       },
       "minecraft:emitter_lifetime_once": {
         "active_time": 0.05
@@ -37,7 +37,7 @@
       "minecraft:particle_appearance_billboard": {
         "size": [
           "0.6 + v.particle_age / v.particle_lifetime * 1.4",
-          "0.07 * (1 - v.particle_age / v.particle_lifetime)"
+          "0.08 * (1 - v.particle_age / v.particle_lifetime)"
         ],
         "facing_camera_mode": "lookat_direction",
         "uv": {
@@ -58,21 +58,21 @@
           "interpolant": "v.particle_age / v.particle_lifetime",
           "gradient": {
             "0.00": [
-              0.08,
-              0.07,
+              0.06,
+              0.05,
               0.1,
               0.9
             ],
             "0.50": [
-              0.25,
-              0.24,
+              0.2,
+              0.18,
               0.3,
               0.6
             ],
             "1.00": [
-              0.4,
-              0.4,
-              0.45,
+              0.38,
+              0.36,
+              0.5,
               0.0
             ]
           }

@@ -5,7 +5,7 @@
       "identifier": "xvoid:regen_pulse",
       "basic_render_parameters": {
         "material": "particles_add",
-        "texture": "textures/particle/xvoid/ring"
+        "texture": "textures/particle/xvoid/fx_shock"
       }
     },
     "components": {
@@ -20,6 +20,13 @@
         "max_lifetime": 0.8
       },
       "minecraft:particle_initial_speed": 0,
+      "minecraft:particle_initial_spin": {
+        "rotation": "math.random(0, 360)",
+        "rotation_rate": 0
+      },
+      "minecraft:particle_motion_dynamic": {
+        "rotation_drag_coefficient": 1.0
+      },
       "minecraft:particle_appearance_billboard": {
         "size": [
           "0.5 + 3.5 * math.sqrt(v.particle_age / v.particle_lifetime)",

@@ -5,7 +5,7 @@
       "identifier": "xvoid:wheel_mote",
       "basic_render_parameters": {
         "material": "particles_add",
-        "texture": "textures/particle/xvoid/soft_dot"
+        "texture": "textures/particle/xvoid/adapt_glint"
       }
     },
     "components": {
@@ -44,21 +44,30 @@
       },
       "minecraft:particle_appearance_billboard": {
         "size": [
-          "0.07 * (1 - v.particle_age / v.particle_lifetime)",
-          "0.07 * (1 - v.particle_age / v.particle_lifetime)"
+          "(0.06 + 0.05 * v.particle_random_1) * math.sin(180 * v.particle_age / v.particle_lifetime)",
+          "(0.06 + 0.05 * v.particle_random_1) * math.sin(180 * v.particle_age / v.particle_lifetime)"
         ],
         "facing_camera_mode": "lookat_xyz",
         "uv": {
-          "texture_width": 1,
-          "texture_height": 1,
-          "uv": [
-            0,
-            0
-          ],
-          "uv_size": [
-            1,
-            1
-          ]
+          "texture_width": 128,
+          "texture_height": 32,
+          "flipbook": {
+            "base_UV": [
+              0,
+              0
+            ],
+            "size_UV": [
+              32,
+              32
+            ],
+            "step_UV": [
+              32,
+              0
+            ],
+            "frames_per_second": 10,
+            "max_frame": 4,
+            "loop": true
+          }
         }
       },
       "minecraft:particle_appearance_tinting": {
@@ -67,21 +76,21 @@
           "gradient": {
             "0.00": [
               1.0,
-              0.88,
-              0.4,
+              1.0,
+              1.0,
               1.0
             ],
             "0.60": [
               1.0,
-              0.7,
-              0.2,
-              0.9
+              0.93,
+              0.62,
+              1.0
             ],
             "1.00": [
               1.0,
-              0.55,
-              0.1,
-              0.0
+              0.8,
+              0.3,
+              1.0
             ]
           }
         }

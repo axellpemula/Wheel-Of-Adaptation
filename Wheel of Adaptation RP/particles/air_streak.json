@@ -5,12 +5,12 @@
       "identifier": "xvoid:air_streak",
       "basic_render_parameters": {
         "material": "particles_blend",
-        "texture": "textures/particle/xvoid/soft_dot"
+        "texture": "textures/particle/xvoid/fx_streak"
       }
     },
     "components": {
       "minecraft:emitter_rate_instant": {
-        "num_particles": 3
+        "num_particles": 4
       },
       "minecraft:emitter_lifetime_once": {
         "active_time": 0.05
@@ -38,7 +38,7 @@
       "minecraft:particle_appearance_billboard": {
         "size": [
           "1.2 + v.particle_age / v.particle_lifetime * 1.6",
-          "0.05 * (1 - v.particle_age / v.particle_lifetime)"
+          "0.06 * (1 - v.particle_age / v.particle_lifetime)"
         ],
         "facing_camera_mode": "lookat_direction",
         "uv": {
