@@ -5,12 +5,12 @@
       "identifier": "xvoid:slash_ink_spark",
       "basic_render_parameters": {
         "material": "particles_blend",
-        "texture": "textures/particle/xvoid/spark"
+        "texture": "textures/particle/xvoid/fx_streak"
       }
     },
     "components": {
       "minecraft:emitter_rate_instant": {
-        "num_particles": 3
+        "num_particles": 4
       },
       "minecraft:emitter_lifetime_once": {
         "active_time": 0.05
@@ -22,16 +22,21 @@
       "minecraft:particle_lifetime_expression": {
         "max_lifetime": "math.random(0.25, 0.45)"
       },
-      "minecraft:particle_initial_speed": "math.random(1.0, 2.5)",
+      "minecraft:particle_initial_speed": "math.random(1.5, 3.2)",
       "minecraft:particle_motion_dynamic": {
+        "linear_acceleration": [
+          0,
+          -3.0,
+          0
+        ],
         "linear_drag_coefficient": 4.0
       },
       "minecraft:particle_appearance_billboard": {
         "size": [
-          "0.18 * (1 - v.particle_age / v.particle_lifetime)",
-          "0.18 * (1 - v.particle_age / v.particle_lifetime)"
+          "0.2 * (1 - v.particle_age / v.particle_lifetime)",
+          "0.045 * (1 - 0.5 * v.particle_age / v.particle_lifetime)"
         ],
-        "facing_camera_mode": "lookat_xyz",
+        "facing_camera_mode": "lookat_direction",
         "uv": {
           "texture_width": 1,
           "texture_height": 1,
@@ -56,15 +61,15 @@
               0.95
             ],
             "0.50": [
+              0.06,
               0.05,
-              0.05,
-              0.07,
-              0.7
+              0.1,
+              0.75
             ],
             "1.00": [
-              0.05,
-              0.05,
+              0.1,
               0.07,
+              0.18,
               0.0
             ]
           }
