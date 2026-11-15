@@ -1773,6 +1773,7 @@ function Ep(e) {
     return `${O.mode}\xA7${gp[e]}\xA7r`;
 }
 function kp(e) {
+    if (e.atk) return [`\xA7r${l.sword} ${Ee(e.atk.key)} ${to(e.atk)}`];
     if (!e.key || !e.entry) return [`${l.hourglass} \xA78`, S.idle];
     let t = e.others ? `  \xA77+${e.others}` : "";
     return [`\xA7r${Ee(e.key)} ${to(e, !1)}${t}`];
@@ -2464,6 +2465,8 @@ function xc() {
         lastTurn: void 0,
         atk: new Map(),
         atkTurnAt: -100,
+        atkLast: void 0,
+        atkLastAt: -1e9,
         counter: void 0,
     };
 }
@@ -5556,6 +5559,8 @@ var woa = {
             "minecraft:wind_charge_projectile",
             "minecraft:breeze_wind_charge_projectile",
         ]),
+        hudAtkTicks: 100,
+        hudAtkSwap: 40,
         armorPierce: 1,
         armorPerPoint: 0.04,
         toughnessPerPoint: 0,
@@ -5582,6 +5587,30 @@ function woaAtkLoad(e, t) {
             r[1] >= 1 &&
             e.atk.set(n, { s: Math.min(r[0], r[1]), n: r[1], h: typeof r[2] == "number" ? r[2] : 0, at: -100 });
 }
+function woaAtkView(e, t) {
+    return {
+        key: e,
+        entry: { s: t.s, n: t.n },
+        hits: t.s >= t.n ? 0 : t.h,
+        need: woa.attackHits,
+        paused: !1,
+        spinning: !1,
+        completing: !1,
+    };
+}
+function woaHudAtk(e, t, n) {
+    let r = e.atkLast,
+        o = r ? e.atk.get(r) : void 0;
+    if (!(!o || t - e.atkLastAt > woa.hudAtkTicks || (n && Math.floor(t / woa.hudAtkSwap) % 2 === 0))) return woaAtkView(r, o);
+}
+function woaAtkList(e) {
+    let t = [];
+    for (let [n, r] of e.atk) (r.s > 0 || r.h > 0) && t.push({ view: woaAtkView(n, r), full: r.s >= r.n ? 1 : 0, at: r.at });
+    return t.sort((n, r) => n.full - r.full || r.at - n.at).map((n) => n.view);
+}
+function woaAtkBonus(e) {
+    return Math.round(woa.attackBonus * 100 * Math.min(1, e.entry.s / e.entry.n));
+}
 function woaAttackTurns(e, t) {
     let n = a(() => e.getComponent("minecraft:health")?.effectiveMax);
     return Math.max(Me(t).spins, Pl(n), t === "minecraft:player" ? woa.attackPlayerTurns : 1);
@@ -5590,7 +5619,7 @@ function woaAttackHit(e, t, n, r) {
     let o = a(() => n.typeId) ?? "unknown",
         i = St(o),
         s = t.atk.get(i);
-    s || ((s = { s: 0, n: woaAttackTurns(n, o), h: 0, at: -100 }), t.atk.set(i, s));
+    s || ((s = { s: 0, n: woaAttackTurns(n, o), h: 0, at: -100 }), t.atk.set(i, s)), (t.atkLast = i), (t.atkLastAt = r);
     let c = Math.min(1, s.s / s.n);
     if (s.s >= s.n || r - s.at < woa.attackHitGap) return c;
     if (((s.at = r), s.h++, (t.dirty = !0), s.h >= woa.attackHits && r - t.atkTurnAt >= woa.attackTurnGap)) {
@@ -5936,7 +5965,7 @@ function af(e) {
             spinning: n === o,
             completing: of(t, o),
         });
-    return r;
+    return (r.atk = woaAtkList(t)), r;
 }
 function f_(e, t) {
     let n = 0;
@@ -5960,6 +5989,7 @@ function l_(e, t, n, r) {
         b = Vu(e, n);
     return {
         adapted: Dt(t),
+        atk: woaHudAtk(t, n, !!s),
         slots: ie.useSlots ? ie.slots : void 0,
         key: s ? i : void 0,
         entry: s,
@@ -6298,6 +6328,9 @@ var _e = {
     emptyAnalysing: x("\xA77", p("woa.list.empty_analysing")),
     emptyAdapted: x("\xA77", p("woa.list.empty_adapted")),
     close: p("woa.list.close"),
+    attack: (e) => p("woa.list.attack", String(e)),
+    emptyAttack: x("\xA77", p("woa.list.empty_attack")),
+    pierce: x(" \xA76\xB7 ", p("woa.list.pierce")),
     tier: (e) => x("\xA76", p(`woa.tier.${Cf(e)}`)),
 };
 function Lf(e) {
@@ -6313,6 +6346,18 @@ function L_(e) {
         ...(e.paused && !e.spinning ? [_e.paused] : [])
     );
 }
+function woaListAtk(e) {
+    let t = e.entry.s >= e.entry.n,
+        n = x(`\xA7r${l.sword} ${Ee(e.key)} \xA7f`, Qr(e.key), ` \xA7${t ? "6" : "a"}+${woaAtkBonus(e)}%`);
+    return t
+        ? x(n, _e.pierce)
+        : x(
+              n,
+              `
+`,
+              to(e)
+          );
+}
 function H_(e) {
     let t = di(e),
         n = new D_().title(_e.title).header(_e.analysing(t.analysing.length));
@@ -6320,6 +6365,9 @@ function H_(e) {
     for (let r of t.analysing) n.label(L_(r));
     n.divider().header(_e.adapted(t.adapted.length)), t.adapted.length || n.label(_e.emptyAdapted);
     for (let r of t.adapted) n.label(Lf(r));
+    let o = e.atk ?? [];
+    n.divider().header(_e.attack(o.length)), o.length || n.label(_e.emptyAttack);
+    for (let r of o) n.label(woaListAtk(r));
     return n.button(_e.close);
 }
 function Hf(e, t, n = 0) {
