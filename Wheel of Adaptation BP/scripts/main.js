@@ -88,6 +88,7 @@ var f = { turn1: 1, turn2: 2, turn3: 3, turn4: 4, turn5: 5, turn6: 6, turn7: 7, 
         quakeRing: "xvoid:quake_ring",
         quakeDust: "xvoid:quake_dust",
         reflectBolt: "xvoid:reflect_bolt",
+        healSever: "xvoid:heal_sever",
     },
     fe = {
         stab: "animation.extermination_sword.stab",
@@ -1773,6 +1774,7 @@ function Ep(e) {
     return `${O.mode}\xA7${gp[e]}\xA7r`;
 }
 function kp(e) {
+    if (e.atk) return [`\xA7r${l.sword} ${Ee(e.atk.key)} ${to(e.atk)}`];
     if (!e.key || !e.entry) return [`${l.hourglass} \xA78`, S.idle];
     let t = e.others ? `  \xA77+${e.others}` : "";
     return [`\xA7r${Ee(e.key)} ${to(e, !1)}${t}`];
@@ -2464,6 +2466,8 @@ function xc() {
         lastTurn: void 0,
         atk: new Map(),
         atkTurnAt: -100,
+        atkLast: void 0,
+        atkLastAt: -1e9,
         counter: void 0,
     };
 }
@@ -5556,6 +5560,12 @@ var woa = {
             "minecraft:wind_charge_projectile",
             "minecraft:breeze_wind_charge_projectile",
         ]),
+        healCut: 0.75,
+        healCutTicks: 200,
+        healFxGap: 20,
+        healAcctTicks: 3,
+        hudAtkTicks: 100,
+        hudAtkSwap: 40,
         armorPierce: 1,
         armorPerPoint: 0.04,
         toughnessPerPoint: 0,
@@ -5563,7 +5573,8 @@ var woa = {
         pierceCap: 5,
     },
     woaQuiet = !1,
-    woaReflected = new Map();
+    woaReflected = new Map(),
+    woaWounds = new Map();
 function woaFull(e, t) {
     let n = e.map.get(t);
     return !!n && n.s >= n.n;
@@ -5582,6 +5593,30 @@ function woaAtkLoad(e, t) {
             r[1] >= 1 &&
             e.atk.set(n, { s: Math.min(r[0], r[1]), n: r[1], h: typeof r[2] == "number" ? r[2] : 0, at: -100 });
 }
+function woaAtkView(e, t) {
+    return {
+        key: e,
+        entry: { s: t.s, n: t.n },
+        hits: t.s >= t.n ? 0 : t.h,
+        need: woa.attackHits,
+        paused: !1,
+        spinning: !1,
+        completing: !1,
+    };
+}
+function woaHudAtk(e, t, n) {
+    let r = e.atkLast,
+        o = r ? e.atk.get(r) : void 0;
+    if (!(!o || t - e.atkLastAt > woa.hudAtkTicks || (n && Math.floor(t / woa.hudAtkSwap) % 2 === 0))) return woaAtkView(r, o);
+}
+function woaAtkList(e) {
+    let t = [];
+    for (let [n, r] of e.atk) (r.s > 0 || r.h > 0) && t.push({ view: woaAtkView(n, r), full: r.s >= r.n ? 1 : 0, at: r.at });
+    return t.sort((n, r) => n.full - r.full || r.at - n.at).map((n) => n.view);
+}
+function woaAtkBonus(e) {
+    return Math.round(woa.attackBonus * 100 * Math.min(1, e.entry.s / e.entry.n));
+}
 function woaAttackTurns(e, t) {
     let n = a(() => e.getComponent("minecraft:health")?.effectiveMax);
     return Math.max(Me(t).spins, Pl(n), t === "minecraft:player" ? woa.attackPlayerTurns : 1);
@@ -5590,7 +5625,7 @@ function woaAttackHit(e, t, n, r) {
     let o = a(() => n.typeId) ?? "unknown",
         i = St(o),
         s = t.atk.get(i);
-    s || ((s = { s: 0, n: woaAttackTurns(n, o), h: 0, at: -100 }), t.atk.set(i, s));
+    s || ((s = { s: 0, n: woaAttackTurns(n, o), h: 0, at: -100 }), t.atk.set(i, s)), (t.atkLast = i), (t.atkLastAt = r);
     let c = Math.min(1, s.s / s.n);
     if (s.s >= s.n || r - s.at < woa.attackHitGap) return c;
     if (((s.at = r), s.h++, (t.dirty = !0), s.h >= woa.attackHits && r - t.atkTurnAt >= woa.attackTurnGap)) {
@@ -5648,7 +5683,79 @@ function woaOffense(e, t, n, r) {
     let o = Be.currentTick,
         i = woaAttackHit(t, r, n, o),
         s = 1 + woa.attackBonus * i;
-    return i >= 1 && (s *= woaPierce(n, e.damageSource.cause)), s * woaCounterUse(t, r, n, o);
+    return i > 0 && woaWound(n, o, i), i >= 1 && (s *= woaPierce(n, e.damageSource.cause)), s * woaCounterUse(t, r, n, o);
+}
+function woaWound(e, t, n) {
+    let r = a(() => e.id),
+        o = Math.min(1, woa.healCut * n);
+    if (!r || o <= 0) return;
+    let i = woaWounds.get(r),
+        s = i && i.until >= t;
+    if (
+        (woaWounds.set(r, {
+            until: t + woa.healCutTicks,
+            cut: s ? Math.max(i.cut, o) : o,
+            fxAt: s ? i.fxAt : -1e9,
+            acct: s ? i.acct : 0,
+            acctAt: s ? i.acctAt : -1e9,
+        }),
+        woaWounds.size > 128)
+    )
+        for (let [c, d] of woaWounds) d.until < t && woaWounds.delete(c);
+}
+function woaHealFx(e, t, n) {
+    n - t.fxAt >= woa.healFxGap &&
+        ((t.fxAt = n),
+        Be.run(() => {
+            e.isValid && v(e.dimension, I.healSever, pe(e));
+        }));
+}
+function woaHealAcct(e, t) {
+    return t - e.acctAt <= woa.healAcctTicks ? e.acct : 0;
+}
+function woaHealthUp(e) {
+    if (woaWounds.size === 0) return;
+    let t = e.newValue - e.oldValue;
+    if (!(t > 0)) return;
+    let n = e.entity,
+        r = a(() => n.id),
+        o = r ? woaWounds.get(r) : void 0;
+    if (!o) return;
+    let i = Be.currentTick;
+    if (o.until < i) {
+        woaWounds.delete(r);
+        return;
+    }
+    let s = woaHealAcct(o, i),
+        c = Math.min(t, s);
+    o.acct = s - c;
+    let d = (t - c) * o.cut;
+    d < 0.01 ||
+        k(n) ||
+        (woaHealFx(n, o, i),
+        Be.run(() => {
+            if (!n.isValid) return;
+            let u = a(() => n.getComponent("minecraft:health"));
+            u && u.currentValue - d >= 1 && a(() => u.setCurrentValue(u.currentValue - d));
+        }));
+}
+function woaHealCut(e) {
+    if (woaWounds.size === 0) return;
+    let t = e.healedEntity,
+        n = a(() => t.id),
+        r = n ? woaWounds.get(n) : void 0;
+    if (!r) return;
+    let o = Be.currentTick;
+    if (r.until < o) {
+        woaWounds.delete(n);
+        return;
+    }
+    if (e.cancel || e.healing <= 0) return;
+    if (e.healSource.cause !== "TotemOfUndying") {
+        let i = e.healing * (1 - r.cut);
+        i <= 0.001 ? (e.cancel = !0) : (e.healing = i), woaHealFx(t, r, o);
+    }
+    e.cancel || ((r.acct = woaHealAcct(r, o) + e.healing), (r.acctAt = o));
 }
 function woaBurnAttacker(e, t, n) {
     if (e.damageSource.cause !== nr.entityAttack) return;
@@ -5936,7 +6043,7 @@ function af(e) {
             spinning: n === o,
             completing: of(t, o),
         });
-    return r;
+    return (r.atk = woaAtkList(t)), r;
 }
 function f_(e, t) {
     let n = 0;
@@ -5960,6 +6067,7 @@ function l_(e, t, n, r) {
         b = Vu(e, n);
     return {
         adapted: Dt(t),
+        atk: woaHudAtk(t, n, !!s),
         slots: ie.useSlots ? ie.slots : void 0,
         key: s ? i : void 0,
         entry: s,
@@ -6298,6 +6406,9 @@ var _e = {
     emptyAnalysing: x("\xA77", p("woa.list.empty_analysing")),
     emptyAdapted: x("\xA77", p("woa.list.empty_adapted")),
     close: p("woa.list.close"),
+    attack: (e) => p("woa.list.attack", String(e)),
+    emptyAttack: x("\xA77", p("woa.list.empty_attack")),
+    pierce: x(" \xA76\xB7 ", p("woa.list.pierce")),
     tier: (e) => x("\xA76", p(`woa.tier.${Cf(e)}`)),
 };
 function Lf(e) {
@@ -6313,6 +6424,23 @@ function L_(e) {
         ...(e.paused && !e.spinning ? [_e.paused] : [])
     );
 }
+function woaListAtk(e) {
+    let t = e.entry.s >= e.entry.n,
+        r = Math.round(Math.min(1, (woa.healCut * e.entry.s) / e.entry.n) * 100),
+        n = x(
+            `\xA7r${l.sword} ${Ee(e.key)} \xA7f`,
+            Qr(e.key),
+            ` \xA7${t ? "6" : "a"}+${woaAtkBonus(e)}%` + (r > 0 ? ` \xA7r${l.heartDim}\xA7c-${r}%` : "")
+        );
+    return t
+        ? x(n, _e.pierce)
+        : x(
+              n,
+              `
+`,
+              to(e)
+          );
+}
 function H_(e) {
     let t = di(e),
         n = new D_().title(_e.title).header(_e.analysing(t.analysing.length));
@@ -6320,6 +6448,9 @@ function H_(e) {
     for (let r of t.analysing) n.label(L_(r));
     n.divider().header(_e.adapted(t.adapted.length)), t.adapted.length || n.label(_e.emptyAdapted);
     for (let r of t.adapted) n.label(Lf(r));
+    let o = e.atk ?? [];
+    n.divider().header(_e.attack(o.length)), o.length || n.label(_e.emptyAttack);
+    for (let r of o) n.label(woaListAtk(r));
     return n.button(_e.close);
 }
 function Hf(e, t, n = 0) {
@@ -7090,6 +7221,7 @@ N(
 N(re.afterEvents.entityDie, "adaptation.entityDie", (e) => {
     let t = e.deadEntity,
         n = k(t);
+    woaWounds.size && woaWounds.delete(a(() => t.id));
     n && void 0,
         n && pr("starter.traceKitAtDeath", () => Im(n)),
         !(!n || !R(n.id)) && (pr("adaptation.playerDeath", () => nf(n)), T(n, "death", S.death));
@@ -7106,6 +7238,8 @@ N(re.afterEvents.entitySpawn, "main.entitySpawn", (e) => {
         );
 });
 N(re.afterEvents.entityHitEntity, "sword.hit", ku);
+re.beforeEvents.entityHeal && N(re.beforeEvents.entityHeal, "heal.cut", woaHealCut);
+re.afterEvents.entityHealthChanged && N(re.afterEvents.entityHealthChanged, "heal.health", woaHealthUp);
 N(re.afterEvents.projectileHitBlock, "reflect.hitBlock", (e) => {
     let t = a(() => e.projectile.id);
     t && woaReflected.has(t) && (v(e.dimension, I.guardFlash, e.location), woaReflectDrop(t));
