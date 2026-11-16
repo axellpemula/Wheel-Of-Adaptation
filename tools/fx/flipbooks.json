@@ -86,5 +86,77 @@
     ],
     "frames": 1,
     "source": "retaknew.png"
+  },
+  "fb_arc": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 12,
+    "source": "idlepetir3.png"
+  },
+  "fb_cracks": {
+    "cell": [
+      160,
+      160
+    ],
+    "frames": 10,
+    "source": "sreks.png"
+  },
+  "fb_shatter": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 5,
+    "source": "dev.png"
+  },
+  "fb_ripple": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 7,
+    "source": "tetes.png"
+  },
+  "fb_twinkle": {
+    "cell": [
+      64,
+      64
+    ],
+    "frames": 5,
+    "source": "blinka.png"
+  },
+  "fb_moon": {
+    "cell": [
+      160,
+      160
+    ],
+    "frames": 10,
+    "source": "holyslash.png"
+  },
+  "fb_octagram": {
+    "cell": [
+      256,
+      256
+    ],
+    "frames": 1,
+    "source": "lingkarans.png"
+  },
+  "fb_cloud": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 1,
+    "source": "smoke_04.png"
+  },
+  "fb_spiral": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 1,
+    "source": "26b.png"
   }
 }

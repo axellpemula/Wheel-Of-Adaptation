@@ -96,6 +96,31 @@ var f = { turn1: 1, turn2: 2, turn3: 3, turn4: 4, turn5: 5, turn6: 6, turn7: 7, 
         quakeCrack: "xvoid:quake_crack",
         healCrackle: "xvoid:heal_crackle",
         dashFlash: "xvoid:dash_flash",
+        arcs: "xvoid:fx_arcs_gold",
+        iceArcs: "xvoid:fx_arcs_ice",
+        storm: "xvoid:adapt_storm",
+        impactGold: "xvoid:impact_gold",
+        impactIce: "xvoid:impact_ice",
+        groundFlash: "xvoid:ground_flash",
+        shatterGold: "xvoid:shatter_gold",
+        shatterIce: "xvoid:shatter_ice",
+        ringWave: "xvoid:ring_wave_gold",
+        ringWaveMint: "xvoid:ring_wave_mint",
+        ringPopGold: "xvoid:ring_pop_gold",
+        ringPopIce: "xvoid:ring_pop_ice",
+        ringPopMint: "xvoid:ring_pop_mint",
+        twinkle: "xvoid:twinkle_gold",
+        twinkleMint: "xvoid:twinkle_mint",
+        stars: "xvoid:adapt_stars",
+        dust: "xvoid:dust_burst",
+        dustSmall: "xvoid:dust_small",
+        octagram: "xvoid:adapt_octagram",
+        fire: "xvoid:adapt_fire",
+        beam: "xvoid:adapt_beam",
+        slashMoon: "xvoid:slash_moon",
+        waveMoon: "xvoid:slash_wave_moon",
+        airSpiral: "xvoid:air_spiral",
+        blinkSpiral: "xvoid:blink_spiral",
     },
     fe = {
         stab: "animation.extermination_sword.stab",
@@ -419,14 +444,14 @@ function fxDir(e, t, n, r, o) {
     });
 }
 function fxPositive(e, t) {
-    v(e, I.positive, t), v(e, I.positiveFlash, t), v(e, I.positiveRing, t);
+    v(e, I.positive, t), v(e, I.positiveFlash, t), v(e, I.positiveRing, t), v(e, I.twinkleMint, t), v(e, I.ringPopMint, t);
 }
 function fxUndying(e) {
     let t = e.dimension,
         n = Re(e, 0.08),
         r = pe(e);
-    for (let o of [I.shockwave, I.seal, I.pillar, I.flame]) v(t, o, n);
-    for (let o of [I.burst, I.flash]) v(t, o, r);
+    for (let o of [I.shockwave, I.seal, I.pillar, I.flame, I.octagram, I.groundFlash, I.ringWave, I.dust, I.storm, I.bolts, I.beam, I.quakeCrack]) v(t, o, n);
+    for (let o of [I.burst, I.flash, I.shatterGold]) v(t, o, r);
 }
 function fxNullify(e, t) {
     let n = e.location,
@@ -440,6 +465,7 @@ function fxNullify(e, t) {
             (o = { x: n.x + r.x * 0.9, y: n.y + 1.15 + r.y * 0.5, z: n.z + r.z * 0.9 });
     }
     for (let s of [I.ward, I.wardRipple, I.wardSparks]) fxDir(e.dimension, s, o, "variable.ward_dir", r);
+    v(e.dimension, I.arcs, o);
 }
 function z(e, t, n, r = 1, o = 1) {
     a(() => e.playSound(t, n, { pitch: r, volume: o }));
@@ -457,7 +483,7 @@ function Ye(e) {
 }
 function _t(e, t = w.spin) {
     let n = Ye(e);
-    z(e.dimension, t, n), v(e.dimension, I.spin, n), v(e.dimension, I.halo, n), v(e.dimension, I.crackle, n), v(e.dimension, I.ripple, Re(e, 0.08));
+    z(e.dimension, t, n), v(e.dimension, I.spin, n), v(e.dimension, I.halo, n), v(e.dimension, I.crackle, n), v(e.dimension, I.arcs, n), v(e.dimension, I.twinkle, n), v(e.dimension, I.ripple, Re(e, 0.08));
 }
 function Ki(e, t) {
     let n = Ye(e);
@@ -472,6 +498,8 @@ function Ki(e, t) {
             v(e.dimension, I.spin, o),
                 v(e.dimension, I.charge, o),
                 v(e.dimension, I.halo, o),
+                v(e.dimension, I.arcs, o),
+                v(e.dimension, I.crackle, o),
                 r + 12 <= C.fullClickTick && v(e.dimension, I.gather, o);
         });
     ge(C.fullClickTick, () => {
@@ -479,8 +507,8 @@ function Ki(e, t) {
         let r = e.dimension,
             o = Ye(e),
             i = Re(e, 0.08);
-        for (let s of [I.flare, I.dharma, I.sparks, I.boom]) v(r, s, o);
-        for (let s of [I.nova, I.mandalaBurst, I.rays, I.embers, I.bolts]) v(r, s, i);
+        for (let s of [I.flare, I.dharma, I.sparks, I.boom, I.arcs, I.shatterGold]) v(r, s, o);
+        for (let s of [I.nova, I.mandalaBurst, I.rays, I.embers, I.bolts, I.octagram, I.groundFlash, I.ringWave, I.dust, I.storm, I.stars, I.fire, I.beam, I.quakeCrack]) v(r, s, i);
     });
     t && ge(C.fullClickTick, t);
 }
@@ -4198,6 +4226,8 @@ function Vg(e, t) {
     r.setVector3(Od, { x: -t.x, y: 0, z: -t.z }),
         a(() => e.dimension.spawnParticle(Md, { x: n.x, y: n.y + 1, z: n.z }, r)),
         a(() => e.dimension.spawnParticle(I.dashFlash, { x: n.x, y: n.y + 1, z: n.z }, r)),
+        v(e.dimension, I.iceArcs, { x: n.x, y: n.y + 1, z: n.z }),
+        v(e.dimension, I.dustSmall, { x: n.x, y: n.y + 0.2, z: n.z }),
         a(() => e.dimension.spawnParticle(Cd, { x: n.x, y: n.y + 0.1, z: n.z })),
         v(e.dimension, I.dashShock, { x: n.x, y: n.y + 0.1, z: n.z }),
         a(() => {
@@ -4636,6 +4666,9 @@ function th(e, t, n) {
     a(() => s.spawnParticle(Zd, { x: n.x, y: n.y + 1, z: n.z }, i)),
         a(() => s.spawnParticle(I.blinkRing, { x: t.x, y: t.y + 1, z: t.z }, o)),
         a(() => s.spawnParticle(I.blinkRing, { x: n.x, y: n.y + 1, z: n.z }, i)),
+        v(s, I.blinkSpiral, { x: t.x, y: t.y + 1, z: t.z }),
+        v(s, I.blinkSpiral, { x: n.x, y: n.y + 1, z: n.z }),
+        v(s, I.dustSmall, { x: n.x, y: n.y + 0.2, z: n.z }),
         a(() => s.playSound(qo, t)),
         a(() => s.playSound(qo, n));
 }
@@ -4657,6 +4690,9 @@ function nh(e, t) {
         (a(() => e.dimension.spawnParticle(eu, { x: o.x, y: o.y + 1, z: o.z })),
         v(e.dimension, I.kickBurst, { x: o.x, y: o.y + 1, z: o.z }),
         v(e.dimension, I.kickRing, { x: o.x, y: o.y + 1, z: o.z }),
+        v(e.dimension, I.impactGold, { x: o.x, y: o.y + 1, z: o.z }),
+        v(e.dimension, I.arcs, { x: o.x, y: o.y + 1, z: o.z }),
+        v(e.dimension, I.dustSmall, { x: o.x, y: o.y + 0.2, z: o.z }),
         a(() => e.dimension.playSound(Xd, o)),
         !t.isValid)
     ) {
@@ -4763,7 +4799,7 @@ function ah(e, t, n) {
 }
 function yu(e) {
     let t = e.dimension;
-    fxPositive(t, pe(e)), v(t, I.rise, Re(e)), v(t, I.regen, Re(e)), v(t, I.positiveRays, Re(e)), v(t, I.positiveSeal, Re(e, 0.08));
+    fxPositive(t, pe(e)), v(t, I.rise, Re(e)), v(t, I.regen, Re(e)), v(t, I.positiveRays, Re(e)), v(t, I.positiveSeal, Re(e, 0.08)), v(t, I.ringWaveMint, Re(e, 0.1));
 }
 function sh(e, t) {
     if (!t.isValid) return;
@@ -4862,7 +4898,10 @@ function lh(e, t, n) {
     a(() => t.applyKnockback({ x: n.x * _.slashKnockback, z: n.z * _.slashKnockback }, 0.3)),
         z(r, w.slashHit, pe(t)),
         v(r, I.inkSpark, pe(t)),
-        v(r, I.slashCut, pe(t));
+        v(r, I.slashCut, pe(t)),
+        v(r, I.impactIce, pe(t)),
+        v(r, I.shatterIce, pe(t)),
+        v(r, I.iceArcs, pe(t));
 }
 function ph(e) {
     if (!_.slashCutsBlocks) return !1;
@@ -4914,6 +4953,7 @@ function bh(e) {
                 c = e.dimension,
                 d = -_.trailArc + (2 * _.trailArc * n) / t,
                 u = -_.trailArc + (2 * _.trailArc * (n + 1)) / t;
+            n === Math.floor(t / 2) && v(c, I.slashMoon, W(r, F(o, _.trailRadius + 0.6)));
             for (let m = d; m <= u + 1e-6; m += 0.07) {
                 let b = -_.trailTilt * Math.sin(m),
                     y = W(W(F(o, Math.cos(m)), F(i, Math.sin(m))), F(s, b)),
@@ -4948,9 +4988,9 @@ function yh(e) {
                 }
                 m = Math.min(m, s);
                 let b = W(n, F(r, m));
-                v(t, I.inkSpark, W(b, F(o, _.slashWidth))), v(t, I.inkSpark, W(b, F(o, -_.slashWidth))), v(t, I.slashSpark, b);
+                v(t, I.inkSpark, W(b, F(o, _.slashWidth))), v(t, I.inkSpark, W(b, F(o, -_.slashWidth))), v(t, I.slashSpark, b), v(t, I.waveMoon, b), v(t, I.iceArcs, b);
                 for (let y of mh(t, b)) c.has(y.id) || (c.add(y.id), lh(e, y, r));
-                (d = m), d >= s && (fxPositive(t, b), v(t, I.inkSpark, b), ve.clearRun(u));
+                (d = m), d >= s && (fxPositive(t, b), v(t, I.inkSpark, b), v(t, I.shatterIce, b), v(t, I.impactIce, b), ve.clearRun(u));
             } catch (m) {
                 A("sword.slashWave", m, { player: e.id }), ve.clearRun(u);
             }
@@ -5149,12 +5189,13 @@ function Ph(e, t, n, r) {
         let c = { x: t.x + n.x * s, y: t.y + n.y * s, z: t.z + n.z * s };
         a(() => i.spawnParticle(Du, c, o)), s % H.ringEvery === 0 && a(() => i.spawnParticle(Ou, c, o));
     }
-    a(() => i.spawnParticle(I.airMuzzle, t, o)), a(() => i.playSound(Mu, t));
+    a(() => i.spawnParticle(I.airMuzzle, t, o)), v(i, I.shatterIce, t), v(i, I.iceArcs, t), a(() => i.playSound(Mu, t));
 }
 function Mh(e, t, n) {
     if (vu(t)) return `${t.typeId}:spared`;
     let r = H.damage,
         o = a(() => t.applyDamage(r, { cause: wh.sonicBoom, damagingEntity: e }));
+    t.isValid && (v(t.dimension, I.impactIce, pe(t)), v(t.dimension, I.ringPopIce, pe(t)));
     if (t.isValid) {
         let i = ct(t),
             s = at({ x: 0, z: 0 }, n, H.knockback * i);
@@ -5187,6 +5228,7 @@ function Oh(e) {
     tr.set(e.id, t),
         a(() => e.dimension.spawnParticle(Cu, zu(e))),
         v(e.dimension, I.airCore, zu(e)),
+        v(e.dimension, I.airSpiral, zu(e)),
         a(() => {
             e.playAnimation(qt.name, { controller: qt.controller, stopExpression: qt.stop, blendOutTime: qt.blendOut });
         }),
@@ -5682,7 +5724,7 @@ function woaCounterUse(e, t, n, r) {
     return i && Be.run(() => woaCounterFx(e, s, i)), woa.counterMult;
 }
 function woaCounterFx(e, t, n) {
-    for (let r of [I.counterCut, I.kickBurst, I.kickRing]) v(t, r, n);
+    for (let r of [I.counterCut, I.kickBurst, I.kickRing, I.impactGold, I.shatterGold, I.arcs]) v(t, r, n);
     z(t, "xvoid.kick_hit", n, 1.25, 0.8),
         e.isValid && T(e, "counter", x("\xA76\xA7l\xAB ", p("woa.toast.counter"), " \xBB"));
 }
@@ -5806,7 +5848,7 @@ function woaReflectShoot(e, t, r, o, i) {
     woaReflected.set(K, m), Be.runTimeout(() => woaReflectDrop(K), woa.reflectLife);
     for (let U = 0.6; U < 3.2; U += 1.2)
         fxDir(u, I.reflectBolt, { x: d.x + o.x * U, y: d.y + o.y * U, z: d.z + o.z * U }, "variable.ward_dir", o);
-    return v(u, I.guardFlash, d), z(u, "xvoid.guard.catch", d, 1.2, 0.8), a(() => t.entity.isValid && t.entity.remove()), !0;
+    return (v(u, I.guardFlash, d), v(u, I.ringPopGold, d)), z(u, "xvoid.guard.catch", d, 1.2, 0.8), a(() => t.entity.isValid && t.entity.remove()), !0;
 }
 function woaReflect(e, t, n, r) {
     if (!e.isValid || !t.isValid || e.dimension.id !== t.dimension.id) return;
@@ -5822,7 +5864,7 @@ function woaReflectDamage(e, t, n, r, o, c, s) {
     let d = e.dimension;
     for (let u = 1; u < s; u += 1.5)
         fxDir(d, I.reflectBolt, { x: r.x + c.x * u, y: r.y + c.y * u, z: r.z + c.z * u }, "variable.ward_dir", c);
-    v(d, I.goldHit, o), v(d, I.kickRing, o), (woaQuiet = !0);
+    v(d, I.goldHit, o), v(d, I.kickRing, o), v(d, I.shatterGold, o), v(d, I.arcs, o), (woaQuiet = !0);
     try {
         a(() => t.applyDamage(Math.max(1, n * woa.reflectRatio), { cause: nr.magic, damagingEntity: e }));
     } finally {
@@ -5844,7 +5886,7 @@ function woaQuake(e, t) {
                     excludeTypes: ["minecraft:item", "minecraft:xp_orb"],
                 })
             ) ?? [];
-    v(n, I.quakeRing, o), v(n, I.quakeDust, o), v(n, I.quakeCrack, o), z(n, "mace.smash_ground", r, 0.9, 0.9), Xe(e, "kick"), (woaQuiet = !0);
+    v(n, I.quakeRing, o), v(n, I.quakeDust, o), v(n, I.quakeCrack, o), v(n, I.groundFlash, o), v(n, I.ringWave, o), v(n, I.dust, o), z(n, "mace.smash_ground", r, 0.9, 0.9), Xe(e, "kick"), (woaQuiet = !0);
     try {
         for (let c of s) {
             if (c.id === e.id || vu(c) || !a(() => c.getComponent("minecraft:health"))) continue;
@@ -6535,6 +6577,8 @@ function zf(e, t, n) {
     q("punch.hitFx", () => {
         a(() => t.dimension.spawnParticle(Vd, { x: i.x, y: i.y + 1, z: i.z })),
             v(t.dimension, I.punchBurst, { x: i.x, y: i.y + 1, z: i.z }),
+            v(t.dimension, I.impactIce, { x: i.x, y: i.y + 1, z: i.z }),
+            v(t.dimension, I.ringPopIce, { x: i.x, y: i.y + 1, z: i.z }),
             a(() => t.dimension.playSound(Uo, i)),
             W_(t, n);
     });
@@ -6718,7 +6762,7 @@ function J_(e, t, n) {
     Zt.run(() => {
         a(() => t.dimension.playSound(Uf, t.location)),
             a(() => t.dimension.spawnParticle(qf, u)),
-            v(t.dimension, I.guardFlash, u),
+            (v(t.dimension, I.guardFlash, u), v(t.dimension, I.ringPopGold, u)),
             !d && n.isValid && a(() => n.remove());
     });
 }
@@ -6731,7 +6775,7 @@ function Q_(e, t, n) {
     e.damage = Qf(o, r);
     let i = rm(t, n.location);
     Zt.run(() => {
-        a(() => t.dimension.playSound(Wf, t.location)), a(() => t.dimension.spawnParticle(jf, i)), v(t.dimension, I.guardFlash, i);
+        a(() => t.dimension.playSound(Wf, t.location)), a(() => t.dimension.spawnParticle(jf, i)), (v(t.dimension, I.guardFlash, i), v(t.dimension, I.ringPopGold, i));
     });
 }
 function sm(e, t) {
@@ -7250,13 +7294,13 @@ re.beforeEvents.entityHeal && N(re.beforeEvents.entityHeal, "heal.cut", woaHealC
 re.afterEvents.entityHealthChanged && N(re.afterEvents.entityHealthChanged, "heal.health", woaHealthUp);
 N(re.afterEvents.projectileHitBlock, "reflect.hitBlock", (e) => {
     let t = a(() => e.projectile.id);
-    t && woaReflected.has(t) && (v(e.dimension, I.guardFlash, e.location), woaReflectDrop(t));
+    t && woaReflected.has(t) && ((v(e.dimension, I.guardFlash, e.location), v(e.dimension, I.ringPopGold, e.location)), woaReflectDrop(t));
 });
 N(re.afterEvents.projectileHitEntity, "reflect.hitEntity", (e) => {
     let t = a(() => e.projectile.id);
     t &&
         woaReflected.has(t) &&
-        (v(e.dimension, I.goldHit, e.location), v(e.dimension, I.kickRing, e.location), Be.run(() => woaReflectDrop(t)));
+        (v(e.dimension, I.goldHit, e.location), v(e.dimension, I.kickRing, e.location), v(e.dimension, I.arcs, e.location), Be.run(() => woaReflectDrop(t)));
 });
 N(
     re.afterEvents.itemUse,

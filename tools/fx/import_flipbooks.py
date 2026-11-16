@@ -40,6 +40,15 @@ SHEETS = {
     "fb_smoke": ("devbkr", 400, 400, list(range(3, 14)), 96, 96, "shape"),
     "fb_swirl": ("anginmuter", 768, 768, [0], 192, 192, "shape"),
     "fb_crack": ("retaknew", 256, 256, [0], 256, 256, "keep"),
+    "fb_arc": ("idlepetir3", 480, 476, list(range(12)), 128, 128, "glow"),
+    "fb_cracks": ("sreks", 291, 301, list(range(2, 12)), 160, 160, "glow"),
+    "fb_shatter": ("dev", 278, 270, [0, 1, 2, 3, 4], 128, 128, "glow"),
+    "fb_ripple": ("tetes", 192, 192, list(range(7)), 128, 128, "glow"),
+    "fb_twinkle": ("blinka", 192, 192, list(range(5)), 64, 64, "glow"),
+    "fb_moon": ("holyslash", 400, 400, list(range(10)), 160, 160, "glow"),
+    "fb_octagram": ("lingkarans", 512, 512, [0], 256, 256, "glow"),
+    "fb_cloud": ("smoke_04", 512, 512, [0], 128, 128, "shape"),
+    "fb_spiral": ("26b", 128, 128, [0], 128, 128, "glow"),
 }
 
 
