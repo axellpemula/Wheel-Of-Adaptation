@@ -7,6 +7,9 @@ adapt_halo, adapt_ripple, adapt_flare, adapt_dharma, adapt_nova,
 adapt_mandala_burst, adapt_rays, adapt_sparks, adapt_embers) are tuned by
 hand and are not touched here.
 
+Textures named fb_* are flipbook sheets imported from the Elemental Weapon
+addon by import_flipbooks.py, which also writes their layout to flipbooks.json.
+
 Billboard sizes are half extents, in blocks. Every particle that moves needs
 `particle_motion_dynamic`, even an empty one.
 """
@@ -39,6 +42,8 @@ DUSK1 = (0.2, 0.18, 0.3)
 DUSK2 = (0.38, 0.36, 0.5)
 VIOLET = (0.75, 0.75, 1.0)
 
+FLIP = json.loads((Path(__file__).parent / "flipbooks.json").read_text())
+
 EFFECTS = {}
 LF_FILES = {"wheel_mote"}  # this one file had LF endings from the start
 
@@ -59,6 +64,24 @@ def glint_uv(fps=10):
             "loop": True,
         },
     }
+
+
+def flip_uv(name, fps=None, loop=False, reverse=False):
+    """Plays a fb_* sheet. Without fps the frames are spread over the particle lifetime."""
+    (w, h), n = FLIP[name]["cell"], FLIP[name]["frames"]
+    book = {
+        "base_UV": [w * (n - 1) if reverse else 0, 0],
+        "size_UV": [w, h],
+        "step_UV": [-w if reverse else w, 0],
+        "max_frame": n,
+    }
+    if fps is None:
+        book["stretch_to_lifetime"] = True
+    else:
+        book["frames_per_second"] = fps
+    if loop:
+        book["loop"] = True
+    return {"texture_width": w * n, "texture_height": h, "flipbook": book}
 
 
 def grad(*stops):
@@ -175,11 +198,12 @@ def speed_lines(name, count, emitter_shape, lifetime, velocity, length, grow, wi
 
 def pop(name, texture, lifetime, start, grow, gradient, facing="lookat_xyz", rotation=None, rate=0, count=1,
         material="particles_add"):
-    """One sprite that opens fast and fades: flashes, rings, seals."""
+    """One sprite that opens fast and fades: flashes, rings, seals. fb_* textures play as a flipbook."""
     parts = [once(count), shape("point"), life(lifetime), speed(0)]
     if rotation is not None or rate:
         parts += [spin(rotation or 0, rate), motion(rotation_drag=1.0)]
-    parts += [billboard(f"{start} + {grow} * math.sqrt({T})", facing), tint(gradient)]
+    uv = flip_uv(texture) if texture in FLIP and FLIP[texture]["frames"] > 1 else None
+    parts += [billboard(f"{start} + {grow} * math.sqrt({T})", facing, uv), tint(gradient)]
     effect(name, material, texture, *parts)
 
 
@@ -188,9 +212,10 @@ def facing_pop(name, texture, direction, lifetime, start, grow, gradient, rate=0
     parts = [once(1), shape("point", direction=vec(direction)), life(lifetime), speed(0.2)]
     if rate:
         parts.append(spin("math.random(0, 360)", rate))
+    uv = flip_uv(texture) if texture in FLIP and FLIP[texture]["frames"] > 1 else None
     parts += [
         motion(rotation_drag=1.0) if rate else motion(),
-        billboard(f"{start} + {grow} * math.sqrt({T})", "direction_z"),
+        billboard(f"{start} + {grow} * math.sqrt({T})", "direction_z", uv),
         tint(gradient),
     ]
     effect(name, material, texture, *parts)
@@ -242,7 +267,7 @@ needles(
     "adapt_burst", 40, shape("sphere", radius=0.25, direction="outwards"), "math.random(0.5, 0.9)",
     "math.random(5.0, 9.0)", 0.36, 0.04, gold_fade(), drag=4.5, gravity=-2.0,
 )
-pop("adapt_flash", "adapt_flare", 0.45, 0.5, 2.6, grad((0, WHITE, 1), (0.3, PALE, 0.9), (1, AMBER, 0)))
+pop("adapt_flash", "fb_burst", 0.55, 2.8, 1.8, grad((0, WHITE, 1), (0.35, PALE, 1), (1, AMBER, 0.7)))
 effect(
     "adapt_pillar", "particles_add", "adapt_ray", once(16),
     shape("disc", radius=0.95, plane_normal="y", surface_only=True, direction=[0, 1, 0]),
@@ -263,7 +288,7 @@ facing_pop(
     grad((0, WHITE, 1), (0.25, PALE, 1), (0.6, GOLD, 0.8), (1, AMBER, 0)),
 )
 facing_pop(
-    "nullify_ripple", "adapt_nova", "ward_dir", 0.4, 0.2, 1.5, grad((0, PALE, 0.8), (0.5, GOLD, 0.5), (1, AMBER, 0)),
+    "nullify_ripple", "fb_burst", "ward_dir", 0.42, 1.2, 0.9, grad((0, WHITE, 1), (0.4, PALE, 1), (1, AMBER, 0.6)),
 )
 needles(
     "nullify_sparks", 16, shape("disc", radius=0.3, plane_normal=vec("ward_dir"), direction="outwards"),
@@ -293,7 +318,7 @@ effect(
     billboard(twinkle(0.09, 0.08), uv=glint_uv(12)), tint(grad((0, WHITE, 1), (1, ICE, 1))),
 )
 pop(
-    "slash_cut", "fx_crescent", 0.22, 0.5, 0.9, grad((0, WHITE, 1), (0.4, ICE, 0.9), (1, (0.65, 0.8, 1.0), 0)),
+    "slash_cut", "fb_slash", 0.3, 1.2, 0.4, grad((0, WHITE, 1), (0.5, ICE, 1), (1, (0.65, 0.8, 1.0), 0.7)),
     rotation="math.random(0, 360)", count=2,
 )
 
@@ -304,7 +329,7 @@ needles(
     "math.random(3.0, 6.0)", 0.26, 0.035, white_fade((0.7, 1.0, 0.9)),
 )
 pop(
-    "positive_flash", "fx_flare", 0.3, 0.2, 0.8, grad((0, WHITE, 1), (0.4, ICE, 0.8), (1, MINT, 0)),
+    "positive_flash", "fb_flare", 0.34, 0.9, 0.4, grad((0, WHITE, 1), (0.4, ICE, 1), (1, MINT, 0.7)),
     rotation="math.random(0, 90)",
 )
 pop("positive_ring", "fx_shock", 0.35, 0.2, 1.4, grad((0, WHITE, 0.8), (0.5, MINT, 0.5), (1, CYAN, 0)))
@@ -363,8 +388,8 @@ effect(
     billboard(f"0.08 + 0.5 * {T} * {T} + 0.04 * math.sin(1440 * {T})"),
     tint(grad((0, AIR3, 0), (0.5, AIR1, 0.9), (0.9, WHITE, 1), (1, WHITE, 0))),
 )
-facing_pop("air_ring", "fx_vortex", "blast_dir", 0.4, 0.4, 2.4, AIR_FADE, rate=420, material="particles_blend")
-facing_pop("air_muzzle", "fx_shock", "blast_dir", 0.32, 0.3, 2.8, grad((0, WHITE, 0.9), (0.5, AIR2, 0.6), (1, AIR3, 0)))
+facing_pop("air_ring", "fb_swirl", "blast_dir", 0.4, 0.5, 2.4, AIR_FADE, rate=420, material="particles_blend")
+facing_pop("air_muzzle", "fb_burst", "blast_dir", 0.36, 1.6, 1.6, grad((0, WHITE, 1), (0.5, AIR2, 0.9), (1, AIR3, 0.5)))
 speed_lines(
     "air_streak", 4, shape("disc", radius=0.6, plane_normal=vec("blast_dir"), direction=vec("blast_dir")),
     "math.random(0.1, 0.2)", "math.random(18.0, 26.0)", 1.2, 1.6, 0.06, AIR_FADE, 6.0, material="particles_blend",
@@ -388,14 +413,14 @@ speed_lines(
     grad((0, WHITE, 1), (0.5, ICE, 1), (1, (0.55, 0.55, 0.8), 0)), 8.0,
 )
 facing_pop(
-    "blink_ring", "fx_shock", "kick_dir", 0.28, 0.25, 1.5, grad((0, WHITE, 0.85), (0.5, VIOLET, 0.5), (1, (0.5, 0.5, 0.8), 0)),
+    "blink_ring", "fb_burst", "kick_dir", 0.32, 1.1, 0.9, grad((0, WHITE, 1), (0.4, VIOLET, 1), (1, (0.5, 0.5, 0.8), 0.6)),
 )
 needles(
     "kick_impact", 18, shape("sphere", radius=0.2, direction="outwards"), "math.random(0.2, 0.4)",
     "math.random(4.5, 8.0)", 0.4, 0.045, gold_fade(),
 )
 pop(
-    "kick_burst", "fx_burst", 0.2, 0.35, 1.0, grad((0, WHITE, 1), (0.4, PALE, 0.9), (1, AMBER, 0)),
+    "kick_burst", "fb_hit", 0.3, 1.5, 0.6, grad((0, WHITE, 1), (0.35, PALE, 1), (1, AMBER, 0.7)),
     rotation="math.random(0, 360)",
 )
 pop("kick_ring", "fx_shock", 0.32, 0.2, 1.5, grad((0, WHITE, 0.9), (0.5, GOLD, 0.6), (1, AMBER, 0)))
@@ -407,7 +432,7 @@ needles(
     "math.random(2.5, 4.5)", 0.24, 0.035, white_fade(),
 )
 pop(
-    "punch_burst", "fx_burst", 0.16, 0.2, 0.5, grad((0, WHITE, 1), (0.5, ICE, 0.8), (1, ICE, 0)),
+    "punch_burst", "fb_hit", 0.24, 0.8, 0.3, grad((0, WHITE, 1), (0.5, ICE, 1), (1, ICE, 0.6)),
     rotation="math.random(0, 360)",
 )
 
@@ -418,12 +443,12 @@ speed_lines(
     "math.random(0.12, 0.22)", "math.random(8.0, 14.0)", 0.9, 1.2, 0.06, white_fade(), 4.0,
 )
 effect(
-    "dash_ring", "particles_blend", "fx_puff", once(12),
+    "dash_ring", "particles_blend", "fb_smoke", once(9),
     shape("disc", radius=0.3, plane_normal="y", direction="outwards"),
-    life("math.random(0.3, 0.5)"), speed("math.random(3.0, 5.0)"),
-    spin("math.random(0, 360)", "math.random(-90, 90)"), motion(drag=6.0, accel=[0, 0.6, 0]),
-    billboard(f"0.14 + 0.2 * {T}"),
-    tint(grad((0, (0.9, 0.9, 0.95), 0.55), (1, (0.75, 0.75, 0.8), 0))),
+    life("math.random(0.4, 0.65)"), speed("math.random(3.0, 5.0)"),
+    spin("math.random(0, 360)", "math.random(-60, 60)"), motion(drag=6.0, accel=[0, 0.6, 0]),
+    billboard(f"0.3 + 0.25 * {T}", uv=flip_uv("fb_smoke")),
+    tint(grad((0, (0.92, 0.92, 0.96), 0.7), (0.7, (0.8, 0.8, 0.85), 0.5), (1, (0.75, 0.75, 0.8), 0))),
 )
 pop(
     "dash_shock", "fx_shock", 0.3, 0.3, 1.5, grad((0, WHITE, 0.6), (0.5, ICE, 0.35), (1, ICE, 0)),
@@ -441,14 +466,14 @@ needles(
     "math.random(2.5, 4.5)", 0.2, 0.03, white_fade(),
 )
 pop(
-    "guard_flash", "fx_flare", 0.22, 0.2, 0.6, grad((0, WHITE, 1), (0.4, PALE, 0.8), (1, GOLD, 0)),
+    "guard_flash", "fb_flare", 0.3, 0.7, 0.4, grad((0, WHITE, 1), (0.4, PALE, 1), (1, GOLD, 0.7)),
     rotation="math.random(0, 90)",
 )
 
 # New mechanics: counter, fall quake, reflected projectile --------------------
 
 pop(
-    "counter_cut", "fx_crescent", 0.25, 0.6, 1.0, grad((0, WHITE, 1), (0.4, PALE, 0.95), (1, AMBER, 0)),
+    "counter_cut", "fb_slash", 0.32, 1.4, 0.4, grad((0, WHITE, 1), (0.4, PALE, 1), (1, AMBER, 0.7)),
     rotation="math.random(0, 360)", count=2,
 )
 pop(
@@ -456,12 +481,12 @@ pop(
     "emitter_transform_xz", rotation="math.random(0, 360)",
 )
 effect(
-    "quake_dust", "particles_blend", "fx_puff", once(22),
+    "quake_dust", "particles_blend", "fb_smoke", once(18),
     shape("disc", radius=0.6, plane_normal="y", direction="outwards"),
-    life("math.random(0.5, 0.8)"), speed("math.random(5.0, 9.0)"),
-    spin("math.random(0, 360)", "math.random(-90, 90)"), motion(drag=4.0, accel=[0, 0.8, 0]),
-    billboard(f"0.2 + 0.35 * {T}"),
-    tint(grad((0, (0.9, 0.88, 0.82), 0.6), (1, (0.75, 0.72, 0.68), 0))),
+    life("math.random(0.6, 0.95)"), speed("math.random(5.0, 9.0)"),
+    spin("math.random(0, 360)", "math.random(-60, 60)"), motion(drag=4.0, accel=[0, 0.8, 0]),
+    billboard(f"0.45 + 0.45 * {T}", uv=flip_uv("fb_smoke")),
+    tint(grad((0, (0.9, 0.88, 0.82), 0.75), (0.7, (0.8, 0.77, 0.72), 0.55), (1, (0.75, 0.72, 0.68), 0))),
 )
 speed_lines(
     "reflect_bolt", 2, shape("point", direction=vec("ward_dir")), "math.random(0.12, 0.2)",
@@ -474,6 +499,192 @@ effect(
     motion(drag=2.0, accel=[0, -3.5, 0]),
     billboard(f"0.11 * (1 - {T} * 0.7)"),
     tint(grad((0, (1.0, 0.4, 0.35), 0.95), (0.45, (0.75, 0.1, 0.15), 0.85), (1, (0.3, 0.0, 0.05), 0))),
+)
+
+# Flipbook layers drawn by hand for the Elemental Weapon addon -----------------
+
+GOLD_BOOK = grad((0, WHITE, 1), (0.35, PALE, 1), (1, AMBER, 0.7))
+
+pop("wheel_crackle", "fb_crackle", 0.36, 0.8, 0.5, GOLD_BOOK, rotation="math.random(0, 360)")
+pop("adapt_boom", "fb_burst", 0.6, 2.4, 2.2, GOLD_BOOK)
+effect(
+    "adapt_bolts", "particles_add", "fb_bolt",
+    {
+        "minecraft:emitter_rate_steady": {"spawn_rate": 30, "max_particles": 24},
+        "minecraft:emitter_lifetime_once": {"active_time": 1.2},
+    },
+    shape("disc", radius=2.2, plane_normal="y", offset=[0, 1.7, 0]),
+    life("math.random(0.22, 0.4)"), speed(0),
+    billboard([f"0.98 + 0.52 * {R1}", f"1.3 + 0.7 * {R1}"], "lookat_y", flip_uv("fb_bolt")),
+    tint(grad((0, WHITE, 1), (0.4, PALE, 1), (1, GOLD, 0.8))),
+)
+effect(
+    "undying_flame", "particles_add", "fb_flame",
+    {
+        "minecraft:emitter_rate_steady": {"spawn_rate": 30, "max_particles": 28},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.8},
+    },
+    shape("disc", radius=0.95, plane_normal="y", direction=[0, 1, 0]),
+    life("math.random(0.55, 0.9)"), speed("math.random(1.2, 2.6)"), motion(drag=0.6, accel=[0, 1.2, 0]),
+    billboard(
+        [f"(0.4 + 0.25 * {R1}) * (1 - 0.45 * {T})", f"(0.48 + 0.3 * {R1}) * (1 - 0.45 * {T})"],
+        uv=flip_uv("fb_flame", fps=14, loop=True),
+    ),
+    tint(grad((0, WHITE, 0), (0.12, PALE, 1), (0.6, GOLD, 0.9), (1, AMBER, 0))),
+)
+effect(
+    "quake_crack", "particles_blend", "fb_crack", once(1), shape("point"), life(2.4), speed(0),
+    spin("math.random(0, 360)", 0), motion(rotation_drag=1.0),
+    billboard(f"2.3 * math.min(1, 0.55 + 6 * {T})", "emitter_transform_xz"),
+    tint(grad((0, WHITE, 1), (0.7, WHITE, 0.9), (1, WHITE, 0))),
+)
+pop(
+    "heal_crackle", "fb_crackle", 0.42, 0.7, 0.5, grad((0, (1.0, 0.6, 0.55), 1), (0.4, (1.0, 0.25, 0.2), 1), (1, (0.6, 0.05, 0.1), 0.7)),
+    rotation="math.random(0, 360)",
+)
+effect(
+    "dash_flash", "particles_add", "fb_streak", once(1), shape("point", direction=vec("dash_dir")),
+    life(0.3), speed(0.1), motion(),
+    billboard([f"2.1 + 0.9 * {T}", f"1.4 + 0.6 * {T}"], "lookat_direction", flip_uv("fb_streak")),
+    tint(grad((0, WHITE, 1), (0.6, ICE, 0.9), (1, ICE, 0.5))),
+)
+
+
+# Overdrive layers -------------------------------------------------------------
+# A second pass for strong devices: lightning arcs, impact lines, shards, ring
+# waves, twinkles, dust clouds and a ground seal on top of the effects above.
+
+def steady(rate, limit, seconds):
+    return {
+        "minecraft:emitter_rate_steady": {"spawn_rate": rate, "max_particles": limit},
+        "minecraft:emitter_lifetime_once": {"active_time": seconds},
+    }
+
+
+def arcs(name, emitter, radius, size, gradient, offset=(0, 0, 0)):
+    """Short lightning arcs that flicker around a point."""
+    effect(
+        name, "particles_add", "fb_arc", emitter,
+        shape("sphere", radius=radius, surface_only=True, offset=list(offset)),
+        life("math.random(0.16, 0.34)"), speed(0),
+        spin("math.random(0, 360)", 0), motion(rotation_drag=1.0),
+        billboard(f"{size} * (0.7 + 0.6 * {R1})", uv=flip_uv("fb_arc", fps=26, loop=True)),
+        tint(gradient),
+    )
+
+
+def ring_wave(name, count, lifetime, start, grow, gradient):
+    """Rings that run along the ground one after another."""
+    effect(
+        name, "particles_add", "fb_ripple", steady(count / 0.45, count, 0.45), shape("point"),
+        life(lifetime), speed(0),
+        billboard(f"{start} + {grow} * math.sqrt({T})", "emitter_transform_xz", flip_uv("fb_ripple")),
+        tint(gradient),
+    )
+
+
+def twinkles(name, emitter, radius, size, gradient, offset=(0, 0, 0)):
+    effect(
+        name, "particles_add", "fb_twinkle", emitter,
+        shape("sphere", radius=radius, direction="outwards", offset=list(offset)),
+        life("math.random(0.45, 0.95)"), speed("math.random(0.2, 1.0)"), motion(drag=1.5, accel=[0, 0.4, 0]),
+        billboard(twinkle(size, size), uv=flip_uv("fb_twinkle")),
+        tint(gradient),
+    )
+
+
+def dust(name, count, radius, velocity, size, grow, lifetime):
+    effect(
+        name, "particles_blend", "fb_cloud", once(count),
+        shape("disc", radius=radius, plane_normal="y", direction="outwards"),
+        life(lifetime), speed(velocity),
+        spin("math.random(0, 360)", "math.random(-40, 40)"), motion(drag=3.0, accel=[0, 0.7, 0]),
+        billboard(f"{size} + {grow} * {T}"),
+        tint(grad((0, (0.88, 0.86, 0.82), 0), (0.15, (0.86, 0.84, 0.8), 0.55), (0.6, (0.8, 0.78, 0.75), 0.35),
+                  (1, (0.75, 0.73, 0.7), 0))),
+    )
+
+
+GOLD_ARC = grad((0, WHITE, 1), (0.5, PALE, 1), (1, GOLD, 0.6))
+ICE_ARC = grad((0, WHITE, 1), (0.5, ICE, 1), (1, (0.6, 0.8, 1.0), 0.6))
+ICE_BOOK = grad((0, WHITE, 1), (0.5, ICE, 1), (1, (0.65, 0.8, 1.0), 0.7))
+MINT_BOOK = grad((0, WHITE, 1), (0.4, ICE, 1), (1, MINT, 0.7))
+
+arcs("fx_arcs_gold", once(5), 0.9, 0.75, GOLD_ARC)
+arcs("fx_arcs_ice", once(4), 0.8, 0.65, ICE_ARC)
+arcs("adapt_storm", steady(48, 30, 1.6), 2.6, 1.15, GOLD_ARC, offset=(0, 1.3, 0))
+
+pop("impact_gold", "fb_cracks", 0.36, 1.7, 0.8, GOLD_BOOK, rotation="math.random(0, 360)")
+pop("impact_ice", "fb_cracks", 0.3, 1.1, 0.5, ICE_BOOK, rotation="math.random(0, 360)")
+pop(
+    "ground_flash", "fb_cracks", 0.5, 3.6, 2.2, GOLD_BOOK,
+    "emitter_transform_xz", rotation="math.random(0, 360)",
+)
+pop("shatter_gold", "fb_shatter", 0.32, 1.3, 0.6, GOLD_BOOK, rotation="math.random(0, 360)")
+pop("shatter_ice", "fb_shatter", 0.3, 1.0, 0.5, ICE_BOOK, rotation="math.random(0, 360)")
+
+ring_wave("ring_wave_gold", 3, 0.75, 0.8, 5.0, grad((0, WHITE, 1), (0.4, PALE, 1), (1, AMBER, 0.5)))
+ring_wave("ring_wave_mint", 3, 0.8, 0.5, 2.6, grad((0, WHITE, 1), (0.4, MINT, 1), (1, CYAN, 0.5)))
+pop("ring_pop_gold", "fb_ripple", 0.34, 0.5, 1.0, grad((0, WHITE, 1), (0.4, PALE, 1), (1, GOLD, 0.6)))
+pop("ring_pop_ice", "fb_ripple", 0.3, 0.4, 0.8, ICE_BOOK)
+pop("ring_pop_mint", "fb_ripple", 0.36, 0.5, 1.0, MINT_BOOK)
+
+twinkles("twinkle_gold", once(10), 1.2, 0.14, grad((0, WHITE, 1), (0.5, PALE, 1), (1, GOLD, 1)))
+twinkles("twinkle_mint", once(10), 1.0, 0.13, grad((0, WHITE, 1), (0.5, MINT, 1), (1, CYAN, 1)))
+twinkles(
+    "adapt_stars", steady(40, 60, 2.0), 3.2, 0.2, grad((0, WHITE, 1), (0.5, PALE, 1), (1, GOLD, 1)),
+    offset=(0, 1.4, 0),
+)
+
+dust("dust_burst", 24, 0.9, "math.random(4.0, 8.0)", 0.6, 1.1, "math.random(0.9, 1.5)")
+dust("dust_small", 7, 0.3, "math.random(1.5, 3.5)", 0.35, 0.6, "math.random(0.5, 0.9)")
+
+effect(
+    "adapt_octagram", "particles_add", "fb_octagram", once(1), shape("point"), life(2.6), speed(0),
+    spin("math.random(0, 360)", 70), motion(rotation_drag=0.0),
+    billboard(f"3.6 * math.min(1, 0.35 + 5 * {T})", "emitter_transform_xz"),
+    tint(grad((0, WHITE, 0), (0.1, PALE, 1), (0.7, GOLD, 0.9), (1, AMBER, 0))),
+)
+effect(
+    "adapt_fire", "particles_add", "fb_flame", steady(60, 56, 1.4),
+    shape("disc", radius=2.4, plane_normal="y", surface_only=True, direction=[0, 1, 0]),
+    life("math.random(0.5, 0.9)"), speed("math.random(1.0, 2.4)"), motion(drag=0.6, accel=[0, 1.2, 0]),
+    billboard(
+        [f"(0.4 + 0.25 * {R1}) * (1 - 0.45 * {T})", f"(0.48 + 0.3 * {R1}) * (1 - 0.45 * {T})"],
+        uv=flip_uv("fb_flame", fps=14, loop=True),
+    ),
+    tint(grad((0, WHITE, 0), (0.12, PALE, 1), (0.6, GOLD, 0.9), (1, AMBER, 0))),
+)
+effect(
+    "adapt_beam", "particles_add", "adapt_ray", once(1), shape("point", offset=[0, 9, 0]), life(0.8), speed(0),
+    billboard([f"1.3 * (1 - {T}) * (1 - {T})", 12], "lookat_y"),
+    tint(grad((0, WHITE, 1), (0.4, PALE, 0.9), (1, GOLD, 0))),
+)
+
+# Sword: a blade of light across the swing and along the flying slash.
+effect(
+    "slash_moon", "particles_add", "fb_moon", once(1), shape("point"), life(0.26), speed(0),
+    billboard([f"1.5 + 0.4 * {T}", f"0.62 + 0.16 * {T}"], uv=flip_uv("fb_moon")),
+    tint(grad((0, WHITE, 0.9), (0.5, ICE, 0.85), (1, (0.65, 0.8, 1.0), 0.5))),
+)
+effect(
+    "slash_wave_moon", "particles_add", "fb_moon", once(1), shape("point"), life(0.24), speed(0),
+    billboard([f"2.3 + 0.5 * {T}", f"0.95 + 0.2 * {T}"], uv=flip_uv("fb_moon")),
+    tint(grad((0, WHITE, 0.9), (0.5, ICE, 0.85), (1, (0.55, 0.75, 1.0), 0.5))),
+)
+
+# Air blast and teleport: a vortex that winds up.
+effect(
+    "air_spiral", "particles_add", "fb_spiral", once(1), shape("point"), life(0.5), speed(0),
+    spin("math.random(0, 360)", -900), motion(rotation_drag=0.0),
+    billboard(f"1.1 - 0.7 * {T}"),
+    tint(grad((0, AIR3, 0), (0.3, AIR2, 0.8), (1, WHITE, 1))),
+)
+effect(
+    "blink_spiral", "particles_add", "fb_spiral", once(1), shape("point"), life(0.4), speed(0),
+    spin("math.random(0, 360)", 720), motion(rotation_drag=0.0),
+    billboard(f"0.5 + 1.0 * math.sqrt({T})"),
+    tint(grad((0, WHITE, 1), (0.4, VIOLET, 0.8), (1, (0.5, 0.5, 0.8), 0))),
 )
 
 

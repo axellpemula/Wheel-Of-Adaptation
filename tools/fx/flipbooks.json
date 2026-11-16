@@ -1,0 +1,162 @@
+{
+  "fb_burst": {
+    "cell": [
+      160,
+      160
+    ],
+    "frames": 7,
+    "source": "prelight.png"
+  },
+  "fb_flare": {
+    "cell": [
+      160,
+      160
+    ],
+    "frames": 5,
+    "source": "shoki.png"
+  },
+  "fb_hit": {
+    "cell": [
+      160,
+      160
+    ],
+    "frames": 6,
+    "source": "hithotni.png"
+  },
+  "fb_slash": {
+    "cell": [
+      160,
+      160
+    ],
+    "frames": 10,
+    "source": "thunderslash1.png"
+  },
+  "fb_bolt": {
+    "cell": [
+      96,
+      128
+    ],
+    "frames": 9,
+    "source": "ptlight.png"
+  },
+  "fb_crackle": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 10,
+    "source": "hakiptr.png"
+  },
+  "fb_flame": {
+    "cell": [
+      80,
+      96
+    ],
+    "frames": 10,
+    "source": "apigdglow.png"
+  },
+  "fb_streak": {
+    "cell": [
+      192,
+      128
+    ],
+    "frames": 8,
+    "source": "taj.png"
+  },
+  "fb_smoke": {
+    "cell": [
+      96,
+      96
+    ],
+    "frames": 11,
+    "source": "devbkr.png"
+  },
+  "fb_swirl": {
+    "cell": [
+      192,
+      192
+    ],
+    "frames": 1,
+    "source": "anginmuter.png"
+  },
+  "fb_crack": {
+    "cell": [
+      256,
+      256
+    ],
+    "frames": 1,
+    "source": "retaknew.png"
+  },
+  "fb_arc": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 12,
+    "source": "idlepetir3.png"
+  },
+  "fb_cracks": {
+    "cell": [
+      160,
+      160
+    ],
+    "frames": 10,
+    "source": "sreks.png"
+  },
+  "fb_shatter": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 5,
+    "source": "dev.png"
+  },
+  "fb_ripple": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 7,
+    "source": "tetes.png"
+  },
+  "fb_twinkle": {
+    "cell": [
+      64,
+      64
+    ],
+    "frames": 5,
+    "source": "blinka.png"
+  },
+  "fb_moon": {
+    "cell": [
+      160,
+      160
+    ],
+    "frames": 10,
+    "source": "holyslash.png"
+  },
+  "fb_octagram": {
+    "cell": [
+      256,
+      256
+    ],
+    "frames": 1,
+    "source": "lingkarans.png"
+  },
+  "fb_cloud": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 1,
+    "source": "smoke_04.png"
+  },
+  "fb_spiral": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 1,
+    "source": "26b.png"
+  }
+}

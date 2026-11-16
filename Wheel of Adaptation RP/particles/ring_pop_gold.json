@@ -1,0 +1,77 @@
+{
+  "format_version": "1.10.0",
+  "particle_effect": {
+    "description": {
+      "identifier": "xvoid:ring_pop_gold",
+      "basic_render_parameters": {
+        "material": "particles_add",
+        "texture": "textures/particle/xvoid/fb_ripple"
+      }
+    },
+    "components": {
+      "minecraft:emitter_rate_instant": {
+        "num_particles": 1
+      },
+      "minecraft:emitter_lifetime_once": {
+        "active_time": 0.05
+      },
+      "minecraft:emitter_shape_point": {},
+      "minecraft:particle_lifetime_expression": {
+        "max_lifetime": 0.34
+      },
+      "minecraft:particle_initial_speed": 0,
+      "minecraft:particle_appearance_billboard": {
+        "size": [
+          "0.5 + 1.0 * math.sqrt(v.particle_age / v.particle_lifetime)",
+          "0.5 + 1.0 * math.sqrt(v.particle_age / v.particle_lifetime)"
+        ],
+        "facing_camera_mode": "lookat_xyz",
+        "uv": {
+          "texture_width": 896,
+          "texture_height": 128,
+          "flipbook": {
+            "base_UV": [
+              0,
+              0
+            ],
+            "size_UV": [
+              128,
+              128
+            ],
+            "step_UV": [
+              128,
+              0
+            ],
+            "max_frame": 7,
+            "stretch_to_lifetime": true
+          }
+        }
+      },
+      "minecraft:particle_appearance_tinting": {
+        "color": {
+          "interpolant": "v.particle_age / v.particle_lifetime",
+          "gradient": {
+            "0.00": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "0.40": [
+              1.0,
+              0.93,
+              0.62,
+              1.0
+            ],
+            "1.00": [
+              1.0,
+              0.8,
+              0.3,
+              0.6
+            ]
+          }
+        }
+      }
+    }
+  }
+}

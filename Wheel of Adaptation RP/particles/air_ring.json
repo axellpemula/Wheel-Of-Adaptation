@@ -5,7 +5,7 @@
       "identifier": "xvoid:air_ring",
       "basic_render_parameters": {
         "material": "particles_blend",
-        "texture": "textures/particle/xvoid/fx_vortex"
+        "texture": "textures/particle/xvoid/fb_swirl"
       }
     },
     "components": {
@@ -35,8 +35,8 @@
       },
       "minecraft:particle_appearance_billboard": {
         "size": [
-          "0.4 + 2.4 * math.sqrt(v.particle_age / v.particle_lifetime)",
-          "0.4 + 2.4 * math.sqrt(v.particle_age / v.particle_lifetime)"
+          "0.5 + 2.4 * math.sqrt(v.particle_age / v.particle_lifetime)",
+          "0.5 + 2.4 * math.sqrt(v.particle_age / v.particle_lifetime)"
         ],
         "facing_camera_mode": "direction_z",
         "uv": {
