@@ -89,6 +89,13 @@ var f = { turn1: 1, turn2: 2, turn3: 3, turn4: 4, turn5: 5, turn6: 6, turn7: 7, 
         quakeDust: "xvoid:quake_dust",
         reflectBolt: "xvoid:reflect_bolt",
         healSever: "xvoid:heal_sever",
+        crackle: "xvoid:wheel_crackle",
+        boom: "xvoid:adapt_boom",
+        bolts: "xvoid:adapt_bolts",
+        flame: "xvoid:undying_flame",
+        quakeCrack: "xvoid:quake_crack",
+        healCrackle: "xvoid:heal_crackle",
+        dashFlash: "xvoid:dash_flash",
     },
     fe = {
         stab: "animation.extermination_sword.stab",
@@ -418,7 +425,7 @@ function fxUndying(e) {
     let t = e.dimension,
         n = Re(e, 0.08),
         r = pe(e);
-    for (let o of [I.shockwave, I.seal, I.pillar]) v(t, o, n);
+    for (let o of [I.shockwave, I.seal, I.pillar, I.flame]) v(t, o, n);
     for (let o of [I.burst, I.flash]) v(t, o, r);
 }
 function fxNullify(e, t) {
@@ -450,7 +457,7 @@ function Ye(e) {
 }
 function _t(e, t = w.spin) {
     let n = Ye(e);
-    z(e.dimension, t, n), v(e.dimension, I.spin, n), v(e.dimension, I.halo, n), v(e.dimension, I.ripple, Re(e, 0.08));
+    z(e.dimension, t, n), v(e.dimension, I.spin, n), v(e.dimension, I.halo, n), v(e.dimension, I.crackle, n), v(e.dimension, I.ripple, Re(e, 0.08));
 }
 function Ki(e, t) {
     let n = Ye(e);
@@ -472,8 +479,8 @@ function Ki(e, t) {
         let r = e.dimension,
             o = Ye(e),
             i = Re(e, 0.08);
-        for (let s of [I.flare, I.dharma, I.sparks]) v(r, s, o);
-        for (let s of [I.nova, I.mandalaBurst, I.rays, I.embers]) v(r, s, i);
+        for (let s of [I.flare, I.dharma, I.sparks, I.boom]) v(r, s, o);
+        for (let s of [I.nova, I.mandalaBurst, I.rays, I.embers, I.bolts]) v(r, s, i);
     });
     t && ge(C.fullClickTick, t);
 }
@@ -4190,6 +4197,7 @@ function Vg(e, t) {
         r = new Fg();
     r.setVector3(Od, { x: -t.x, y: 0, z: -t.z }),
         a(() => e.dimension.spawnParticle(Md, { x: n.x, y: n.y + 1, z: n.z }, r)),
+        a(() => e.dimension.spawnParticle(I.dashFlash, { x: n.x, y: n.y + 1, z: n.z }, r)),
         a(() => e.dimension.spawnParticle(Cd, { x: n.x, y: n.y + 0.1, z: n.z })),
         v(e.dimension, I.dashShock, { x: n.x, y: n.y + 0.1, z: n.z }),
         a(() => {
@@ -5707,7 +5715,7 @@ function woaHealFx(e, t, n) {
     n - t.fxAt >= woa.healFxGap &&
         ((t.fxAt = n),
         Be.run(() => {
-            e.isValid && v(e.dimension, I.healSever, pe(e));
+            e.isValid && (v(e.dimension, I.healSever, pe(e)), v(e.dimension, I.healCrackle, pe(e)));
         }));
 }
 function woaHealAcct(e, t) {
@@ -5836,7 +5844,7 @@ function woaQuake(e, t) {
                     excludeTypes: ["minecraft:item", "minecraft:xp_orb"],
                 })
             ) ?? [];
-    v(n, I.quakeRing, o), v(n, I.quakeDust, o), z(n, "mace.smash_ground", r, 0.9, 0.9), Xe(e, "kick"), (woaQuiet = !0);
+    v(n, I.quakeRing, o), v(n, I.quakeDust, o), v(n, I.quakeCrack, o), z(n, "mace.smash_ground", r, 0.9, 0.9), Xe(e, "kick"), (woaQuiet = !0);
     try {
         for (let c of s) {
             if (c.id === e.id || vu(c) || !a(() => c.getComponent("minecraft:health"))) continue;
