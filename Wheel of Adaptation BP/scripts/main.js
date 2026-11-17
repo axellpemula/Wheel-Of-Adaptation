@@ -7329,7 +7329,7 @@ import {
     system as JA,
 } from "@minecraft/server";
 import { world as xb } from "@minecraft/server";
-var ki = "1.3.0";
+var ki = "1.3.5";
 var $m = "xvoid.watermark";
 function Am() {
     N(xb.afterEvents.playerSpawn, "watermark.playerSpawn", (e) => {
@@ -7391,7 +7391,7 @@ function Dm() {
 function Nm(e) {
     wi.delete(e);
 }
-Ar({ mod: "WOA", version: "1.3.0", build: "release", api: "2.11.0", echo: void 0 });
+Ar({ mod: "WOA", version: "1.3.5", build: "release", api: "2.11.0", echo: void 0 });
 function pr(e, t) {
     try {
         t();
