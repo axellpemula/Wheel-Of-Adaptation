@@ -142,9 +142,9 @@ var f = { turn1: 1, turn2: 2, turn3: 3, turn4: 4, turn5: 5, turn6: 6, turn7: 7, 
         forgottenNoticeTicks: 40,
         fullBuildTicks: [13, 25, 36],
     },
-    ie = { useSlots: !1, useHunger: !1, partialMax: 1, slots: 8, spinExhaustion: 2 },
+    ie = { useSlots: !0, useHunger: !0, partialMax: 1, slots: 8, spinExhaustion: 4 },
     rn = { effectWindow: 1 },
-    ye = { cooldown: 1200, oneHit: 40, healDelay: 20, graceAfterHeal: 10, saveEvery: 20 },
+    ye = { cooldown: 6000, oneHit: 40, healDelay: 20, graceAfterHeal: 10, saveEvery: 20, healRatio: 0.55 },
     on = { maxBonus: 0.5, bonusPerLevel: 0.01, maxLevelBonus: 0.25 },
     _ = {
         purifyRatio: 0.2,
@@ -2660,14 +2660,18 @@ function lc(e, t, n, r = 0) {
     let o = he(rg(r) * n);
     return (e.p = he(e.p + o)), o;
 }
+var woaTurnPoints = 55,
+    woaPassiveEvery = 3;
 function pc(e, t) {
     if (e.activeLeft <= 0) return 0;
     e.activeLeft--;
+    if (((e.idle = (e.idle ?? 0) + 1), e.idle < woaPassiveEvery)) return 0;
+    e.idle = 0;
     let n = 1 * t;
     return (e.p = he(e.p + n)), n;
 }
 function Ze(e) {
-    return 40 * Math.max(1, e);
+    return woaTurnPoints * Math.max(1, e);
 }
 function gc(e, t) {
     return e.p >= Ze(t);
@@ -3874,7 +3878,7 @@ var $o = "xvoid:absorb_at",
             adaptRate: 0.5,
             cooldown: 1,
             regenPause: 100,
-            spinHeal: { base: 0.25, perLevel: 0.025, max: 0.6, complete: 0.5 },
+            spinHeal: { base: 0.125, perLevel: 0.0125, max: 0.3, complete: 0.25 },
             regen: [
                 { minLevel: 20, amount: 1, every: 20 },
                 { minLevel: 10, amount: 1, every: 40 },
@@ -3896,7 +3900,7 @@ var $o = "xvoid:absorb_at",
             adaptRate: 1,
             cooldown: 1.25,
             regenPause: 60,
-            spinHeal: { base: 0.4, perLevel: 0.04, max: 0.8, complete: 1 },
+            spinHeal: { base: 0.2, perLevel: 0.02, max: 0.4, complete: 0.5 },
             regen: [
                 { minLevel: 20, amount: 1, every: 20 },
                 { minLevel: 10, amount: 1, every: 40 },
@@ -3915,7 +3919,7 @@ var $o = "xvoid:absorb_at",
             adaptRate: 0.75,
             cooldown: 1,
             regenPause: 60,
-            spinHeal: { base: 0.5, perLevel: 0.05, max: 1, complete: 1 },
+            spinHeal: { base: 0.25, perLevel: 0.025, max: 0.5, complete: 0.5 },
             regen: [
                 { minLevel: 20, amount: 2, every: 20 },
                 { minLevel: 10, amount: 1, every: 20 },
@@ -5529,16 +5533,33 @@ function qu(e, t) {
     }
     (t === "env:lava" || fa.some((r) => t === `env:${r}`)) && a(() => e.extinguishFire(!1));
 }
-function Kh(e, t, n) {
+var woaLimitProp = "xvoid:adapt_limit",
+    woaLimitCache = new Map();
+function woaSlots(e) {
     if (!ie.useSlots) return;
+    let t = woaLimitCache.get(e.id);
+    return (
+        t === void 0 && ((t = a(() => e.getDynamicProperty(woaLimitProp)) === "off"), woaLimitCache.set(e.id, t)),
+        t ? void 0 : ie.slots
+    );
+}
+function woaLimitToggle(e) {
+    let t = woaSlots(e) !== void 0;
+    woaLimitCache.set(e.id, t), a(() => e.setDynamicProperty(woaLimitProp, t ? "off" : void 0));
+}
+function Kh(e, t, n) {
+    let m = woaSlots(e);
+    if (!m) return;
     let r = [...t.map.entries()].filter(([s, c]) => c.s >= c.n && s !== n);
-    if (r.length < ie.slots) return;
     r.sort((s, c) => s[1].used - c[1].used);
-    let [o, i] = r[0];
-    (i.s = 0),
-        ge(C.forgottenNoticeTicks, () => {
-            e.isValid && T(e, "forgotten", S.forgotten(hn(o), bt(Ee(o))));
-        });
+    for (let j = 0; r.length - j >= m; j++) {
+        let [o, i] = r[j];
+        (i.s = 0),
+            (t.dirty = !0),
+            ge(C.forgottenNoticeTicks, () => {
+                e.isValid && T(e, "forgotten", S.forgotten(hn(o), bt(Ee(o))));
+            });
+    }
 }
 function Fh(e, t) {
     let n = Tc(t);
@@ -5587,6 +5608,10 @@ function Wh(e) {
 function ii(e) {
     let t = a(() => e.getComponent("minecraft:health"));
     return !t || t.currentValue <= 0 ? 0 : Math.max(0, t.effectiveMax - t.currentValue);
+}
+function woaUndyingHeal(e) {
+    let t = a(() => e.getComponent("minecraft:health"));
+    return !t || t.currentValue <= 0 ? 0 : Math.max(0, t.effectiveMax * ye.healRatio - t.currentValue);
 }
 function Uh(e, t, n) {
     let r = ii(e),
@@ -5697,7 +5722,7 @@ function e_(e, t, n, r) {
         ge(ye.healDelay, () => {
             !e.isValid ||
                 !R(e.id) ||
-                (Pe(e, ii(e)),
+                (Pe(e, woaUndyingHeal(e)),
                 v(e.dimension, I.rise, Re(e)),
                 v(e.dimension, I.regen, Re(e)),
                 v(e.dimension, I.positiveRays, Re(e)));
@@ -6341,7 +6366,7 @@ function l_(e, t, n, r) {
     return {
         adapted: Dt(t),
         atk: woaHudAtk(t, n, !!s),
-        slots: ie.useSlots ? ie.slots : void 0,
+        slots: woaSlots(e),
         key: s ? i : void 0,
         entry: s,
         hits: c?.p ?? 0,
@@ -6714,23 +6739,37 @@ function woaListAtk(e) {
               to(e)
           );
 }
-function H_(e) {
+function H_(e, m) {
     let t = di(e),
         n = new D_().title(_e.title).header(_e.analysing(t.analysing.length));
     t.analysing.length || n.label(_e.emptyAnalysing);
     for (let r of t.analysing) n.label(L_(r));
-    n.divider().header(_e.adapted(t.adapted.length)), t.adapted.length || n.label(_e.emptyAdapted);
+    n.divider().header(_e.adapted(m ? `${t.adapted.length}/${m}` : t.adapted.length)),
+        t.adapted.length || n.label(_e.emptyAdapted);
     for (let r of t.adapted) n.label(Lf(r));
     let o = e.atk ?? [];
     n.divider().header(_e.attack(o.length)), o.length || n.label(_e.emptyAttack);
     for (let r of o) n.label(woaListAtk(r));
-    return n.button(_e.close);
+    return n
+        .button(
+            x(
+                p(m ? "woa.list.limit_on" : "woa.list.limit_off"),
+                `
+\xA78`,
+                p("woa.list.limit_tap")
+            )
+        )
+        .button(_e.close);
 }
 function Hf(e, t, n = 0) {
     let r = t();
-    H_(r)
+    H_(r, woaSlots(e))
         .show(e)
         .then((o) => {
+            if (!o.canceled && o.selection === 0) {
+                woaLimitToggle(e), Hf(e, t);
+                return;
+            }
             if (o.cancelationReason === N_.UserBusy && n < 20) {
                 le(
                     "list.retry",
