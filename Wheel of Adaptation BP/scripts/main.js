@@ -3883,7 +3883,7 @@ var $o = "xvoid:absorb_at",
         },
         balance: {
             effects: {
-                resistance: 1,
+                resistance: void 0,
                 speed: void 0,
                 slowness: void 0,
             },
@@ -4146,11 +4146,18 @@ function Tg(e, t, n) {
     let c = Vc(o, t);
     nt.set(e.id, { takeOff: i, cut: c !== void 0, peak: 0, ticks: 1 }), c && a(() => e.applyKnockback(c, o.y));
 }
+function woaStance(e) {
+    let t = E(e);
+    if (t === "balance") return !0;
+    let n = w_(e);
+    return n !== void 0 && (t === "attack" ? Se : P).has(n);
+}
 function ad(e, t) {
-    let n = V(e);
-    vg(e), od(e, n.swim), Tg(e, n.jumpCap, t);
-    for (let r of zn) td(e, r, n.effects[r]);
-    nd(e, void 0), rd(e, n.absorption, t);
+    let n = V(e),
+        h = woaStance(e);
+    vg(e), od(e, h ? n.swim : 1), Tg(e, n.jumpCap, t);
+    for (let r of zn) td(e, r, h ? n.effects[r] : void 0);
+    nd(e, void 0), rd(e, h ? n.absorption : void 0, t);
 }
 function sd(e) {
     od(e, 1);
