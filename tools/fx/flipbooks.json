@@ -158,5 +158,37 @@
     ],
     "frames": 1,
     "source": "26b.png"
+  },
+  "fb_implode": {
+    "cell": [
+      128,
+      128
+    ],
+    "frames": 6,
+    "source": "pecahice.png"
+  },
+  "fb_nodes": {
+    "cell": [
+      256,
+      256
+    ],
+    "frames": 1,
+    "source": "tai3.png"
+  },
+  "fb_dotring": {
+    "cell": [
+      256,
+      256
+    ],
+    "frames": 1,
+    "source": "circ.png"
+  },
+  "fb_fissure": {
+    "cell": [
+      320,
+      320
+    ],
+    "frames": 1,
+    "source": "kretek.png"
   }
 }
