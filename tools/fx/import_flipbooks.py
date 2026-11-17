@@ -28,6 +28,7 @@ OUT = os.path.join(ROOT, "Wheel of Adaptation RP", "textures", "particle", "xvoi
 #   lum    white, alpha = alpha * luminance ^ 1.6     (keeps the shading of warm art)
 #   shape  white, alpha kept                          (for particles_blend)
 #   keep   colours kept
+# "+crop" cuts the empty border off a single image first.
 SHEETS = {
     "fb_burst": ("prelight", 322, 262, [0, 1, 2, 3, 4, 5, 6], 160, 160, "glow"),
     "fb_flare": ("shoki", 334, 292, [0, 1, 2, 3, 4], 160, 160, "glow"),
@@ -49,6 +50,10 @@ SHEETS = {
     "fb_octagram": ("lingkarans", 512, 512, [0], 256, 256, "glow"),
     "fb_cloud": ("smoke_04", 512, 512, [0], 128, 128, "shape"),
     "fb_spiral": ("26b", 128, 128, [0], 128, 128, "glow"),
+    "fb_implode": ("pecahice", 331, 300, list(range(6)), 128, 128, "glow"),
+    "fb_nodes": ("tai3", 512, 512, [0], 256, 256, "glow"),
+    "fb_dotring": ("circ", 640, 640, [0], 256, 256, "glow"),
+    "fb_fissure": ("kretek", 2000, 2000, [0], 320, 320, "keep+crop"),
 }
 
 
@@ -79,6 +84,13 @@ def fit(frame, cw, ch):
 def build(src_dir, name):
     source, fw, fh, frames, cw, ch, mode = SHEETS[name]
     sheet = Image.open(os.path.join(src_dir, "textures", "particle", source + ".png")).convert("RGBA")
+    if mode.endswith("+crop"):
+        mode = mode[: -len("+crop")]
+        left, top, right, bottom = sheet.getchannel("A").point(lambda a: 255 if a > 8 else 0).getbbox()
+        half = max(sheet.size[0] / 2 - left, right - sheet.size[0] / 2, sheet.size[1] / 2 - top, bottom - sheet.size[1] / 2)
+        cx, cy = sheet.size[0] / 2, sheet.size[1] / 2
+        sheet = sheet.crop((int(cx - half), int(cy - half), int(cx + half), int(cy + half)))
+        fw, fh = sheet.size
     cells = []
     for index in frames:
         frame = sheet.crop((index * fw, 0, min(sheet.size[0], (index + 1) * fw), fh))
@@ -104,7 +116,7 @@ def preview(images):
     for name, im in images.items():
         draw.text((pad, y), f"{name}  {im.size[0]}x{im.size[1]}  <- {SHEETS[name][0]}.png", fill=(255, 220, 120, 255))
         y += label
-        backdrop = Image.new("RGBA", im.size, (70, 70, 84, 255) if SHEETS[name][6] == "keep" else (18, 18, 24, 255))
+        backdrop = Image.new("RGBA", im.size, (70, 70, 84, 255) if SHEETS[name][6].startswith("keep") else (18, 18, 24, 255))
         backdrop.alpha_composite(im)
         sheet.paste(backdrop, (pad, y))
         y += im.size[1] + pad

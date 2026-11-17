@@ -434,13 +434,160 @@ function a(e) {
 function ge(e, t) {
     return qm.runTimeout(() => a(t), e);
 }
+/* fx-tiers:begin (written by tools/fx/gen_particles.py) */
+var FX_TIERS = {
+    "xvoid:wheel_spin": { low: ["xvoid:wheel_spin_lite"], ultra: ["xvoid:wheel_spin_ultra", "xvoid:u_wheel_spokes", "xvoid:u_wheel_disc"] },
+    "xvoid:wheel_crackle": { low: [], ultra: ["xvoid:wheel_crackle_ultra"] },
+    "xvoid:adapt_ripple": { low: [], ultra: ["xvoid:adapt_ripple", "xvoid:u_ring_wave_small", "xvoid:u_ground_glint"] },
+    "xvoid:fx_arcs_gold": { low: [], ultra: ["xvoid:u_arcs_gold"] },
+    "xvoid:fx_arcs_ice": { low: [], ultra: ["xvoid:u_arcs_ice"] },
+    "xvoid:twinkle_gold": { low: [], ultra: ["xvoid:twinkle_gold_ultra"] },
+    "xvoid:twinkle_mint": { low: [], ultra: ["xvoid:twinkle_mint_ultra"] },
+    "xvoid:adapt_charge": { low: ["xvoid:adapt_charge_lite"], ultra: ["xvoid:adapt_charge_ultra", "xvoid:u_charge_lines", "xvoid:u_implode_gold", "xvoid:u_charge_ground"] },
+    "xvoid:adapt_gather": { low: ["xvoid:adapt_gather_lite"], ultra: ["xvoid:adapt_gather_ultra"] },
+    "xvoid:adapt_flare": { ultra: ["xvoid:adapt_flare", "xvoid:u_flare_big", "xvoid:u_boom_big"] },
+    "xvoid:adapt_dharma": { ultra: ["xvoid:adapt_dharma", "xvoid:u_dharma_big"] },
+    "xvoid:adapt_sparks": { low: ["xvoid:adapt_sparks_lite"], ultra: ["xvoid:adapt_sparks_ultra"] },
+    "xvoid:adapt_boom": { low: [] },
+    "xvoid:adapt_nova": { ultra: ["xvoid:adapt_nova", "xvoid:u_nova_big", "xvoid:u_shock_train"] },
+    "xvoid:adapt_rays": { low: ["xvoid:adapt_rays_lite"], ultra: ["xvoid:adapt_rays", "xvoid:u_rays"] },
+    "xvoid:adapt_embers": { low: [], ultra: ["xvoid:adapt_embers_ultra", "xvoid:u_embers"] },
+    "xvoid:adapt_bolts": { low: [], ultra: ["xvoid:u_bolts"] },
+    "xvoid:adapt_octagram": { low: [], ultra: ["xvoid:adapt_octagram", "xvoid:u_octagram_outer", "xvoid:u_dotring", "xvoid:u_nodes"] },
+    "xvoid:ground_flash": { low: [], ultra: ["xvoid:ground_flash", "xvoid:u_ground_flash"] },
+    "xvoid:ring_wave_gold": { low: [], ultra: ["xvoid:u_ring_wave"] },
+    "xvoid:dust_burst": { low: [], ultra: ["xvoid:u_dust"] },
+    "xvoid:dust_small": { low: [], ultra: ["xvoid:dust_small_ultra"] },
+    "xvoid:adapt_storm": { low: [], ultra: ["xvoid:u_storm"] },
+    "xvoid:adapt_stars": { low: [], ultra: ["xvoid:u_stars"] },
+    "xvoid:adapt_fire": { low: [], ultra: ["xvoid:adapt_fire_ultra", "xvoid:u_fire_ring"] },
+    "xvoid:adapt_beam": { low: [], ultra: ["xvoid:u_beam", "xvoid:u_beam_ring", "xvoid:u_sky_wheel", "xvoid:u_sky_ring"] },
+    "xvoid:quake_crack": { low: [], ultra: ["xvoid:quake_crack", "xvoid:u_fissure"] },
+    "xvoid:shatter_gold": { low: [], ultra: ["xvoid:shatter_gold_ultra", "xvoid:u_shower_gold"] },
+    "xvoid:shatter_ice": { low: [], ultra: ["xvoid:shatter_ice_ultra", "xvoid:u_shower_ice"] },
+    "xvoid:adapt_shockwave": { ultra: ["xvoid:adapt_shockwave", "xvoid:u_shock_train", "xvoid:u_embers"] },
+    "xvoid:adapt_seal": { ultra: ["xvoid:adapt_seal", "xvoid:u_seal_big"] },
+    "xvoid:adapt_pillar": { low: ["xvoid:adapt_pillar_lite"], ultra: ["xvoid:adapt_pillar_ultra"] },
+    "xvoid:undying_flame": { low: [], ultra: ["xvoid:undying_flame_ultra", "xvoid:u_fire_column"] },
+    "xvoid:adapt_burst": { low: ["xvoid:adapt_burst_lite"], ultra: ["xvoid:adapt_burst_ultra"] },
+    "xvoid:adapt_flash": { ultra: ["xvoid:adapt_flash", "xvoid:u_flare_big"] },
+    "xvoid:nullify_ward": { ultra: ["xvoid:nullify_ward", "xvoid:u_ward_big", "xvoid:u_ward_wave"] },
+    "xvoid:nullify_sparks": { low: ["xvoid:nullify_sparks_lite"], ultra: ["xvoid:nullify_sparks_ultra"] },
+    "xvoid:slash_trail": { thin: 2 },
+    "xvoid:slash_ink": { low: [] },
+    "xvoid:slash_spark": { low: [], ultra: ["xvoid:slash_spark_ultra"] },
+    "xvoid:slash_ink_spark": { low: ["xvoid:slash_ink_spark_lite"], ultra: ["xvoid:slash_ink_spark_ultra"] },
+    "xvoid:slash_moon": { ultra: ["xvoid:slash_moon_ultra", "xvoid:u_moon_echo", "xvoid:u_swing_sparks"] },
+    "xvoid:slash_wave_moon": { ultra: ["xvoid:slash_wave_moon_ultra", "xvoid:u_wave_glow", "xvoid:u_wave_sparks", "xvoid:u_wave_dust"] },
+    "xvoid:slash_cut": { ultra: ["xvoid:slash_cut_ultra", "xvoid:u_cross_slash"] },
+    "xvoid:impact_gold": { low: [], ultra: ["xvoid:impact_gold", "xvoid:u_impact_gold", "xvoid:u_shower_gold"] },
+    "xvoid:impact_ice": { low: [], ultra: ["xvoid:impact_ice", "xvoid:u_impact_ice", "xvoid:u_shower_ice"] },
+    "xvoid:positive_burst": { low: ["xvoid:positive_burst_lite"], ultra: ["xvoid:positive_burst_ultra"] },
+    "xvoid:positive_flash": { ultra: ["xvoid:positive_flash", "xvoid:u_positive_flare"] },
+    "xvoid:ring_pop_mint": { low: [], ultra: ["xvoid:u_rings_mint"] },
+    "xvoid:ring_pop_gold": { low: [], ultra: ["xvoid:u_rings_gold"] },
+    "xvoid:ring_pop_ice": { low: [], ultra: ["xvoid:u_rings_ice"] },
+    "xvoid:positive_rise": { low: ["xvoid:positive_rise_lite"], ultra: ["xvoid:positive_rise_ultra"] },
+    "xvoid:positive_rays": { low: [], ultra: ["xvoid:positive_rays_ultra"] },
+    "xvoid:positive_seal": { ultra: ["xvoid:positive_seal", "xvoid:u_positive_seal", "xvoid:u_mint_pillar"] },
+    "xvoid:ring_wave_mint": { low: [], ultra: ["xvoid:u_ring_wave_mint"] },
+    "xvoid:air_charge": { low: ["xvoid:air_charge_lite"], ultra: ["xvoid:air_charge_ultra"] },
+    "xvoid:air_core": { ultra: ["xvoid:air_core", "xvoid:u_air_implode"] },
+    "xvoid:air_spiral": { low: [], ultra: ["xvoid:air_spiral_ultra", "xvoid:u_air_spiral"] },
+    "xvoid:air_muzzle": { ultra: ["xvoid:air_muzzle", "xvoid:u_air_muzzle", "xvoid:u_air_cone"] },
+    "xvoid:air_streak": { low: ["xvoid:air_streak_lite"], ultra: ["xvoid:air_streak_ultra"] },
+    "xvoid:air_ring": { ultra: ["xvoid:air_ring_ultra", "xvoid:u_air_ring"] },
+    "xvoid:blink_out": { low: ["xvoid:blink_out_lite"], ultra: ["xvoid:blink_out_ultra"] },
+    "xvoid:blink_in": { low: ["xvoid:blink_in_lite"], ultra: ["xvoid:blink_in_ultra"] },
+    "xvoid:blink_trail": { low: ["xvoid:blink_trail_lite"], ultra: ["xvoid:blink_trail_ultra"] },
+    "xvoid:blink_ring": { ultra: ["xvoid:blink_ring", "xvoid:u_blink_ring"] },
+    "xvoid:blink_spiral": { low: [], ultra: ["xvoid:blink_spiral_ultra", "xvoid:u_blink_bolt", "xvoid:u_blink_implode"] },
+    "xvoid:kick_impact": { low: ["xvoid:kick_impact_lite"], ultra: ["xvoid:kick_impact_ultra"] },
+    "xvoid:kick_burst": { ultra: ["xvoid:kick_burst_ultra", "xvoid:u_kick_boom"] },
+    "xvoid:kick_ring": { ultra: ["xvoid:kick_ring", "xvoid:u_rings_gold"] },
+    "xvoid:punch_impact": { low: ["xvoid:punch_impact_lite"], ultra: ["xvoid:punch_impact_ultra"] },
+    "xvoid:punch_burst": { ultra: ["xvoid:punch_burst_ultra", "xvoid:u_punch_ring"] },
+    "xvoid:dash_lines": { low: ["xvoid:dash_lines_lite"], ultra: ["xvoid:dash_lines_ultra"] },
+    "xvoid:dash_ring": { low: [], ultra: ["xvoid:dash_ring_ultra"] },
+    "xvoid:dash_flash": { low: [], ultra: ["xvoid:dash_flash_ultra"] },
+    "xvoid:dash_shock": { ultra: ["xvoid:dash_shock", "xvoid:u_dash_ring"] },
+    "xvoid:guard_spark": { low: ["xvoid:guard_spark_lite"], ultra: ["xvoid:guard_spark_ultra"] },
+    "xvoid:guard_catch": { low: ["xvoid:guard_catch_lite"], ultra: ["xvoid:guard_catch_ultra"] },
+    "xvoid:guard_flash": { ultra: ["xvoid:guard_flash_ultra", "xvoid:u_guard_seal"] },
+    "xvoid:counter_cut": { ultra: ["xvoid:counter_cut_ultra", "xvoid:u_counter_cross"] },
+    "xvoid:quake_ring": { ultra: ["xvoid:quake_ring", "xvoid:u_shock_train"] },
+    "xvoid:quake_dust": { low: ["xvoid:quake_dust_lite"], ultra: ["xvoid:quake_dust_ultra", "xvoid:u_quake_pillars"] },
+    "xvoid:reflect_bolt": { ultra: ["xvoid:reflect_bolt_ultra"] },
+    "xvoid:heal_sever": { low: ["xvoid:heal_sever_lite"], ultra: ["xvoid:heal_sever_ultra"] },
+    "xvoid:heal_crackle": { low: [], ultra: ["xvoid:heal_crackle_ultra", "xvoid:u_arcs_red"] },
+    "xvoid:ultra_aura": { low: [], medium: [], ultra: ["xvoid:u_aura_arcs", "xvoid:u_aura_motes"] },
+    "xvoid:ultra_aura_ground": { low: [], medium: [], ultra: ["xvoid:u_aura_ring"] },
+};
+/* fx-tiers:end */
+var woaPerfProp = "xvoid:perf",
+    woaPerfLevels = ["low", "medium", "ultra"],
+    woaPerfCache = new Map(),
+    woaFxView = { tick: -1, dims: new Map() },
+    woaFxThin = new Map(),
+    woaFxRange = 96 * 96;
+function woaPerf(e) {
+    let t = woaPerfCache.get(e.id);
+    if (t === void 0) {
+        let n = a(() => e.getDynamicProperty(woaPerfProp));
+        (t = woaPerfLevels.includes(n) ? n : "medium"), woaPerfCache.set(e.id, t);
+    }
+    return t;
+}
+function woaViewers(e) {
+    let t = Be.currentTick;
+    woaFxView.tick !== t && ((woaFxView.tick = t), woaFxView.dims.clear());
+    let n = e.id,
+        r = woaFxView.dims.get(n);
+    if (!r) {
+        r = { mixed: !1, list: [] };
+        for (let o of a(() => e.getPlayers()) ?? []) {
+            let i = woaPerf(o);
+            i !== "medium" && (r.mixed = !0), r.list.push({ player: o, tier: i, at: o.location });
+        }
+        woaFxView.dims.set(n, r);
+    }
+    return r;
+}
+function woaFxEmit(e, t, n, r) {
+    try {
+        r ? e.spawnParticle(t, n, r) : e.spawnParticle(t, n);
+    } catch (o) {}
+}
+function fxSpawn(e, t, n, r) {
+    let o = FX_TIERS[t],
+        i = woaViewers(e);
+    if (!i.mixed) {
+        if (!o || !o.medium) return woaFxEmit(e, t, n, r);
+        for (let c of o.medium) woaFxEmit(e, c, n, r);
+        return;
+    }
+    let s = !0;
+    if (o && o.thin) {
+        let c = (woaFxThin.get(t) ?? 0) + 1;
+        woaFxThin.set(t, c), (s = c % o.thin === 0);
+    }
+    for (let c of i.list) {
+        let d = c.at.x - n.x,
+            u = c.at.y - n.y,
+            m = c.at.z - n.z;
+        if (d * d + u * u + m * m > woaFxRange || (c.tier === "low" && !s)) continue;
+        let b = o ? o[c.tier] : void 0;
+        if (!b) woaFxEmit(c.player, t, n, r);
+        else for (let y of b) woaFxEmit(c.player, y, n, r);
+    }
+}
 function v(e, t, n) {
-    a(() => e.spawnParticle(t, n));
+    fxSpawn(e, t, n);
 }
 function fxDir(e, t, n, r, o) {
     a(() => {
         let i = new fxMolang();
-        i.setVector3(r, o), e.spawnParticle(t, n, i);
+        i.setVector3(r, o), fxSpawn(e, t, n, i);
     });
 }
 function fxPositive(e, t) {
@@ -549,6 +696,8 @@ var Zm = { 1: 20, 2: 30, 3: 40 },
         switcherHint: 1,
         starving: 1,
         counter: 2,
+        perf: 2,
+        armor: 2,
         attackAdapted: 3,
         attackProgress: 1,
     },
@@ -857,8 +1006,75 @@ function cl(e, t) {
         r = t ?? n;
     t !== void 0 && t !== n && e.setDynamicProperty(dn, Ji(t)), T(e, "shake", p(qi[r]));
 }
+var woaArmorProp = "xvoid:armor_off",
+    woaArmorCache = new Map();
+function woaArmorOff(e) {
+    let t = woaArmorCache.get(e.id);
+    return t === void 0 && ((t = a(() => e.getDynamicProperty(woaArmorProp)) === !0), woaArmorCache.set(e.id, t)), t;
+}
+function woaArmorSet(e, t) {
+    if (!e.isValid) return;
+    let n = woaArmorOff(e) ? "off" : "on",
+        r = t ?? n;
+    t !== void 0 &&
+        t !== n &&
+        (woaArmorCache.set(e.id, t === "off"),
+        a(() => e.setDynamicProperty(woaArmorProp, t === "off")),
+        a(() => Ve(e, R(e.id)))),
+        T(e, "armor", p(`woa.armor.${r}`));
+}
+function woaPerfSet(e, t) {
+    if (!e.isValid) return;
+    let n = woaPerf(e),
+        r = t ?? n;
+    t !== void 0 && t !== n && (woaPerfCache.set(e.id, t), a(() => e.setDynamicProperty(woaPerfProp, t))),
+        T(e, "perf", p(`woa.perf.${r}`));
+}
+function woaCommand(e) {
+    return (t, n) => {
+        let r = k(t.sourceEntity);
+        return r
+            ? (Be.run(() => a(() => e(r, n))), { status: Qi.Success })
+            : { status: Qi.Failure, message: "Run it as a player" };
+    };
+}
+function woaAura() {
+    for (let e of a(() => re.getAllPlayers()) ?? [])
+        a(() => {
+            if (!e.isValid || !R(e.id)) return;
+            let t = e.dimension;
+            woaViewers(t).mixed &&
+                (fxSpawn(t, "xvoid:ultra_aura", Ye(e)),
+                Be.currentTick % 40 < 10 && fxSpawn(t, "xvoid:ultra_aura_ground", Re(e, 0.08)));
+        });
+}
 function Zi() {
+    Be.runInterval(woaAura, 10);
     sl.beforeEvents.startup.subscribe((e) => {
+        e.customCommandRegistry.registerEnum("woa:performance_level", [...woaPerfLevels]),
+            e.customCommandRegistry.registerCommand(
+                {
+                    name: "woa:performance",
+                    description:
+                        "Effect detail of Wheel of Adaptation for you: low, medium or ultra (no value shows the current level)",
+                    permissionLevel: il.Any,
+                    cheatsRequired: !1,
+                    optionalParameters: [{ name: "woa:performance_level", type: al.Enum }],
+                },
+                woaCommand(woaPerfSet)
+            ),
+            e.customCommandRegistry.registerEnum("woa:armor_state", ["on", "off"]),
+            e.customCommandRegistry.registerCommand(
+                {
+                    name: "woa:armor",
+                    description:
+                        "Mahoraga armor of Wheel of Adaptation for you: on gives it with the wheel, off removes it (no value shows the current state)",
+                    permissionLevel: il.Any,
+                    cheatsRequired: !1,
+                    optionalParameters: [{ name: "woa:armor_state", type: al.Enum }],
+                },
+                woaCommand(woaArmorSet)
+            ),
         e.customCommandRegistry.registerEnum(Dr, [...ji]),
             e.customCommandRegistry.registerCommand(
                 {
@@ -4224,11 +4440,11 @@ function Vg(e, t) {
     let n = e.location,
         r = new Fg();
     r.setVector3(Od, { x: -t.x, y: 0, z: -t.z }),
-        a(() => e.dimension.spawnParticle(Md, { x: n.x, y: n.y + 1, z: n.z }, r)),
-        a(() => e.dimension.spawnParticle(I.dashFlash, { x: n.x, y: n.y + 1, z: n.z }, r)),
+        a(() => fxSpawn(e.dimension, Md, { x: n.x, y: n.y + 1, z: n.z }, r)),
+        a(() => fxSpawn(e.dimension, I.dashFlash, { x: n.x, y: n.y + 1, z: n.z }, r)),
         v(e.dimension, I.iceArcs, { x: n.x, y: n.y + 1, z: n.z }),
         v(e.dimension, I.dustSmall, { x: n.x, y: n.y + 0.2, z: n.z }),
-        a(() => e.dimension.spawnParticle(Cd, { x: n.x, y: n.y + 0.1, z: n.z })),
+        a(() => fxSpawn(e.dimension, Cd, { x: n.x, y: n.y + 0.1, z: n.z })),
         v(e.dimension, I.dashShock, { x: n.x, y: n.y + 0.1, z: n.z }),
         a(() => {
             e.playAnimation(zt.name, { controller: zt.controller, stopExpression: zt.stop, blendOutTime: zt.blendOut });
@@ -4661,11 +4877,11 @@ function th(e, t, n) {
     let i = new su();
     i.setVector3(Yo, { x: -r.x, y: -r.y, z: -r.z });
     let s = e.dimension;
-    a(() => s.spawnParticle(Jd, { x: t.x, y: t.y + 1, z: t.z }, o));
-    for (let c of au(t, n)) a(() => s.spawnParticle(Qd, { x: c.x, y: c.y + 1, z: c.z }, o));
-    a(() => s.spawnParticle(Zd, { x: n.x, y: n.y + 1, z: n.z }, i)),
-        a(() => s.spawnParticle(I.blinkRing, { x: t.x, y: t.y + 1, z: t.z }, o)),
-        a(() => s.spawnParticle(I.blinkRing, { x: n.x, y: n.y + 1, z: n.z }, i)),
+    a(() => fxSpawn(s, Jd, { x: t.x, y: t.y + 1, z: t.z }, o));
+    for (let c of au(t, n)) a(() => fxSpawn(s, Qd, { x: c.x, y: c.y + 1, z: c.z }, o));
+    a(() => fxSpawn(s, Zd, { x: n.x, y: n.y + 1, z: n.z }, i)),
+        a(() => fxSpawn(s, I.blinkRing, { x: t.x, y: t.y + 1, z: t.z }, o)),
+        a(() => fxSpawn(s, I.blinkRing, { x: n.x, y: n.y + 1, z: n.z }, i)),
         v(s, I.blinkSpiral, { x: t.x, y: t.y + 1, z: t.z }),
         v(s, I.blinkSpiral, { x: n.x, y: n.y + 1, z: n.z }),
         v(s, I.dustSmall, { x: n.x, y: n.y + 0.2, z: n.z }),
@@ -4687,7 +4903,7 @@ function nh(e, t) {
     dt.delete(e.id);
     let o = t.location;
     if (
-        (a(() => e.dimension.spawnParticle(eu, { x: o.x, y: o.y + 1, z: o.z })),
+        (a(() => fxSpawn(e.dimension, eu, { x: o.x, y: o.y + 1, z: o.z })),
         v(e.dimension, I.kickBurst, { x: o.x, y: o.y + 1, z: o.z }),
         v(e.dimension, I.kickRing, { x: o.x, y: o.y + 1, z: o.z }),
         v(e.dimension, I.impactGold, { x: o.x, y: o.y + 1, z: o.z }),
@@ -5187,9 +5403,9 @@ function Ph(e, t, n, r) {
     let i = e.dimension;
     for (let s = 1; s <= r; s += 1) {
         let c = { x: t.x + n.x * s, y: t.y + n.y * s, z: t.z + n.z * s };
-        a(() => i.spawnParticle(Du, c, o)), s % H.ringEvery === 0 && a(() => i.spawnParticle(Ou, c, o));
+        a(() => fxSpawn(i, Du, c, o)), s % H.ringEvery === 0 && a(() => fxSpawn(i, Ou, c, o));
     }
-    a(() => i.spawnParticle(I.airMuzzle, t, o)), v(i, I.shatterIce, t), v(i, I.iceArcs, t), a(() => i.playSound(Mu, t));
+    a(() => fxSpawn(i, I.airMuzzle, t, o)), v(i, I.shatterIce, t), v(i, I.iceArcs, t), a(() => i.playSound(Mu, t));
 }
 function Mh(e, t, n) {
     if (vu(t)) return `${t.typeId}:spared`;
@@ -5226,7 +5442,7 @@ function Oh(e) {
         return;
     }
     tr.set(e.id, t),
-        a(() => e.dimension.spawnParticle(Cu, zu(e))),
+        a(() => fxSpawn(e.dimension, Cu, zu(e))),
         v(e.dimension, I.airCore, zu(e)),
         v(e.dimension, I.airSpiral, zu(e)),
         a(() => {
@@ -6312,7 +6528,7 @@ function w_(e) {
 function vf(e) {
     return so(E(e), yo(e), w_(e), If);
 }
-var Tf = [{ ids: If, want: Cn }, { ids: Z, want: vf }, ...[...Ft].map((e) => ({ ids: new Set([e]), want: () => e }))],
+var Tf = [{ ids: If, want: Cn }, { ids: Z, want: vf }, ...[...Ft].map((e) => ({ ids: new Set([e]), want: () => e, armor: !0 }))],
     $f = new Set(Tf.flatMap((e) => [...e.ids])),
     I_ = [ir.Offhand, ir.Chest, ir.Legs, ir.Feet],
     v_ = xf(6);
@@ -6393,7 +6609,7 @@ function A_(e, t, n) {
     return !0;
 }
 function Ve(e, t) {
-    let n = Tf.filter((r) => !A_(e, r, t));
+    let n = Tf.filter((r) => !A_(e, r, t && !(r.armor && woaArmorOff(e))));
     n.length && (T(e, "inventoryFull", S.inventoryFull), void 0);
 }
 function Rf(e) {
@@ -6575,7 +6791,7 @@ function zf(e, t, n) {
     e.damage = Ie.damage;
     let i = n.location;
     q("punch.hitFx", () => {
-        a(() => t.dimension.spawnParticle(Vd, { x: i.x, y: i.y + 1, z: i.z })),
+        a(() => fxSpawn(t.dimension, Vd, { x: i.x, y: i.y + 1, z: i.z })),
             v(t.dimension, I.punchBurst, { x: i.x, y: i.y + 1, z: i.z }),
             v(t.dimension, I.impactIce, { x: i.x, y: i.y + 1, z: i.z }),
             v(t.dimension, I.ringPopIce, { x: i.x, y: i.y + 1, z: i.z }),
@@ -6761,7 +6977,7 @@ function J_(e, t, n) {
         u = rm(t, n.location);
     Zt.run(() => {
         a(() => t.dimension.playSound(Uf, t.location)),
-            a(() => t.dimension.spawnParticle(qf, u)),
+            a(() => fxSpawn(t.dimension, qf, u)),
             (v(t.dimension, I.guardFlash, u), v(t.dimension, I.ringPopGold, u)),
             !d && n.isValid && a(() => n.remove());
     });
@@ -6775,7 +6991,7 @@ function Q_(e, t, n) {
     e.damage = Qf(o, r);
     let i = rm(t, n.location);
     Zt.run(() => {
-        a(() => t.dimension.playSound(Wf, t.location)), a(() => t.dimension.spawnParticle(jf, i)), (v(t.dimension, I.guardFlash, i), v(t.dimension, I.ringPopGold, i));
+        a(() => t.dimension.playSound(Wf, t.location)), a(() => fxSpawn(t.dimension, jf, i)), (v(t.dimension, I.guardFlash, i), v(t.dimension, I.ringPopGold, i));
     });
 }
 function sm(e, t) {
