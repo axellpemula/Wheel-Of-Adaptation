@@ -57,6 +57,13 @@ VIOLET = (0.75, 0.75, 1.0)
 
 FLIP = json.loads((Path(__file__).parent / "flipbooks.json").read_text())
 
+# Effects that the wheel attachables play name the `glow` locator of the wheel
+# model, but the game does not honour locators of attachables (a known bug, see
+# the Bedrock Wiki page on animation effects): the emitter lands on the joint of
+# the head, at the neck. The wheel is 15 px above that joint and the player is
+# drawn at 15/16 size, so these effects lift themselves by that much.
+WHEEL_LIFT = round(15 / 16 * 15 / 16, 3)
+
 EFFECTS = {}
 LF_FILES = {"wheel_mote"}  # this one file had LF endings from the start
 
@@ -266,7 +273,7 @@ effect(
         },
         "minecraft:emitter_lifetime_once": {"active_time": 3.8},
     },
-    shape("disc", radius=0.6, plane_normal="y", surface_only=True, direction=[0, 1, 0]),
+    shape("disc", radius=0.6, plane_normal="y", surface_only=True, direction=[0, 1, 0], offset=[0, WHEEL_LIFT, 0]),
     life("math.random(0.8, 1.2)"), speed("math.random(0.2, 0.45)"), motion(drag=0.8, accel=[0, 0.3, 0]),
     billboard(twinkle(0.06, 0.05), uv=glint_uv(10)),
     tint(grad((0, WHITE, 1), (0.6, PALE, 1), (1, GOLD, 1))),
@@ -1326,9 +1333,11 @@ HOOKS = {"ultra_aura", "ultra_aura_ground", "seal_floor", "wheel_turn_more", "wh
 # Effects that sit on the wheel ----------------------------------------------
 #
 # The wheel plays these itself: the attachables name them and the timelines in
-# animations/wheel_mount.animation.json start them at the `glow` locator of the
-# model. They are copies of the medium effects whose particles live in the
-# space of the emitter, so they stay on the wheel however the wearer moves.
+# animations/wheel_mount.animation.json start them. They are copies of the
+# medium effects whose particles live in the space of the emitter, so they stay
+# with the wearer, and whose shape is lifted from the neck to the wheel (see
+# WHEEL_LIFT). The lift points straight up: when the wearer looks far up or
+# down the wheel leans with the head and the effects do not.
 # The game draws them, not the script, so every viewer sees the same ones and
 # /woa:performance has no say in them.
 
@@ -1348,6 +1357,9 @@ def bound(name):
     body = data["particle_effect"]
     body["description"]["identifier"] = f"xvoid:w_{name}"
     body["components"] = {"minecraft:emitter_local_space": {"position": True, "rotation": False}, **body["components"]}
+    spec = next(value for key, value in body["components"].items() if key.startswith("minecraft:emitter_shape_"))
+    x, y, z = spec.get("offset", [0, 0, 0])
+    spec["offset"] = [x, round(y + WHEEL_LIFT, 3), z]
     EFFECTS[f"w_{name}"] = data
 
 

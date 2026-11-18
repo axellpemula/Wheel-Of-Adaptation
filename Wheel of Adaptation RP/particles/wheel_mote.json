@@ -28,6 +28,11 @@
           0,
           1,
           0
+        ],
+        "offset": [
+          0,
+          0.879,
+          0
         ]
       },
       "minecraft:particle_lifetime_expression": {

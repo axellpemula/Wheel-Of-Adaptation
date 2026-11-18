@@ -22,7 +22,12 @@
       "minecraft:emitter_shape_sphere": {
         "radius": 1.8,
         "surface_only": true,
-        "direction": "inwards"
+        "direction": "inwards",
+        "offset": [
+          0,
+          0.879,
+          0
+        ]
       },
       "minecraft:particle_lifetime_expression": {
         "max_lifetime": 0.42
