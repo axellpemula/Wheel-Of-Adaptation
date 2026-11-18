@@ -6800,10 +6800,66 @@ var _e = {
     locked: x(" \xA7p", p("woa.list.locked")),
     lockHint: (e) => x("\xA77", p("woa.list.lock_hint", `${e}/${woaLockMax}`)),
     lockFull: x("\xA7c", p("woa.list.lock_full", String(woaLockMax))),
+    back: p("woa.list.back"),
 };
 var woaListTag = "\xA7t\xA7s\xA7p\xA7r",
     woaRowLocked = "\xA7p\xA7t\xA7r",
-    woaRowOpen = "\xA7t\xA7p\xA7r";
+    woaRowOpen = "\xA7t\xA7p\xA7r",
+    woaRowOn = "\xA7q\xA7t\xA7r",
+    woaRowOff = "\xA7t\xA7q\xA7r",
+    woaRowNav = "\xA7q\xA7p\xA7r";
+function woaMenuToggle(e, t) {
+    return x(t ? woaRowOn : woaRowOff, e, ": ", p(t ? "woa.config.on" : "woa.config.off"));
+}
+function woaMenuForm(e) {
+    let t = new D_().title(x(woaListTag, _e.title)),
+        n = [],
+        r = (c, d) => {
+            t.button(c), n.push(d);
+        },
+        o = woaSlots(e),
+        i = di(af(e)).adapted.length,
+        s = woaPerf(e),
+        c = Xi(a(() => e.getDynamicProperty(dn))) === "on",
+        d = !woaArmorOff(e);
+    t.header(p("woa.menu.adaptations")),
+        r(x(woaRowNav, p("woa.menu.list"), ` \xA77${o ? `${i}/${o}` : i}`), () => (Hf(e, () => af(e)), !0)),
+        t.divider().header(p("woa.menu.personal")).label(x("\xA77", p("woa.menu.hint"))),
+        r(x(p("woa.menu.effects"), ": \xA7p", p(`woa.menu.level.${s}`)), () =>
+            woaPerfSet(e, woaPerfLevels[(woaPerfLevels.indexOf(s) + 1) % woaPerfLevels.length])
+        ),
+        r(woaMenuToggle(p("woa.menu.shake"), c), () => cl(e, c ? "off" : "on")),
+        r(woaMenuToggle(p("woa.menu.armor"), d), () => woaArmorSet(e, d ? "off" : "on")),
+        r(woaMenuToggle(p("woa.menu.limit", String(ie.slots)), !!o), () => woaLimitToggle(e));
+    if (ib(e)) {
+        let u = Gt("mode");
+        t.divider().header(p("woa.menu.world")),
+            r(x(p("woa.config.mode"), ": \xA7p", p(`woa.config.value.${u}`)), () => {
+                er({ mode: ft[(ft.indexOf(u) + 1) % ft.length] ?? "starter" }, e.name);
+            });
+    }
+    return t.divider().button(_e.close), { form: t, actions: n };
+}
+function woaMenu(e, t = 0) {
+    if (!e.isValid) return;
+    let n = woaMenuForm(e);
+    n.form
+        .show(e)
+        .then((r) => {
+            if (!r.canceled && typeof r.selection == "number") {
+                let o = n.actions[r.selection];
+                if (!o || !e.isValid) return;
+                a(() => o()) === !0 || woaMenu(e);
+                return;
+            }
+            r.cancelationReason === N_.UserBusy &&
+                t < 20 &&
+                le("menu.retry", 10, () => {
+                    woaMenu(e, t + 1);
+                });
+        })
+        .catch((r) => A("menu.show", r, { player: e.name }));
+}
 function Lf(e) {
     return x(`\xA7r${Ee(e.key)} \xA7f`, Qr(e.key), " ", _e.tier(e.entry));
 }
@@ -6849,13 +6905,7 @@ function H_(e, m, k, w) {
     let o = e.atk ?? [];
     n.divider().header(_e.attack(o.length)), o.length || n.label(_e.emptyAttack);
     for (let r of o) n.label(woaListAtk(r));
-    return (
-        n
-            .divider()
-            .button(x(p(m ? "woa.list.limit_on" : "woa.list.limit_off"), " \xB7 ", p("woa.list.limit_tap")))
-            .button(_e.close),
-        { form: n, rows: i }
-    );
+    return n.divider().button(_e.back).button(_e.close), { form: n, rows: i };
 }
 function Hf(e, t, n = 0, w = !1) {
     let r = H_(t(), woaSlots(e), ee(e), w);
@@ -6869,7 +6919,7 @@ function Hf(e, t, n = 0, w = !1) {
                     Hf(e, t, 0, !woaLockToggle(e, ee(e), i));
                     return;
                 }
-                o.selection === r.rows.length && (woaLimitToggle(e), Hf(e, t));
+                o.selection === r.rows.length && woaMenu(e);
                 return;
             }
             if (o.cancelationReason === N_.UserBusy && n < 20) {
@@ -7188,6 +7238,7 @@ var lm = {
         save: p("woa.config.save"),
         opsOnly: x(B("cross"), " \xA7c", p("woa.config.ops_only")),
         itemGiven: x(B("checkMark"), " \xA7a\xA7l", p("woa.config.item_given")),
+        itemHave: x("\xA77", p("woa.config.item_have")),
         starter: p("woa.config.mode.starter"),
         crafting:
             p(
@@ -7210,49 +7261,37 @@ var lm = {
         },
         changed: (e, t, n) => x("\xA7p\xA7l[WoA]\xA7r ", p("woa.config.changed", e, p(lm[t]), J.chatValue(t, n))),
     };
-var dr = !1,
-    rb = 10,
-    ob = 20;
 function ib(e) {
     return e.playerPermissionLevel === Z_.Operator;
 }
-function ab() {
-    let e = Ut();
-    return new nb()
-        .title(J.title)
-        .dropdown(J.label("mode"), [J.starter, J.crafting], { defaultValueIndex: ft.indexOf(e.mode) })
-        .submitButton(J.save);
-}
-function sb(e, t) {
-    let [n] = t;
-    er({ mode: ft[typeof n == "number" ? n : 0] ?? "starter" }, e.name);
-}
-function tn(e, t = 0) {
-    if (!ib(e)) {
-        e.sendMessage(J.opsOnly);
-        return;
-    }
-    ab()
-        .show(e)
-        .then((n) => {
-            if (n.cancelationReason === tb.UserBusy && t < ob) {
-                eb.runTimeout(() => tn(e, t + 1), rb);
-                return;
-            }
-            !(n.canceled || !n.formValues || !e.isValid) && sb(e, n.formValues);
-        })
-        .catch((n) => void 0);
-}
 import { ItemStack as cb } from "@minecraft/server";
 var bi = "xvoid:adaptation_config";
-function pm(e) {
-    let t = e.getComponent("minecraft:inventory")?.container,
-        n = new cb(bi, 1),
-        r = t ? t.addItem(n) : n;
-    r && e.dimension.spawnItem(r, e.location), e.sendMessage(J.itemGiven);
+var woaConfigProp = "xvoid:config_item";
+function woaConfigHas(e) {
+    let t = e.getComponent("minecraft:inventory")?.container;
+    if (t) for (let n = 0; n < t.size; n++) if (t.getItem(n)?.typeId === bi) return !0;
+    return a(() => e.getComponent("minecraft:equippable")?.getEquipment(Ue.Offhand)?.typeId) === bi;
+}
+function pm(e, t) {
+    if (!e.isValid) return;
+    if (woaConfigHas(e)) {
+        t || e.sendMessage(J.itemHave);
+        return;
+    }
+    let n = new cb(bi, 1);
+    n.keepOnDeath = !0;
+    let r = e.getComponent("minecraft:inventory")?.container,
+        o = r ? r.addItem(n) : n;
+    o && e.dimension.spawnItem(o, e.location), e.sendMessage(J.itemGiven);
+}
+function woaConfigFirst(e) {
+    !e.isValid ||
+        a(() => e.getDynamicProperty(woaConfigProp)) === !0 ||
+        a(() => e.getGameMode()) === lb.Spectator ||
+        (a(() => e.setDynamicProperty(woaConfigProp, !0)), pm(e, !0));
 }
 function gm(e) {
-    e.itemStack.typeId === bi && tn(e.source);
+    e.itemStack.typeId === bi && woaMenu(e.source);
 }
 var ub = ["open", "item"];
 function fb(e) {
@@ -7261,20 +7300,19 @@ function fb(e) {
 function ym(e) {
     let t = e.customCommandRegistry;
     t.registerEnum("woa:item_mode", [...ft]),
-        dr &&
-            (t.registerEnum("woa:config_action", [...ub]),
+        (t.registerEnum("woa:config_action", [...ub]),
             t.registerCommand(
                 {
                     name: "woa:config",
-                    description: "Wheel of Adaptation: open the world settings (open) or get the settings item (item)",
-                    permissionLevel: hm.Admin,
+                    description: "Wheel of Adaptation: open the menu (open) or get the settings item (item)",
+                    permissionLevel: hm.Any,
                     cheatsRequired: !1,
                     optionalParameters: [{ name: "woa:config_action", type: _m.Enum }],
                 },
                 (n, r) => {
                     let o = k(n.sourceEntity);
                     return o
-                        ? (bm.run(() => (r === "item" ? pm(o) : tn(o))), { status: ur.Success })
+                        ? (bm.run(() => (r === "item" ? pm(o) : woaMenu(o))), { status: ur.Success })
                         : { status: ur.Failure, message: "Run this command as a player." };
                 }
             )),
@@ -7304,8 +7342,7 @@ function ym(e) {
 }
 function Em() {
     mb.beforeEvents.startup.subscribe((e) => ym(e)),
-        dr &&
-            xm.afterEvents.itemUse.subscribe((e) => {
+        xm.afterEvents.itemUse.subscribe((e) => {
                 try {
                     gm(e);
                 } catch (t) {}
@@ -8149,7 +8186,7 @@ N(re.afterEvents.entityDie, "adaptation.entityDie", (e) => {
 });
 N(re.afterEvents.playerSpawn, "starter.playerSpawn", (e) => {
     let t = e.player;
-    le("starter.ensureKit", lt.delayTicks, () => Ei(t));
+    le("starter.ensureKit", lt.delayTicks, () => (Ei(t), woaConfigFirst(t)));
 });
 N(re.afterEvents.entitySpawn, "main.entitySpawn", (e) => {
     pr("wheel.sanitizeDrop", () => Ss(e.entity)),
