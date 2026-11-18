@@ -3,7 +3,8 @@
     python3 -m venv .venv && .venv/bin/pip install pillow numpy soundfile
     .venv/bin/python tools/fx/gen_seal_assets.py [path to the Elemental Weapon resource pack]
 
-The icon is pixel art on a 32 px grid, saved at 64 px like the other items.
+The icon is 16 px, the size of a vanilla item: this item is held as a plain sprite
+(no attachable), and a larger texture is drawn larger in the hand.
 The sounds are synthesised here, mono so the game can place them in the world.
 Only the chain sound is taken from the Elemental Weapon addon (sounds/chuan.ogg,
 the sound of its Heavenly Chain skill); without the path that one is skipped.
@@ -29,50 +30,38 @@ RATE = 44100
 # icon
 # --------------------------------------------------------------------------
 
-N = 32
+N = 16
 C = (N - 1) / 2
 PALETTE = {
     "o": (48, 26, 8), "d": (150, 88, 18), "g": (236, 168, 40), "l": (255, 220, 112), "w": (255, 250, 220),
-    "n": (22, 20, 46), "m": (44, 40, 84), "c": (120, 128, 146), "C": (206, 214, 228), "k": (58, 62, 76),
+    "n": (22, 20, 46), "m": (44, 40, 84), "c": (120, 128, 146), "k": (58, 62, 76),
 }
-BOLT = [(18, 6, 3), (17, 7, 3), (16, 8, 3), (15, 9, 3), (14, 10, 3), (13, 11, 3), (12, 12, 3), (11, 13, 4),
-        (11, 14, 9), (12, 15, 8), (16, 16, 3), (15, 17, 3), (14, 18, 3), (13, 19, 3), (12, 20, 3), (11, 21, 3),
-        (11, 22, 2), (10, 23, 2), (10, 24, 1)]
+# the eight handles: the tip of each one, then the stubs that join the four straight ones to the rim
+KNOBS = [(7, 1, "l"), (8, 1, "g"), (7, 14, "g"), (8, 14, "d"), (1, 7, "l"), (1, 8, "g"), (14, 7, "g"), (14, 8, "d"),
+         (3, 3, "l"), (12, 3, "g"), (3, 12, "g"), (12, 12, "d"),
+         (7, 2, "g"), (8, 2, "g"), (7, 13, "g"), (8, 13, "g"), (2, 7, "g"), (2, 8, "g"), (13, 7, "g"), (13, 8, "g")]
+BOLT = [(9, 3, 1), (8, 4, 2), (7, 5, 2), (6, 6, 2), (6, 7, 4), (8, 8, 2), (7, 9, 2), (6, 10, 2), (6, 11, 1)]
 
 
 def icon():
     """The wheel with its eight handles, a ring of chain inside the rim and a bolt across the hub."""
     px = [[None] * N for _ in range(N)]
-
-    def put(x, y, c):
-        if 0 <= x < N and 0 <= y < N:
-            px[y][x] = c
-
-    for k in range(8):
-        a = math.radians(k * 45)
-        for y in range(N):
-            for x in range(N):
-                dx, dy = x - C, y - C
-                along, across = dx * math.cos(a) + dy * math.sin(a), -dx * math.sin(a) + dy * math.cos(a)
-                if 11 < along < 13.2 and abs(across) < 0.8:
-                    put(x, y, "g")
-                if math.hypot(along - 13.9, across) < 1.75:
-                    put(x, y, "l" if dx + dy < 0 else "g")
     for y in range(N):
         for x in range(N):
             dx, dy = x - C, y - C
             r = math.hypot(dx, dy)
-            if r < 7.3:
-                put(x, y, "m" if r < 4.3 else "n")
-            elif r < 9.4:
-                link = int((math.degrees(math.atan2(dy, dx)) % 360) / 15)
-                put(x, y, ("C" if r > 8.2 else "c") if link % 2 else "k")
-            elif r < 12.3:
-                put(x, y, "l" if dx + dy < -6 and r > 10.6 else ("d" if dx + dy > 6 and r < 11.2 else "g"))
+            if r < 2.9:
+                px[y][x] = "m" if r < 1.9 else "n"
+            elif r < 3.95:
+                link = int((math.degrees(math.atan2(dy, dx)) % 360) / 45 + 0.5)
+                px[y][x] = "c" if link % 2 else "k"
+            elif r < 5.75:
+                px[y][x] = "l" if dx + dy < -3 and r > 4.7 else ("d" if dx + dy > 3 and r < 5.0 else "g")
+    for x, y, c in KNOBS:
+        px[y][x] = c
     for x, y, n in BOLT:
         for i in range(n):
-            put(x + i, y, "w" if i < n - 1 or n == 1 else "l")
-        put(x - 1, y, "g")
+            px[y][x + i] = "w" if i < n - 1 or n == 1 else "l"
     im = Image.new("RGBA", (N, N), (0, 0, 0, 0))
     for y in range(N):
         for x in range(N):
@@ -83,7 +72,7 @@ def icon():
                     c = "o"
             if c:
                 im.putpixel((x, y), PALETTE[c] + (255,))
-    return im.resize((64, 64), Image.NEAREST)
+    return im
 
 
 # --------------------------------------------------------------------------
@@ -237,7 +226,7 @@ def encode(path, data, rate, limit=0.92):
 def main():
     os.makedirs(os.path.dirname(ICON), exist_ok=True)
     icon().save(ICON, optimize=True)
-    print("seal_of_judgment.png 64x64")
+    print(f"seal_of_judgment.png {N}x{N}")
     for k, (name, make) in enumerate(SYNTH.items()):
         data = make(np.random.default_rng(40 + k))
         peak = encode(os.path.join(SOUNDS, f"{name}.ogg"), data, RATE)

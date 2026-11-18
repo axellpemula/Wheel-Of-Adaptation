@@ -7475,6 +7475,8 @@ jt((e, t) => {
 import { InputPermissionCategory as woaInput } from "@minecraft/server";
 var woaSealItem = "xvoid:seal_of_judgment",
     woaSealProp = "xvoid:seal_bound",
+    woaSealCdProp = "xvoid:seal_cooldown",
+    woaSealCd = new Map(),
     woaSeal = {
         radius: 32,
         height: 40,
@@ -7492,6 +7494,8 @@ var woaSealItem = "xvoid:seal_of_judgment",
         maxMisses: 6,
         tiredTicks: 600,
         drain: 0.5,
+        cooldown: 12e3,
+        saveEvery: 100,
         skip: new Set(["minecraft:armor_stand", "minecraft:npc", "minecraft:agent"]),
     },
     woaDomains = new Map(),
@@ -7555,11 +7559,29 @@ function woaSealLock(e, t) {
         a(() => e.inputPermissions.setPermissionCategory(woaInput.Movement, !t)),
         a(() => e.setDynamicProperty(woaSealProp, t ? !0 : void 0));
 }
+function woaSealCdOf(e, t) {
+    let n = woaSealCd.get(e.id);
+    if (n === void 0) {
+        let r = a(() => e.getDynamicProperty(woaSealCdProp));
+        (n = typeof r == "number" && r > 0 ? t + r : 0), woaSealCd.set(e.id, n);
+    }
+    return n;
+}
+function woaSealCdSet(e, t, n) {
+    woaSealCd.set(e.id, n > 0 ? t + n : 0), a(() => e.setDynamicProperty(woaSealCdProp, n > 0 ? n : void 0));
+}
+function woaSealClock(e) {
+    let t = Math.ceil(e / 20);
+    return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
+}
 function woaSealWhy(e) {
     if (!R(e.id)) return p("woa.seal.need_wheel");
     if (woaSealed(e.id)) return p("woa.seal.busy");
-    let t = Dt(ee(e));
-    if (t < woaSeal.need) return p("woa.seal.need_full", `${t}`, `${woaSeal.need}`);
+    let t = Be.currentTick,
+        n = woaSealCdOf(e, t) - t;
+    if (n > 0) return p("woa.seal.cooldown", woaSealClock(n));
+    let r = Dt(ee(e));
+    if (r < woaSeal.need) return p("woa.seal.need_full", `${r}`, `${woaSeal.need}`);
 }
 function woaSealDeny(e, t) {
     woaSealSay(e, B("cross"), " \xA7c", t), a(() => e.playSound("note.bass"));
@@ -7608,7 +7630,7 @@ function woaSealOpen(e, t) {
         let c = woaSealKind(s, e.id);
         c === "bind" ? o.inside.add(s.id) : c === "pet" && o.allowed.add(s.id);
     }
-    kc(e);
+    kc(e), woaSealCdSet(e, t, woaSeal.cooldown);
     let i = ee(e);
     (i.lastKey = void 0),
         (i.hudKey = void 0),
@@ -7859,7 +7881,7 @@ function woaSealNoHeal(e) {
     return t && woaTired.has(t) ? ((e.cancel = !0), !0) : !1;
 }
 function woaSealForget(e) {
-    woaSealHold.delete(e), woaTired.delete(e), woaSealLocked.delete(e);
+    woaSealHold.delete(e), woaTired.delete(e), woaSealLocked.delete(e), woaSealCd.delete(e);
     let t = woaBound.get(e);
     t && (t.bound.delete(e), woaBound.delete(e));
 }
@@ -7875,8 +7897,16 @@ function woaSealTick() {
     for (let t of [...woaDomains.values()]) a(() => woaSealRun(t, e));
     for (let [t, n] of [...woaTired]) a(() => woaSealRest(t, n, e));
     if (e % 20 === 0)
-        for (let t of a(() => re.getAllPlayers()) ?? [])
+        for (let t of a(() => re.getAllPlayers()) ?? []) {
             woaSealLocked.has(t.id) || (a(() => t.getDynamicProperty(woaSealProp)) && woaSealLock(t, !1));
+            let n = woaSealCdOf(t, e);
+            n > 0 &&
+                (e >= n
+                    ? (woaSealCdSet(t, e, 0),
+                      woaSealSay(t, "\xA7a", p("woa.seal.ready")),
+                      a(() => t.playSound("note.pling")))
+                    : e % woaSeal.saveEvery === 0 && a(() => t.setDynamicProperty(woaSealCdProp, n - e)));
+        }
 }
 function woaSealInit() {
     N(re.afterEvents.itemStartUse, "seal.start", woaSealUse),
