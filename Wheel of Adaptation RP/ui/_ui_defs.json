@@ -1,5 +1,6 @@
 {
   "ui_defs": [
-    "ui/xvoid_hud.json"
+    "ui/xvoid_hud.json",
+    "ui/xvoid_list.json"
   ]
 }

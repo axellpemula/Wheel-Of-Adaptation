@@ -2778,6 +2778,7 @@ function xc() {
         atkLast: void 0,
         atkLastAt: -1e9,
         counter: void 0,
+        locks: new Set(),
     };
 }
 function R(e) {
@@ -2816,7 +2817,7 @@ function Ec(e) {
                         t.pending.set(c, U);
                 } else t.pending.delete(c);
             }
-            (t.spin = (r.p ?? 0) % C.handles), woaAtkLoad(t, r.a);
+            (t.spin = (r.p ?? 0) % C.handles), woaAtkLoad(t, r.a), woaLockLoad(t, r.k);
         } catch (r) {
             A(
                 "state.load",
@@ -2824,7 +2825,8 @@ function Ec(e) {
                 { player: e.id }
             ),
                 t.map.clear(),
-                t.pending.clear();
+                t.pending.clear(),
+                t.locks.clear();
         }
     return et.set(e.id, t), t;
 }
@@ -2835,13 +2837,20 @@ function Dn(e, t) {
             c = s ? he(s.p) : 0;
         (i.s > 0 || c > 0) && (n[o] = [i.s, i.n, i.used ?? 0, c, s?.activeLeft ?? 0]);
     }
-    let r = { m: n, p: t.spin, v: og, a: woaAtkSave(t) };
-    e.setDynamicProperty(mt, JSON.stringify(r));
+    let r = { m: n, p: t.spin, v: og, a: woaAtkSave(t) },
+        k = woaLocks(t);
+    k.length && (r.k = k), e.setDynamicProperty(mt, JSON.stringify(r));
 }
 function kc(e) {
     let t = et.get(e.id);
     t
-        ? (t.map.clear(), t.pending.clear(), t.atk.clear(), (t.counter = void 0), (t.landing = void 0), Dn(e, t))
+        ? (t.map.clear(),
+          t.pending.clear(),
+          t.atk.clear(),
+          t.locks.clear(),
+          (t.counter = void 0),
+          (t.landing = void 0),
+          Dn(e, t))
         : e.setDynamicProperty(mt, void 0);
 }
 function Sc(e) {
@@ -5588,6 +5597,30 @@ function qu(e, t) {
     }
     (t === "env:lava" || fa.some((r) => t === `env:${r}`)) && a(() => e.extinguishFire(!1));
 }
+var woaLockMax = 2;
+function woaLocked(e, t) {
+    if (!e.locks.has(t)) return !1;
+    let n = e.map.get(t);
+    return !!n && n.s >= n.n;
+}
+function woaLocks(e) {
+    let t = [];
+    for (let n of [...e.locks]) woaLocked(e, n) ? t.push(n) : e.locks.delete(n);
+    return t;
+}
+function woaLockLoad(e, t) {
+    if ((e.locks.clear(), !Array.isArray(t))) return;
+    for (let n of t) typeof n == "string" && e.locks.size < woaLockMax && e.locks.add(n);
+    woaLocks(e);
+}
+function woaLockToggle(e, t, n) {
+    if (t.locks.has(n)) t.locks.delete(n);
+    else {
+        if (woaLocks(t).length >= woaLockMax) return !1;
+        woaFull(t, n) && t.locks.add(n);
+    }
+    return (t.dirty = !0), a(() => Dn(e, t)), !0;
+}
 var woaLimitProp = "xvoid:adapt_limit",
     woaLimitCache = new Map();
 function woaSlots(e) {
@@ -5605,9 +5638,10 @@ function woaLimitToggle(e) {
 function Kh(e, t, n) {
     let m = woaSlots(e);
     if (!m) return;
-    let r = [...t.map.entries()].filter(([s, c]) => c.s >= c.n && s !== n);
+    let k = [...t.map.entries()].filter(([s, c]) => c.s >= c.n && s !== n),
+        r = k.filter(([s]) => !woaLocked(t, s));
     r.sort((s, c) => s[1].used - c[1].used);
-    for (let j = 0; r.length - j >= m; j++) {
+    for (let j = 0; k.length - j >= m && j < r.length; j++) {
         let [o, i] = r[j];
         (i.s = 0),
             (t.dirty = !0),
@@ -6763,7 +6797,13 @@ var _e = {
     emptyAttack: x("\xA77", p("woa.list.empty_attack")),
     pierce: x(" \xA76\xB7 ", p("woa.list.pierce")),
     tier: (e) => x("\xA76", p(`woa.tier.${Cf(e)}`)),
+    locked: x(" \xA7p", p("woa.list.locked")),
+    lockHint: (e) => x("\xA77", p("woa.list.lock_hint", `${e}/${woaLockMax}`)),
+    lockFull: x("\xA7c", p("woa.list.lock_full", String(woaLockMax))),
 };
+var woaListTag = "\xA7t\xA7s\xA7p\xA7r",
+    woaRowLocked = "\xA7p\xA7t\xA7r",
+    woaRowOpen = "\xA7t\xA7p\xA7r";
 function Lf(e) {
     return x(`\xA7r${Ee(e.key)} \xA7f`, Qr(e.key), " ", _e.tier(e.entry));
 }
@@ -6794,35 +6834,42 @@ function woaListAtk(e) {
               to(e)
           );
 }
-function H_(e, m) {
+function H_(e, m, k, w) {
     let t = di(e),
-        n = new D_().title(_e.title).header(_e.analysing(t.analysing.length));
+        i = [],
+        n = new D_().title(x(woaListTag, _e.title)).header(_e.analysing(t.analysing.length));
     t.analysing.length || n.label(_e.emptyAnalysing);
     for (let r of t.analysing) n.label(L_(r));
     n.divider().header(_e.adapted(m ? `${t.adapted.length}/${m}` : t.adapted.length)),
-        t.adapted.length || n.label(_e.emptyAdapted);
-    for (let r of t.adapted) n.label(Lf(r));
+        n.label(t.adapted.length ? (w ? _e.lockFull : _e.lockHint(woaLocks(k).length)) : _e.emptyAdapted);
+    for (let r of t.adapted) {
+        let c = woaLocked(k, r.key);
+        i.push(r.key), n.button(x(c ? woaRowLocked : woaRowOpen, Lf(r), ...(c ? [_e.locked] : [])));
+    }
     let o = e.atk ?? [];
     n.divider().header(_e.attack(o.length)), o.length || n.label(_e.emptyAttack);
     for (let r of o) n.label(woaListAtk(r));
-    return n
-        .button(
-            x(
-                p(m ? "woa.list.limit_on" : "woa.list.limit_off"),
-                `
-\xA78`,
-                p("woa.list.limit_tap")
-            )
-        )
-        .button(_e.close);
+    return (
+        n
+            .divider()
+            .button(x(p(m ? "woa.list.limit_on" : "woa.list.limit_off"), " \xB7 ", p("woa.list.limit_tap")))
+            .button(_e.close),
+        { form: n, rows: i }
+    );
 }
-function Hf(e, t, n = 0) {
-    let r = t();
-    H_(r, woaSlots(e))
+function Hf(e, t, n = 0, w = !1) {
+    let r = H_(t(), woaSlots(e), ee(e), w);
+    r.form
         .show(e)
         .then((o) => {
-            if (!o.canceled && o.selection === 0) {
-                woaLimitToggle(e), Hf(e, t);
+            if (!o.canceled && typeof o.selection == "number") {
+                if (!e.isValid) return;
+                let i = r.rows[o.selection];
+                if (i !== void 0) {
+                    Hf(e, t, 0, !woaLockToggle(e, ee(e), i));
+                    return;
+                }
+                o.selection === r.rows.length && (woaLimitToggle(e), Hf(e, t));
                 return;
             }
             if (o.cancelationReason === N_.UserBusy && n < 20) {
@@ -6830,7 +6877,7 @@ function Hf(e, t, n = 0) {
                     "list.retry",
                     10,
                     () => {
-                        e.isValid && Hf(e, t, n + 1);
+                        e.isValid && Hf(e, t, n + 1, w);
                     }
                 );
                 return;
