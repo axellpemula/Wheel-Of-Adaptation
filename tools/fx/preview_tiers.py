@@ -31,10 +31,13 @@ BODY = (0, 0.9, 0)
 TARGET = (0, 1.0, 0)
 
 # move -> (seconds after the start, blocks across, [(script id, where), ...])
+# A third value in a spawn is how many seconds earlier that copy started; the
+# domain respawns its effects every two seconds and the copies overlap.
+# The w_* effects are the ones the wheel plays itself, the same on every tier.
 SCENES = {
     "wheel turn": (0.14, 9, [
-        ("wheel_spin", WHEEL), ("adapt_halo", WHEEL), ("wheel_crackle", WHEEL), ("fx_arcs_gold", WHEEL),
-        ("twinkle_gold", WHEEL), ("adapt_ripple", GROUND),
+        ("w_wheel_spin", WHEEL), ("w_adapt_halo", WHEEL), ("w_wheel_crackle", WHEEL), ("w_fx_arcs_gold", WHEEL),
+        ("w_twinkle_gold", WHEEL), ("wheel_turn_more", WHEEL), ("adapt_ripple", GROUND),
     ]),
     "full adaptation, 0.25 s": (0.25, 34, None),
     "full adaptation, 1.3 s": (1.3, 34, None),
@@ -90,6 +93,10 @@ SCENES = {
         ("shatter_gold", TARGET), ("fx_arcs_gold", TARGET),
     ]),
     "aura while worn (ultra only)": (0.12, 9, [("ultra_aura", WHEEL), ("ultra_aura_ground", GROUND)]),
+    "domain, one second into a copy": (1.0, 84, [
+        ("seal_wall", (0, 1, 0)), ("seal_wall", (0, 1, 0), 2.0), ("seal_wall", (0, 1, 0), 4.0),
+        ("seal_floor", (0, 0.15, 0)), ("seal_sky", (0, 40, 0)),
+    ]),
     "quake": (0.3, 34, [
         ("quake_ring", GROUND), ("quake_dust", GROUND), ("quake_crack", GROUND), ("ground_flash", GROUND),
         ("ring_wave_gold", GROUND), ("dust_burst", GROUND),
@@ -204,6 +211,7 @@ def simulate(name, origin, now):
     parts = data["components"]
     env = {f"{name}.{axis}": value for name in ("blast_dir", "kick_dir", "dash_dir") for axis, value in zip("xyz", (1.0, 0.0, 0.0))}
     env.update({"ward_dir.x": 0.0, "ward_dir.y": 0.0, "ward_dir.z": 1.0})
+    env.update({"ride.x": 0.0, "ride.y": 1.0, "ride.z": 0.0, "ride_speed": 0.0})  # a wearer who stands still
     births = []
     if "minecraft:emitter_rate_instant" in parts:
         births = [0.0] * int(molang(parts["minecraft:emitter_rate_instant"]["num_particles"], env))
@@ -335,10 +343,10 @@ def cell(scene, level, table, size=(520, 330)):
     canvas[int(centre[1] - py):int(centre[1]), int(centre[0] - px):int(centre[0] + px)] = np.array([0.2, 0.23, 0.28])
     random.seed(7)
     particles, emitters = [], 0
-    for name, origin in spawns:
+    for name, origin, *earlier in spawns:
         for effect in table.get(name, {}).get(level, [name] if (PACK / "particles" / f"{name}.json").exists() else []):
             emitters += 1
-            particles += simulate(effect, origin, now)
+            particles += simulate(effect, origin, now + (earlier[0] if earlier else 0.0))
     paint(canvas, particles, scale, centre)
     image = Image.fromarray((np.clip(canvas, 0, 1) * 255).astype(np.uint8))
     ImageDraw.Draw(image).text((6, 4), f"{emitters} emitters, {len(particles)} particles alive", fill=(170, 180, 190))

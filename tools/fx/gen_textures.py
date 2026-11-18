@@ -408,6 +408,19 @@ def seal_circle():
     return i * window(512, 0.94, 1.0)
 
 
+def seal_ring():
+    """One hoop of light that climbs the wall of the domain.
+
+    The hoop is 236 px from the centre of a 512 px sheet; gen_particles.py sizes
+    the sprite from that so the hoop lies on the rim of the domain.
+    """
+    a = Art(512)
+    a.ring(236, 3.0)
+    a.ring(229, 1.2, 150)
+    i = glow(a.array() * 0.8, [(2, 0.6), (6, 0.45)])
+    return i * window(512, 0.96, 1.0)
+
+
 def fork(rng, a, b, rough, depth):
     """Lightning path from a to b by midpoint displacement."""
     if depth == 0:
@@ -485,6 +498,7 @@ TEXTURES = {
     "fx_vortex": (vortex, False),
     "fx_puff": (puff, False),
     "seal_circle": (seal_circle, True),
+    "seal_ring": (seal_ring, True),
     "seal_bolt": (seal_bolt, True),
 }
 

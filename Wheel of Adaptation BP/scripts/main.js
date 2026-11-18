@@ -522,13 +522,16 @@ var FX_TIERS = {
     "xvoid:heal_sever": { low: ["xvoid:heal_sever_lite"], ultra: ["xvoid:heal_sever_ultra"] },
     "xvoid:heal_crackle": { low: [], ultra: ["xvoid:heal_crackle_ultra", "xvoid:u_arcs_red"] },
     "xvoid:seal_sky": { ultra: ["xvoid:seal_sky", "xvoid:seal_sky_inner"] },
-    "xvoid:seal_wall": { low: ["xvoid:seal_wall_lite"], ultra: ["xvoid:seal_wall_ultra"] },
+    "xvoid:seal_wall": { low: ["xvoid:seal_wall_lite"], ultra: ["xvoid:seal_wall_ultra", "xvoid:seal_wall_hoop", "xvoid:seal_motes"] },
+    "xvoid:seal_floor": { low: [], medium: [], ultra: ["xvoid:seal_ground"] },
     "xvoid:seal_bolt": { ultra: ["xvoid:seal_bolt", "xvoid:seal_bolt_wide"] },
     "xvoid:seal_bolt_sparks": { low: [], ultra: ["xvoid:seal_bolt_sparks_ultra"] },
     "xvoid:seal_bolt_ring": { low: [] },
     "xvoid:seal_tired": { low: [] },
     "xvoid:ultra_aura": { low: [], medium: [], ultra: ["xvoid:u_aura_arcs", "xvoid:u_aura_motes"] },
     "xvoid:ultra_aura_ground": { low: [], medium: [], ultra: ["xvoid:u_aura_ring"] },
+    "xvoid:wheel_turn_more": { low: [], medium: [], ultra: ["xvoid:u_ride_disc", "xvoid:u_ride_arcs"] },
+    "xvoid:wheel_build_more": { low: [], medium: [], ultra: ["xvoid:u_ride_implode", "xvoid:u_ride_arcs", "xvoid:u_charge_ground"] },
 };
 /* fx-tiers:end */
 var woaPerfProp = "xvoid:perf",
@@ -597,6 +600,24 @@ function fxDir(e, t, n, r, o) {
         i.setVector3(r, o), fxSpawn(e, t, n, i);
     });
 }
+var woaRideLead = 1;
+function fxRide(e, t, n) {
+    a(() => {
+        let r = e.getVelocity(),
+            o = e.isOnGround ? 0 : r.y,
+            i = Math.hypot(r.x, o, r.z),
+            s = i > 0.01,
+            c = new fxMolang();
+        c.setVector3("variable.ride", s ? { x: r.x / i, y: o / i, z: r.z / i } : { x: 0, y: 1, z: 0 }),
+            c.setFloat("variable.ride_speed", s ? i * 20 : 0),
+            fxSpawn(
+                e.dimension,
+                t,
+                s ? { x: n.x + r.x * woaRideLead, y: n.y + o * woaRideLead, z: n.z + r.z * woaRideLead } : n,
+                c
+            );
+    });
+}
 function fxPositive(e, t) {
     v(e, I.positive, t), v(e, I.positiveFlash, t), v(e, I.positiveRing, t), v(e, I.twinkleMint, t), v(e, I.ringPopMint, t);
 }
@@ -635,20 +656,24 @@ function Ye(e) {
     let t = e.getHeadLocation();
     return { x: t.x, y: t.y + C.heightAboveEyes, z: t.z };
 }
-function _t(e, t = w.spin) {
+function _t(e, t = w.spin, r) {
     let n = Ye(e);
-    z(e.dimension, t, n), v(e.dimension, I.spin, n), v(e.dimension, I.halo, n), v(e.dimension, I.crackle, n), v(e.dimension, I.arcs, n), v(e.dimension, I.twinkle, n), v(e.dimension, I.ripple, Re(e, 0.08));
+    z(e.dimension, t, n),
+        r
+            ? fxRide(e, "xvoid:wheel_turn_more", n)
+            : (v(e.dimension, I.spin, n), v(e.dimension, I.halo, n), v(e.dimension, I.crackle, n), v(e.dimension, I.arcs, n), v(e.dimension, I.twinkle, n)),
+        v(e.dimension, I.ripple, Re(e, 0.08));
 }
-function Ki(e, t) {
+function Ki(e, t, woaBound) {
     let n = Ye(e);
     z(e.dimension, w.adapted, n),
-        v(e.dimension, I.charge, n),
-        v(e.dimension, I.gather, n),
+        woaBound ? fxRide(e, "xvoid:wheel_build_more", n) : (v(e.dimension, I.charge, n), v(e.dimension, I.gather, n)),
         v(e.dimension, I.mandala, Re(e, 0.08));
     for (let r of C.fullBuildTicks)
         ge(r, () => {
             if (!e.isValid) return;
             let o = Ye(e);
+            if (woaBound) return fxRide(e, "xvoid:wheel_build_more", o);
             v(e.dimension, I.spin, o),
                 v(e.dimension, I.charge, o),
                 v(e.dimension, I.halo, o),
@@ -1052,7 +1077,7 @@ function woaAura() {
             if (!e.isValid || !R(e.id)) return;
             let t = e.dimension;
             woaViewers(t).mixed &&
-                (fxSpawn(t, "xvoid:ultra_aura", Ye(e)),
+                (fxRide(e, "xvoid:ultra_aura", Ye(e)),
                 Be.currentTick % 40 < 10 && fxSpawn(t, "xvoid:ultra_aura_ground", Re(e, 0.08)));
         });
 }
@@ -5730,8 +5755,7 @@ function qh(e, t, n) {
               : "adapting";
 }
 function Yu(e, t, n, r) {
-    ce(e, "full"),
-        Ki(e, () => Xe(e, "adapted")),
+    Ki(e, () => Xe(e, "adapted"), ce(e, "full")),
         (t.lastSpin = r + C.fullLock - C.spinInterval),
         (t.lastTurn = { key: n, at: r }),
         (t.landing = { key: n, at: r + $e.full, full: !0 });
@@ -5759,8 +5783,7 @@ function Yh(e, t, n, r) {
                 key: n,
                 at: r + C.firstLock,
             }),
-            ce(e, "first"),
-            _t(e, w.first);
+            _t(e, w.first, ce(e, "first"));
         return;
     }
     (t.lastSpin = r), (t.lastTurn = { key: n, at: r });
@@ -5769,8 +5792,8 @@ function Yh(e, t, n, r) {
         o ===
         "fast"
     )
-        ce(e, "fast"), _t(e, w.fast), (i = $e.fast);
-    else if (o === "adapting") ce(e, "spin"), _t(e, w.spin);
+        _t(e, w.fast, ce(e, "fast")), (i = $e.fast);
+    else if (o === "adapting") _t(e, w.spin, ce(e, "spin"));
     else {
         Yu(e, t, n, r);
         return;
@@ -5803,8 +5826,7 @@ function e_(e, t, n, r) {
         Be.run(() => {
             e.isValid &&
                 (a(() => e.getComponent("minecraft:health")?.setCurrentValue(1)),
-                ce(e, "spin"),
-                _t(e, w.spin),
+                _t(e, w.spin, ce(e, "spin")),
                 fxUndying(e),
                 z(e.dimension, w.undying, Ye(e)));
         }),
@@ -6025,7 +6047,7 @@ function woaAttackHit(e, t, n, r) {
 }
 function woaAttackTurn(e, t, n, r) {
     if (!e.isValid || !R(e.id)) return;
-    vt(e.id, Be.currentTick) || ce(e, "spin"), _t(e, w.spin);
+    _t(e, w.spin, !vt(e.id, Be.currentTick) && ce(e, "spin"));
     let o = [" \xA7f\xBB ", bt(Ee(t)), " \xA7f", hn(t)];
     if (n >= r) {
         let i = Ye(e);
@@ -6800,10 +6822,66 @@ var _e = {
     locked: x(" \xA7p", p("woa.list.locked")),
     lockHint: (e) => x("\xA77", p("woa.list.lock_hint", `${e}/${woaLockMax}`)),
     lockFull: x("\xA7c", p("woa.list.lock_full", String(woaLockMax))),
+    back: p("woa.list.back"),
 };
 var woaListTag = "\xA7t\xA7s\xA7p\xA7r",
     woaRowLocked = "\xA7p\xA7t\xA7r",
-    woaRowOpen = "\xA7t\xA7p\xA7r";
+    woaRowOpen = "\xA7t\xA7p\xA7r",
+    woaRowOn = "\xA7q\xA7t\xA7r",
+    woaRowOff = "\xA7t\xA7q\xA7r",
+    woaRowNav = "\xA7q\xA7p\xA7r";
+function woaMenuToggle(e, t) {
+    return x(t ? woaRowOn : woaRowOff, e, ": ", p(t ? "woa.config.on" : "woa.config.off"));
+}
+function woaMenuForm(e) {
+    let t = new D_().title(x(woaListTag, _e.title)),
+        n = [],
+        r = (c, d) => {
+            t.button(c), n.push(d);
+        },
+        o = woaSlots(e),
+        i = di(af(e)).adapted.length,
+        s = woaPerf(e),
+        c = Xi(a(() => e.getDynamicProperty(dn))) === "on",
+        d = !woaArmorOff(e);
+    t.header(p("woa.menu.adaptations")),
+        r(x(woaRowNav, p("woa.menu.list"), ` \xA77${o ? `${i}/${o}` : i}`), () => (Hf(e, () => af(e)), !0)),
+        t.divider().header(p("woa.menu.personal")).label(x("\xA77", p("woa.menu.hint"))),
+        r(x(p("woa.menu.effects"), ": \xA7p", p(`woa.menu.level.${s}`)), () =>
+            woaPerfSet(e, woaPerfLevels[(woaPerfLevels.indexOf(s) + 1) % woaPerfLevels.length])
+        ),
+        r(woaMenuToggle(p("woa.menu.shake"), c), () => cl(e, c ? "off" : "on")),
+        r(woaMenuToggle(p("woa.menu.armor"), d), () => woaArmorSet(e, d ? "off" : "on")),
+        r(woaMenuToggle(p("woa.menu.limit", String(ie.slots)), !!o), () => woaLimitToggle(e));
+    if (ib(e)) {
+        let u = Gt("mode");
+        t.divider().header(p("woa.menu.world")),
+            r(x(p("woa.config.mode"), ": \xA7p", p(`woa.config.value.${u}`)), () => {
+                er({ mode: ft[(ft.indexOf(u) + 1) % ft.length] ?? "starter" }, e.name);
+            });
+    }
+    return t.divider().button(_e.close), { form: t, actions: n };
+}
+function woaMenu(e, t = 0) {
+    if (!e.isValid) return;
+    let n = woaMenuForm(e);
+    n.form
+        .show(e)
+        .then((r) => {
+            if (!r.canceled && typeof r.selection == "number") {
+                let o = n.actions[r.selection];
+                if (!o || !e.isValid) return;
+                a(() => o()) === !0 || woaMenu(e);
+                return;
+            }
+            r.cancelationReason === N_.UserBusy &&
+                t < 20 &&
+                le("menu.retry", 10, () => {
+                    woaMenu(e, t + 1);
+                });
+        })
+        .catch((r) => A("menu.show", r, { player: e.name }));
+}
 function Lf(e) {
     return x(`\xA7r${Ee(e.key)} \xA7f`, Qr(e.key), " ", _e.tier(e.entry));
 }
@@ -6849,13 +6927,7 @@ function H_(e, m, k, w) {
     let o = e.atk ?? [];
     n.divider().header(_e.attack(o.length)), o.length || n.label(_e.emptyAttack);
     for (let r of o) n.label(woaListAtk(r));
-    return (
-        n
-            .divider()
-            .button(x(p(m ? "woa.list.limit_on" : "woa.list.limit_off"), " \xB7 ", p("woa.list.limit_tap")))
-            .button(_e.close),
-        { form: n, rows: i }
-    );
+    return n.divider().button(_e.back).button(_e.close), { form: n, rows: i };
 }
 function Hf(e, t, n = 0, w = !1) {
     let r = H_(t(), woaSlots(e), ee(e), w);
@@ -6869,7 +6941,7 @@ function Hf(e, t, n = 0, w = !1) {
                     Hf(e, t, 0, !woaLockToggle(e, ee(e), i));
                     return;
                 }
-                o.selection === r.rows.length && (woaLimitToggle(e), Hf(e, t));
+                o.selection === r.rows.length && woaMenu(e);
                 return;
             }
             if (o.cancelationReason === N_.UserBusy && n < 20) {
@@ -7188,6 +7260,7 @@ var lm = {
         save: p("woa.config.save"),
         opsOnly: x(B("cross"), " \xA7c", p("woa.config.ops_only")),
         itemGiven: x(B("checkMark"), " \xA7a\xA7l", p("woa.config.item_given")),
+        itemHave: x("\xA77", p("woa.config.item_have")),
         starter: p("woa.config.mode.starter"),
         crafting:
             p(
@@ -7210,49 +7283,37 @@ var lm = {
         },
         changed: (e, t, n) => x("\xA7p\xA7l[WoA]\xA7r ", p("woa.config.changed", e, p(lm[t]), J.chatValue(t, n))),
     };
-var dr = !1,
-    rb = 10,
-    ob = 20;
 function ib(e) {
     return e.playerPermissionLevel === Z_.Operator;
 }
-function ab() {
-    let e = Ut();
-    return new nb()
-        .title(J.title)
-        .dropdown(J.label("mode"), [J.starter, J.crafting], { defaultValueIndex: ft.indexOf(e.mode) })
-        .submitButton(J.save);
-}
-function sb(e, t) {
-    let [n] = t;
-    er({ mode: ft[typeof n == "number" ? n : 0] ?? "starter" }, e.name);
-}
-function tn(e, t = 0) {
-    if (!ib(e)) {
-        e.sendMessage(J.opsOnly);
-        return;
-    }
-    ab()
-        .show(e)
-        .then((n) => {
-            if (n.cancelationReason === tb.UserBusy && t < ob) {
-                eb.runTimeout(() => tn(e, t + 1), rb);
-                return;
-            }
-            !(n.canceled || !n.formValues || !e.isValid) && sb(e, n.formValues);
-        })
-        .catch((n) => void 0);
-}
 import { ItemStack as cb } from "@minecraft/server";
 var bi = "xvoid:adaptation_config";
-function pm(e) {
-    let t = e.getComponent("minecraft:inventory")?.container,
-        n = new cb(bi, 1),
-        r = t ? t.addItem(n) : n;
-    r && e.dimension.spawnItem(r, e.location), e.sendMessage(J.itemGiven);
+var woaConfigProp = "xvoid:config_item";
+function woaConfigHas(e) {
+    let t = e.getComponent("minecraft:inventory")?.container;
+    if (t) for (let n = 0; n < t.size; n++) if (t.getItem(n)?.typeId === bi) return !0;
+    return a(() => e.getComponent("minecraft:equippable")?.getEquipment(Ue.Offhand)?.typeId) === bi;
+}
+function pm(e, t) {
+    if (!e.isValid) return;
+    if (woaConfigHas(e)) {
+        t || e.sendMessage(J.itemHave);
+        return;
+    }
+    let n = new cb(bi, 1);
+    n.keepOnDeath = !0;
+    let r = e.getComponent("minecraft:inventory")?.container,
+        o = r ? r.addItem(n) : n;
+    o && e.dimension.spawnItem(o, e.location), e.sendMessage(J.itemGiven);
+}
+function woaConfigFirst(e) {
+    !e.isValid ||
+        a(() => e.getDynamicProperty(woaConfigProp)) === !0 ||
+        a(() => e.getGameMode()) === lb.Spectator ||
+        (a(() => e.setDynamicProperty(woaConfigProp, !0)), pm(e, !0));
 }
 function gm(e) {
-    e.itemStack.typeId === bi && tn(e.source);
+    e.itemStack.typeId === bi && woaMenu(e.source);
 }
 var ub = ["open", "item"];
 function fb(e) {
@@ -7261,20 +7322,19 @@ function fb(e) {
 function ym(e) {
     let t = e.customCommandRegistry;
     t.registerEnum("woa:item_mode", [...ft]),
-        dr &&
-            (t.registerEnum("woa:config_action", [...ub]),
+        (t.registerEnum("woa:config_action", [...ub]),
             t.registerCommand(
                 {
                     name: "woa:config",
-                    description: "Wheel of Adaptation: open the world settings (open) or get the settings item (item)",
-                    permissionLevel: hm.Admin,
+                    description: "Wheel of Adaptation: open the menu (open) or get the settings item (item)",
+                    permissionLevel: hm.Any,
                     cheatsRequired: !1,
                     optionalParameters: [{ name: "woa:config_action", type: _m.Enum }],
                 },
                 (n, r) => {
                     let o = k(n.sourceEntity);
                     return o
-                        ? (bm.run(() => (r === "item" ? pm(o) : tn(o))), { status: ur.Success })
+                        ? (bm.run(() => (r === "item" ? pm(o) : woaMenu(o))), { status: ur.Success })
                         : { status: ur.Failure, message: "Run this command as a player." };
                 }
             )),
@@ -7304,8 +7364,7 @@ function ym(e) {
 }
 function Em() {
     mb.beforeEvents.startup.subscribe((e) => ym(e)),
-        dr &&
-            xm.afterEvents.itemUse.subscribe((e) => {
+        xm.afterEvents.itemUse.subscribe((e) => {
                 try {
                     gm(e);
                 } catch (t) {}
@@ -7477,7 +7536,7 @@ import {
     system as JA,
 } from "@minecraft/server";
 import { world as xb } from "@minecraft/server";
-var ki = "1.3.7";
+var ki = "1.3.8";
 var $m = "xvoid.watermark";
 function Am() {
     N(xb.afterEvents.playerSpawn, "watermark.playerSpawn", (e) => {
@@ -7539,7 +7598,7 @@ function Dm() {
 function Nm(e) {
     wi.delete(e);
 }
-Ar({ mod: "WOA", version: "1.3.7", build: "release", api: "2.11.0", echo: void 0 });
+Ar({ mod: "WOA", version: "1.3.8", build: "release", api: "2.11.0", echo: void 0 });
 function pr(e, t) {
     try {
         t();
@@ -7978,7 +8037,8 @@ function woaSealRun(e, t) {
         let i = r - o - woaSeal.skyAfter;
         if (i >= 0 && i % woaSeal.loopTicks === 0) {
             if (e.endAt && t >= e.endAt) return woaSealEnd(e, t, !0);
-            woaSealFx(e.dim, "xvoid:seal_sky", woaSealTop(e));
+            woaSealFx(e.dim, "xvoid:seal_sky", woaSealTop(e)),
+                woaSealFx(e.dim, "xvoid:seal_floor", { x: e.center.x, y: e.center.y + 0.15, z: e.center.z });
         }
     }
     r % 2 === 0 && woaSealBarrier(e, t);
@@ -8149,7 +8209,7 @@ N(re.afterEvents.entityDie, "adaptation.entityDie", (e) => {
 });
 N(re.afterEvents.playerSpawn, "starter.playerSpawn", (e) => {
     let t = e.player;
-    le("starter.ensureKit", lt.delayTicks, () => Ei(t));
+    le("starter.ensureKit", lt.delayTicks, () => (Ei(t), woaConfigFirst(t)));
 });
 N(re.afterEvents.entitySpawn, "main.entitySpawn", (e) => {
     pr("wheel.sanitizeDrop", () => Ss(e.entity)),

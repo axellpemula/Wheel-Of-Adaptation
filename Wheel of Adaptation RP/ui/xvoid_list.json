@@ -514,6 +514,93 @@
         }
       },
       {
+        "toggle_on": {
+          "type": "image",
+          "texture": "textures/ui/xvoid/list/toggle_on",
+          "size": [
+            18,
+            10
+          ],
+          "anchor_from": "right_middle",
+          "anchor_to": "right_middle",
+          "offset": [
+            -6,
+            0
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_name": "#form_button_text",
+              "binding_type": "collection",
+              "binding_collection_name": "form_buttons"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(not ((#form_button_text - '§q§t§r') = #form_button_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "toggle_off": {
+          "type": "image",
+          "texture": "textures/ui/xvoid/list/toggle_off",
+          "size": [
+            18,
+            10
+          ],
+          "anchor_from": "right_middle",
+          "anchor_to": "right_middle",
+          "offset": [
+            -6,
+            0
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_name": "#form_button_text",
+              "binding_type": "collection",
+              "binding_collection_name": "form_buttons"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(not ((#form_button_text - '§t§q§r') = #form_button_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "chevron": {
+          "type": "image",
+          "texture": "textures/ui/xvoid/list/chevron",
+          "size": [
+            6,
+            10
+          ],
+          "anchor_from": "right_middle",
+          "anchor_to": "right_middle",
+          "offset": [
+            -6,
+            0
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_name": "#form_button_text",
+              "binding_type": "collection",
+              "binding_collection_name": "form_buttons"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(not ((#form_button_text - '§q§p§r') = #form_button_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
         "text": {
           "type": "label",
           "text": "#text",
@@ -545,7 +632,7 @@
             },
             {
               "binding_type": "view",
-              "source_property_name": "((#form_button_text - '§p§t§r') - '§t§p§r')",
+              "source_property_name": "(((((#form_button_text - '§p§t§r') - '§t§p§r') - '§q§t§r') - '§t§q§r') - '§q§p§r')",
               "target_property_name": "#text"
             }
           ]

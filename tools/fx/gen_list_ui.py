@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Textures for the /woa:list window (ui/xvoid_list.json).
+"""Textures for the /woa:config and /woa:list window (ui/xvoid_list.json).
 
 Writes small nine-slice images to RP/textures/ui/xvoid/list/ and, with
 --preview FILE, a rough mock-up of the window built from them.
 
     python tools/fx/gen_list_ui.py [--preview out.png]
+
+The preview is written twice: out.png shows the list, out_menu.png the menu.
 
 Needs pillow.
 """
@@ -123,6 +125,33 @@ LOCK_OFF = [
 ]
 
 
+TOGGLE_ON = [
+    "..##############..",
+    ".################.",
+    "###########oooo###",
+    "##########oooooo##",
+    "##########oooooo##",
+    "##########oooooo##",
+    "##########oooooo##",
+    "###########oooo###",
+    ".################.",
+    "..##############..",
+]
+
+CHEVRON = [
+    "##....",
+    ".##...",
+    "..##..",
+    "...##.",
+    "....##",
+    "....##",
+    "...##.",
+    "..##..",
+    ".##...",
+    "##....",
+]
+
+
 def textures():
     return {
         "panel": (panel(), [6, 6, 6, 6]),
@@ -136,6 +165,9 @@ def textures():
         "close": (from_rows(CLOSE, {"#": rgba(PALE)}), None),
         "lock_on": (from_rows(LOCK_ON, {"#": rgba(GOLD)}), None),
         "lock_off": (from_rows(LOCK_OFF, {"#": rgba(DIM)}), None),
+        "toggle_on": (from_rows(TOGGLE_ON, {"#": rgba(GOLD_DARK), "o": rgba(GOLD)}), None),
+        "toggle_off": (from_rows([row[::-1] for row in TOGGLE_ON], {"#": rgba(EDGE), "o": rgba(DIM)}), None),
+        "chevron": (from_rows(CHEVRON, {"#": rgba(GOLD)}), None),
         "scroll_handle": (from_rows(["###", "###", "###", "###", "###"], {"#": rgba(GOLD_DARK)}), [1, 2, 1, 1]),
         "scroll_track": (from_rows(["###", "###", "###", "###", "###"], {"#": (0, 0, 0, 120)}), [1, 2, 1, 1]),
     }
@@ -168,7 +200,7 @@ def nine(img, slice_, w, h):
     return out
 
 
-def preview(made, path):
+def preview(made, path, page="list"):
     """The window as ui/xvoid_list.json lays it out; text is only a stand-in font."""
     w, h, scale = 296, 210, 3
     canvas = Image.new("RGBA", (w + 40, h + 40), (96, 132, 96, 255))
@@ -217,15 +249,35 @@ def preview(made, path):
         draw.text((ox + x0 + 7, oy + y + 6), text, fill=(255, 255, 255))
         y += 25
 
-    header("Analysing (1)")
-    label(["o Enderman  II", "[####......] 40%  1/2"])
-    y += 4
-    header("Adapted (3/8)")
-    label(["Tap an adaptation to lock it (1/2). A locked one is never forgotten."], (170, 170, 170))
-    button("o Warden  VII  Locked", lock="on")
-    button("o Zombies  I", state="row_hover", lock="off")
-    button("o Sword  II", lock="off")
-    canvas = canvas.crop((0, 0, w + 40, h + 40)).resize(((w + 40) * scale, (h + 40) * scale), Image.NEAREST)
+    def icon(name):
+        img = made[name][0]
+        put(name, x0 + rw - 6 - img.width, y - 25 + (22 - img.height) // 2, img.width, img.height)
+
+    if page == "menu":
+        header("Adaptation")
+        button("Adaptation list  3/8")
+        icon("chevron")
+        y += 4
+        header("My settings")
+        label(["Tap a setting to change it."], (170, 170, 170))
+        button("Effects: Ultra")
+        button("Camera shake: on", state="row_hover")
+        icon("toggle_on")
+        button("Mahoraga armor: off")
+        icon("toggle_off")
+        button("Adaptation limit (8): on")
+        icon("toggle_on")
+    else:
+        header("Analysing (1)")
+        label(["o Enderman  II", "[####......] 40%  1/2"])
+        y += 4
+        header("Adapted (3/8)")
+        label(["Tap an adaptation to lock it (1/2). A locked one is never forgotten."], (170, 170, 170))
+        button("o Warden  VII  Locked", lock="on")
+        button("o Zombies  I", state="row_hover", lock="off")
+        button("o Sword  II", lock="off")
+    canvas = canvas.crop((0, 0, w + 40, min(h + 40, canvas.height)))
+    canvas = canvas.resize((canvas.width * scale, canvas.height * scale), Image.NEAREST)
     canvas.save(path)
     print(f"preview -> {path}")
 
@@ -233,4 +285,6 @@ def preview(made, path):
 if __name__ == "__main__":
     textures_made = write()
     if "--preview" in sys.argv:
-        preview(textures_made, sys.argv[sys.argv.index("--preview") + 1])
+        target = Path(sys.argv[sys.argv.index("--preview") + 1])
+        preview(textures_made, target)
+        preview(textures_made, target.with_name(target.stem + "_menu" + target.suffix), "menu")

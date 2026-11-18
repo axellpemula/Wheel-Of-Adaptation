@@ -15,19 +15,22 @@
       "minecraft:emitter_lifetime_once": {
         "active_time": 0.05
       },
-      "minecraft:emitter_shape_sphere": {
-        "radius": 0.75,
-        "surface_only": true,
+      "minecraft:emitter_shape_point": {
         "offset": [
-          0,
-          0,
-          0
+          "math.random(-0.6, 0.6)",
+          "math.random(-0.6, 0.6)",
+          "math.random(-0.6, 0.6)"
+        ],
+        "direction": [
+          "v.ride.x",
+          "v.ride.y",
+          "v.ride.z"
         ]
       },
+      "minecraft:particle_initial_speed": "v.ride_speed",
       "minecraft:particle_lifetime_expression": {
         "max_lifetime": "math.random(0.16, 0.34)"
       },
-      "minecraft:particle_initial_speed": 0,
       "minecraft:particle_initial_spin": {
         "rotation": "math.random(0, 360)",
         "rotation_rate": 0

@@ -15,6 +15,11 @@ the effect ids it always did; the table at the end of this file says what each
 id turns into on low and on ultra, and is written into main.js between the
 fx-tiers markers.
 
+Two groups stand outside that table. The w_* effects are played by the wheel
+attachables, bound to the model, and are the same for everyone. The u_ride_*
+effects (and u_aura_arcs) are spawned by the script with the pace of the
+wearer, so they drift along with a running player.
+
 Billboard sizes are half extents, in blocks. Every particle that moves needs
 `particle_motion_dynamic`, even an empty one.
 """
@@ -1011,8 +1016,44 @@ effect(
     billboard(f"0.6 + 1.0 * {T}"), tint(DUST_FADE),
 )
 
+# Layers that keep up with a moving wheel ------------------------------------
+#
+# A particle spawned by the script stays where it was spawned, so on a running
+# player it is left behind. These take the pace of the wearer from the script
+# (v.ride is the direction, v.ride_speed blocks per second) and drift along.
+# It is not a lock: a sharp turn still leaves them a little off for the fraction
+# of a second they live. The script must always pass both variables.
+
+
+def ride(spread=0.0):
+    """Starts within `spread` blocks of the emitter and moves on at the pace of the wearer."""
+    reach = f"math.random(-{spread}, {spread})" if spread else 0
+    return [shape("point", offset=[reach, reach, reach], direction=vec("ride")), speed("v.ride_speed")]
+
+
+def ride_arcs(name, emitter, spread, size, gradient):
+    """arcs() for a moving wheel."""
+    effect(
+        name, "particles_add", "fb_arc", emitter, *ride(spread),
+        life("math.random(0.16, 0.34)"), spin(RAND, 0), motion(rotation_drag=1.0),
+        billboard(f"{size} * (0.7 + 0.6 * {R1})", uv=flip_uv("fb_arc", fps=26, loop=True)),
+        tint(gradient),
+    )
+
+
+ride_arcs("u_ride_arcs", once(8), 1.0, 1.0, GOLD_ARC)
+effect(
+    "u_ride_disc", "particles_add", "adapt_wheel", once(1), *ride(), life(0.55), spin(RAND, 240),
+    motion(rotation_drag=0.0), billboard(f"0.7 + 1.9 * math.sqrt({T})", "emitter_transform_xz"),
+    tint(grad((0, WHITE, 0.9), (0.4, PALE, 0.7), (1, AMBER, 0))),
+)
+effect(
+    "u_ride_implode", "particles_add", "fb_implode", once(1), *ride(), life(0.42), spin(RAND, 0),
+    motion(rotation_drag=1.0), billboard(f"2.6 + -0.8 * math.sqrt({T})", uv=flip_uv("fb_implode")), tint(GOLD_BOOK),
+)
+
 # A quiet aura around the wheel while it is worn (ultra only)
-arcs("u_aura_arcs", once(3), 0.75, 0.55, grad((0, WHITE, 0.8), (0.5, PALE, 0.8), (1, GOLD, 0.4)))
+ride_arcs("u_aura_arcs", once(3), 0.6, 0.55, grad((0, WHITE, 0.8), (0.5, PALE, 0.8), (1, GOLD, 0.4)))
 glints(
     "u_aura_motes", once(6), shape("disc", radius=0.8, plane_normal="y", direction=[0, 1, 0]),
     "math.random(0.8, 1.3)", "math.random(0.2, 0.6)", 0.075, GOLD_GLINT, drag=0.8, lift=0.3, texture="adapt_glint",
@@ -1092,6 +1133,37 @@ effect(
     tint(grad((0, GOLD, 0), (0.25, PALE, 0.7), (0.75, GOLD, 0.6), (1, AMBER, 0))),
 )
 facing_pop("seal_repel", "adapt_ward", "dir", 0.5, 0.5, 1.1, grad((0, WHITE, 1), (0.5, PALE, 0.8), (1, AMBER, 0)))
+
+# ultra: the same circle on the ground. Spawned with the sky circle and handed over the same way,
+# turning the other way round.
+effect(
+    "seal_ground", "particles_add", "seal_circle", once(1), shape("point"), life(SEAL_LIFE), speed(0),
+    spin(22.5, -SEAL_TURN), motion(rotation_drag=0.0), billboard(SEAL_RADIUS, "emitter_transform_xz"),
+    tint(seal_cross(PALE, 0.6)),
+)
+# ultra: a wall that reads as a wall. About 220 shafts stand on the rim at any time and each is
+# two to five times as wide as on medium, so most of the 200 blocks of rim are covered.
+effect(
+    "seal_wall_ultra", "particles_add", "adapt_ray", steady(110, 330, SEAL_LOOP),
+    shape("disc", radius=SEAL_RADIUS, plane_normal="y", surface_only=True, direction=[0, 1, 0]),
+    life("math.random(1.6, 2.4)"), speed("math.random(0.6, 2.2)"), motion(),
+    billboard([f"0.22 + 0.3 * {R1}", f"(3.0 + 4.0 * {R1}) * math.sin(180 * {T})"], "lookat_y"),
+    tint(grad((0, GOLD, 0), (0.25, PALE, 0.7), (0.75, GOLD, 0.6), (1, AMBER, 0))),
+)
+# ultra: hoops of light that climb the wall, one for each copy of the wall
+SEAL_HOOP = round(SEAL_RADIUS * 256 / 236, 2)  # the hoop is 236 px out on a sheet 256 px to the border
+effect(
+    "seal_wall_hoop", "particles_add", "seal_ring", once(1), shape("point", offset=[0, -0.8, 0], direction=[0, 1, 0]),
+    life(6.0), speed(2.0), motion(), billboard(SEAL_HOOP, "emitter_transform_xz"),
+    tint(grad((0, WHITE, 0), (0.12, WHITE, 0.85), (0.6, PALE, 0.6), (1, AMBER, 0))),
+)
+# ultra: gold motes that hang in the air of the whole domain, about 300 at a time
+effect(
+    "seal_motes", "particles_add", "adapt_glint", steady(75, 150, SEAL_LOOP),
+    shape("disc", radius=SEAL_RADIUS - 1, plane_normal="y", offset=[0, "math.random(-1, 9)", 0], direction=[0, 1, 0]),
+    life("math.random(3.0, 5.0)"), speed("math.random(0.15, 0.5)"), motion(drag=0.2, accel=[0, 0.05, 0]),
+    billboard(twinkle(0.1, 0.12), uv=glint_uv(8)), tint(GOLD_GLINT),
+)
 
 # binding: the chains are an entity (xvoid:seal_chain); only the flash on the target is a particle
 pop("seal_bind_flash", "fb_burst", 0.35, 0.5, 1.2, gold_fade())
@@ -1234,7 +1306,8 @@ tier("heal_crackle", low=[], ultra=[variant("heal_crackle", "ultra", size=1.5), 
 
 # domain seal
 tier("seal_sky", ultra=["seal_sky", "seal_sky_inner"])
-tier("seal_wall", low=[lite("seal_wall", 0.4)], ultra=[grand("seal_wall", 1.6, 1.0)])
+tier("seal_wall", low=[lite("seal_wall", 0.4)], ultra=["seal_wall_ultra", "seal_wall_hoop", "seal_motes"])
+tier("seal_floor", low=[], medium=[], ultra=["seal_ground"])
 tier("seal_bolt", ultra=["seal_bolt", "seal_bolt_wide"])
 tier("seal_bolt_sparks", low=[], ultra=[grand("seal_bolt_sparks", 2.2, 1.2)])
 tier("seal_bolt_ring", low=[])
@@ -1244,7 +1317,42 @@ tier("seal_tired", low=[])
 tier("ultra_aura", low=[], medium=[], ultra=["u_aura_arcs", "u_aura_motes"])
 tier("ultra_aura_ground", low=[], medium=[], ultra=["u_aura_ring"])
 
-HOOKS = {"ultra_aura", "ultra_aura_ground"}
+# what ultra adds while the wheel itself plays the w_* effects below
+tier("wheel_turn_more", low=[], medium=[], ultra=["u_ride_disc", "u_ride_arcs"])
+tier("wheel_build_more", low=[], medium=[], ultra=["u_ride_implode", "u_ride_arcs", "u_charge_ground"])
+
+HOOKS = {"ultra_aura", "ultra_aura_ground", "seal_floor", "wheel_turn_more", "wheel_build_more"}
+
+# Effects that sit on the wheel ----------------------------------------------
+#
+# The wheel plays these itself: the attachables name them and the timelines in
+# animations/wheel_mount.animation.json start them at the `glow` locator of the
+# model. They are copies of the medium effects whose particles live in the
+# space of the emitter, so they stay on the wheel however the wearer moves.
+# The game draws them, not the script, so every viewer sees the same ones and
+# /woa:performance has no say in them.
+
+WHEEL_FX = {
+    "spin": "wheel_spin",
+    "halo": "adapt_halo",
+    "crackle": "wheel_crackle",
+    "arcs": "fx_arcs_gold",
+    "twinkle": "twinkle_gold",
+    "charge": "adapt_charge",
+    "gather": "adapt_gather",
+}
+
+
+def bound(name):
+    data = copy.deepcopy(load(name))
+    body = data["particle_effect"]
+    body["description"]["identifier"] = f"xvoid:w_{name}"
+    body["components"] = {"minecraft:emitter_local_space": {"position": True, "rotation": False}, **body["components"]}
+    EFFECTS[f"w_{name}"] = data
+
+
+for _name in WHEEL_FX.values():
+    bound(_name)
 BEGIN, END = "/* fx-tiers:begin (written by tools/fx/gen_particles.py) */", "/* fx-tiers:end */"
 
 

@@ -10,8 +10,8 @@
     },
     "components": {
       "minecraft:emitter_rate_steady": {
-        "spawn_rate": 64.0,
-        "max_particles": 192
+        "spawn_rate": 110,
+        "max_particles": 330
       },
       "minecraft:emitter_lifetime_once": {
         "active_time": 2.0
@@ -33,8 +33,8 @@
       "minecraft:particle_motion_dynamic": {},
       "minecraft:particle_appearance_billboard": {
         "size": [
-          "0.1 + 0.12 * v.particle_random_1",
-          "(2.2 + 2.6 * v.particle_random_1) * math.sin(180 * v.particle_age / v.particle_lifetime)"
+          "0.22 + 0.3 * v.particle_random_1",
+          "(3.0 + 4.0 * v.particle_random_1) * math.sin(180 * v.particle_age / v.particle_lifetime)"
         ],
         "facing_camera_mode": "lookat_y",
         "uv": {
