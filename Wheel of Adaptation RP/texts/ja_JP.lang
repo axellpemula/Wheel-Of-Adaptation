@@ -125,9 +125,9 @@ woa.config.on=オン
 woa.config.off=オフ
 woa.config.changed=§f§l%s§r§f が §f§l%s§r§f を変更 » §p§l%s
 xvoid.watermark=§p§lWheel of Adaptation §r§ev%s §7by §d§lxVoid_Axell
-xvoid.watermark.hud=§6§lWheel of Adaptation §r§ev1.3.7
+xvoid.watermark.hud=§6§lWheel of Adaptation §r§ev1.3.8
 xvoid.watermark.hud_name=§6§lWheel of Adaptation
-xvoid.watermark.hud_version=§ev1.3.7
+xvoid.watermark.hud_version=§ev1.3.8
 ## glyphs
 woa.list.title=Wheel of Adaptation
 woa.list.analysing=解析中 (%s)
