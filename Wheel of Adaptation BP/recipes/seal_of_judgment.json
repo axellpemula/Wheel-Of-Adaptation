@@ -1,0 +1,41 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "xvoid:seal_of_judgment"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "BLB",
+      "CTC",
+      "BLB"
+    ],
+    "key": {
+      "B": {
+        "item": "minecraft:iron_bars"
+      },
+      "L": {
+        "item": "minecraft:lightning_rod"
+      },
+      "C": {
+        "item": "minecraft:clock"
+      },
+      "T": {
+        "item": "minecraft:totem_of_undying"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:totem_of_undying"
+      },
+      {
+        "item": "minecraft:lightning_rod"
+      }
+    ],
+    "result": {
+      "item": "xvoid:seal_of_judgment"
+    }
+  }
+}

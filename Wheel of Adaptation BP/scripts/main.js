@@ -20,12 +20,13 @@ var f = { turn1: 1, turn2: 2, turn3: 3, turn4: 4, turn5: 5, turn6: 6, turn7: 7, 
         fast: "xvoid:wheel_of_adaptation_fast",
         step: "xvoid:wheel_of_adaptation_step",
         step_back: "xvoid:wheel_of_adaptation_step_back",
+        seal: "xvoid:wheel_of_adaptation_seal",
     },
     be = new Set([Q, ...Object.values(_r)]),
     br = "xvoid:sword_of_extermination",
     mt = "xvoid:adaptation",
     lt = { soulbound: !0, equipWheel: !0, delayTicks: 20 },
-    $e = { spin: 40, full: 76, react: 25, first: 79, fast: 17, step: 15, step_back: 15 },
+    $e = { spin: 40, full: 76, react: 25, first: 79, fast: 17, step: 15, step_back: 15, seal: 1e9 },
     w = {
         spin: "xvoid.wheel.spin",
         first: "xvoid.wheel.first",
@@ -142,9 +143,9 @@ var f = { turn1: 1, turn2: 2, turn3: 3, turn4: 4, turn5: 5, turn6: 6, turn7: 7, 
         forgottenNoticeTicks: 40,
         fullBuildTicks: [13, 25, 36],
     },
-    ie = { useSlots: !1, useHunger: !1, partialMax: 1, slots: 8, spinExhaustion: 2 },
+    ie = { useSlots: !0, useHunger: !0, partialMax: 1, slots: 8, spinExhaustion: 4 },
     rn = { effectWindow: 1 },
-    ye = { cooldown: 1200, oneHit: 40, healDelay: 20, graceAfterHeal: 10, saveEvery: 20 },
+    ye = { cooldown: 6000, oneHit: 40, healDelay: 20, graceAfterHeal: 10, saveEvery: 20, healRatio: 0.55 },
     on = { maxBonus: 0.5, bonusPerLevel: 0.01, maxLevelBonus: 0.25 },
     _ = {
         purifyRatio: 0.2,
@@ -520,6 +521,13 @@ var FX_TIERS = {
     "xvoid:reflect_bolt": { ultra: ["xvoid:reflect_bolt_ultra"] },
     "xvoid:heal_sever": { low: ["xvoid:heal_sever_lite"], ultra: ["xvoid:heal_sever_ultra"] },
     "xvoid:heal_crackle": { low: [], ultra: ["xvoid:heal_crackle_ultra", "xvoid:u_arcs_red"] },
+    "xvoid:seal_sky": { ultra: ["xvoid:seal_sky", "xvoid:seal_sky_inner"] },
+    "xvoid:seal_wall": { low: ["xvoid:seal_wall_lite"], ultra: ["xvoid:seal_wall_ultra"] },
+    "xvoid:seal_anchor": { low: [] },
+    "xvoid:seal_bolt": { ultra: ["xvoid:seal_bolt", "xvoid:seal_bolt_wide"] },
+    "xvoid:seal_bolt_sparks": { low: [], ultra: ["xvoid:seal_bolt_sparks_ultra"] },
+    "xvoid:seal_bolt_ring": { low: [] },
+    "xvoid:seal_tired": { low: [] },
     "xvoid:ultra_aura": { low: [], medium: [], ultra: ["xvoid:u_aura_arcs", "xvoid:u_aura_motes"] },
     "xvoid:ultra_aura_ground": { low: [], medium: [], ultra: ["xvoid:u_aura_ring"] },
 };
@@ -695,6 +703,7 @@ var Zm = { 1: 20, 2: 30, 3: 40 },
         modeCurrent: 1,
         switcherHint: 1,
         starving: 1,
+        seal: 3,
         counter: 2,
         perf: 2,
         armor: 2,
@@ -2184,7 +2193,7 @@ import { system as Tt, world as wn } from "@minecraft/server";
 import { EquipmentSlot as ps, ItemStack as Op, system as ls } from "@minecraft/server";
 var Ce = new Map(),
     Dp = new Set(["react", "step", "step_back"]),
-    gs = new Set(["spin", "fast", "first", "full"]);
+    gs = new Set(["spin", "fast", "first", "full", "seal"]);
 function ro(e) {
     return !!e && e !== Q && be.has(e);
 }
@@ -2660,14 +2669,18 @@ function lc(e, t, n, r = 0) {
     let o = he(rg(r) * n);
     return (e.p = he(e.p + o)), o;
 }
+var woaTurnPoints = 55,
+    woaPassiveEvery = 3;
 function pc(e, t) {
     if (e.activeLeft <= 0) return 0;
     e.activeLeft--;
+    if (((e.idle = (e.idle ?? 0) + 1), e.idle < woaPassiveEvery)) return 0;
+    e.idle = 0;
     let n = 1 * t;
     return (e.p = he(e.p + n)), n;
 }
 function Ze(e) {
-    return 40 * Math.max(1, e);
+    return woaTurnPoints * Math.max(1, e);
 }
 function gc(e, t) {
     return e.p >= Ze(t);
@@ -3874,7 +3887,7 @@ var $o = "xvoid:absorb_at",
             adaptRate: 0.5,
             cooldown: 1,
             regenPause: 100,
-            spinHeal: { base: 0.25, perLevel: 0.025, max: 0.6, complete: 0.5 },
+            spinHeal: { base: 0.125, perLevel: 0.0125, max: 0.3, complete: 0.25 },
             regen: [
                 { minLevel: 20, amount: 1, every: 20 },
                 { minLevel: 10, amount: 1, every: 40 },
@@ -3883,7 +3896,7 @@ var $o = "xvoid:absorb_at",
         },
         balance: {
             effects: {
-                resistance: 1,
+                resistance: void 0,
                 speed: void 0,
                 slowness: void 0,
             },
@@ -3896,7 +3909,7 @@ var $o = "xvoid:absorb_at",
             adaptRate: 1,
             cooldown: 1.25,
             regenPause: 60,
-            spinHeal: { base: 0.4, perLevel: 0.04, max: 0.8, complete: 1 },
+            spinHeal: { base: 0.2, perLevel: 0.02, max: 0.4, complete: 0.5 },
             regen: [
                 { minLevel: 20, amount: 1, every: 20 },
                 { minLevel: 10, amount: 1, every: 40 },
@@ -3915,7 +3928,7 @@ var $o = "xvoid:absorb_at",
             adaptRate: 0.75,
             cooldown: 1,
             regenPause: 60,
-            spinHeal: { base: 0.5, perLevel: 0.05, max: 1, complete: 1 },
+            spinHeal: { base: 0.25, perLevel: 0.025, max: 0.5, complete: 0.5 },
             regen: [
                 { minLevel: 20, amount: 2, every: 20 },
                 { minLevel: 10, amount: 1, every: 20 },
@@ -4146,11 +4159,18 @@ function Tg(e, t, n) {
     let c = Vc(o, t);
     nt.set(e.id, { takeOff: i, cut: c !== void 0, peak: 0, ticks: 1 }), c && a(() => e.applyKnockback(c, o.y));
 }
+function woaStance(e) {
+    let t = E(e);
+    if (t === "balance") return !0;
+    let n = w_(e);
+    return n !== void 0 && (t === "attack" ? Se : P).has(n);
+}
 function ad(e, t) {
-    let n = V(e);
-    vg(e), od(e, n.swim), Tg(e, n.jumpCap, t);
-    for (let r of zn) td(e, r, n.effects[r]);
-    nd(e, void 0), rd(e, n.absorption, t);
+    let n = V(e),
+        h = woaStance(e);
+    vg(e), od(e, h ? n.swim : 1), Tg(e, n.jumpCap, t);
+    for (let r of zn) td(e, r, h ? n.effects[r] : void 0);
+    nd(e, void 0), rd(e, h ? n.absorption : void 0, t);
 }
 function sd(e) {
     od(e, 1);
@@ -5522,16 +5542,33 @@ function qu(e, t) {
     }
     (t === "env:lava" || fa.some((r) => t === `env:${r}`)) && a(() => e.extinguishFire(!1));
 }
-function Kh(e, t, n) {
+var woaLimitProp = "xvoid:adapt_limit",
+    woaLimitCache = new Map();
+function woaSlots(e) {
     if (!ie.useSlots) return;
+    let t = woaLimitCache.get(e.id);
+    return (
+        t === void 0 && ((t = a(() => e.getDynamicProperty(woaLimitProp)) === "off"), woaLimitCache.set(e.id, t)),
+        t ? void 0 : ie.slots
+    );
+}
+function woaLimitToggle(e) {
+    let t = woaSlots(e) !== void 0;
+    woaLimitCache.set(e.id, t), a(() => e.setDynamicProperty(woaLimitProp, t ? "off" : void 0));
+}
+function Kh(e, t, n) {
+    let m = woaSlots(e);
+    if (!m) return;
     let r = [...t.map.entries()].filter(([s, c]) => c.s >= c.n && s !== n);
-    if (r.length < ie.slots) return;
     r.sort((s, c) => s[1].used - c[1].used);
-    let [o, i] = r[0];
-    (i.s = 0),
-        ge(C.forgottenNoticeTicks, () => {
-            e.isValid && T(e, "forgotten", S.forgotten(hn(o), bt(Ee(o))));
-        });
+    for (let j = 0; r.length - j >= m; j++) {
+        let [o, i] = r[j];
+        (i.s = 0),
+            (t.dirty = !0),
+            ge(C.forgottenNoticeTicks, () => {
+                e.isValid && T(e, "forgotten", S.forgotten(hn(o), bt(Ee(o))));
+            });
+    }
 }
 function Fh(e, t) {
     let n = Tc(t);
@@ -5580,6 +5617,10 @@ function Wh(e) {
 function ii(e) {
     let t = a(() => e.getComponent("minecraft:health"));
     return !t || t.currentValue <= 0 ? 0 : Math.max(0, t.effectiveMax - t.currentValue);
+}
+function woaUndyingHeal(e) {
+    let t = a(() => e.getComponent("minecraft:health"));
+    return !t || t.currentValue <= 0 ? 0 : Math.max(0, t.effectiveMax * ye.healRatio - t.currentValue);
 }
 function Uh(e, t, n) {
     let r = ii(e),
@@ -5690,7 +5731,7 @@ function e_(e, t, n, r) {
         ge(ye.healDelay, () => {
             !e.isValid ||
                 !R(e.id) ||
-                (Pe(e, ii(e)),
+                (Pe(e, woaUndyingHeal(e)),
                 v(e.dimension, I.rise, Re(e)),
                 v(e.dimension, I.regen, Re(e)),
                 v(e.dimension, I.positiveRays, Re(e)));
@@ -6006,7 +6047,7 @@ function woaHealthUp(e) {
         }));
 }
 function woaHealCut(e) {
-    if (woaWounds.size === 0) return;
+    if (woaSealNoHeal(e) || woaWounds.size === 0) return;
     let t = e.healedEntity,
         n = a(() => t.id),
         r = n ? woaWounds.get(n) : void 0;
@@ -6115,7 +6156,7 @@ function woaQuake(e, t) {
     }
 }
 function Qu(e, t, n) {
-    if (!R(t.id)) return;
+    if (!R(t.id) || woaSealed(t.id)) return;
     let r = ee(t),
         o = Dt(r),
         i = i_(o),
@@ -6154,7 +6195,7 @@ function ef(e) {
     if (n === void 0) {
         return;
     }
-    if (Gn(t.id, n) || Po(t.id, n) || !R(t.id)) return;
+    if (Gn(t.id, n) || Po(t.id, n) || !R(t.id) || woaSealed(t.id)) return;
     let r = e.duration,
         o = Zu(t, n);
     if (!o) return;
@@ -6178,7 +6219,7 @@ function tf(e) {
     let r = n.displayName;
     if (Kn(r) !== void 0) return;
     let o = Io(n.typeId);
-    if (Gn(t.id, o) || Po(t.id, o) || !R(t.id)) return;
+    if (Gn(t.id, o) || Po(t.id, o) || !R(t.id) || woaSealed(t.id)) return;
     let i = Zu(t, o);
     if (i) {
         if (i.kind !== "partial") {
@@ -6334,7 +6375,7 @@ function l_(e, t, n, r) {
     return {
         adapted: Dt(t),
         atk: woaHudAtk(t, n, !!s),
-        slots: ie.useSlots ? ie.slots : void 0,
+        slots: woaSlots(e),
         key: s ? i : void 0,
         entry: s,
         hits: c?.p ?? 0,
@@ -6460,7 +6501,7 @@ function y_(e, t) {
     }
 }
 function hf(e) {
-    let t = R(e.id),
+    let t = R(e.id) && !woaSealed(e.id),
         n = t ? ee(e) : void 0,
         r = (s) => {
             let c = n?.map.get(s);
@@ -6707,23 +6748,37 @@ function woaListAtk(e) {
               to(e)
           );
 }
-function H_(e) {
+function H_(e, m) {
     let t = di(e),
         n = new D_().title(_e.title).header(_e.analysing(t.analysing.length));
     t.analysing.length || n.label(_e.emptyAnalysing);
     for (let r of t.analysing) n.label(L_(r));
-    n.divider().header(_e.adapted(t.adapted.length)), t.adapted.length || n.label(_e.emptyAdapted);
+    n.divider().header(_e.adapted(m ? `${t.adapted.length}/${m}` : t.adapted.length)),
+        t.adapted.length || n.label(_e.emptyAdapted);
     for (let r of t.adapted) n.label(Lf(r));
     let o = e.atk ?? [];
     n.divider().header(_e.attack(o.length)), o.length || n.label(_e.emptyAttack);
     for (let r of o) n.label(woaListAtk(r));
-    return n.button(_e.close);
+    return n
+        .button(
+            x(
+                p(m ? "woa.list.limit_on" : "woa.list.limit_off"),
+                `
+\xA78`,
+                p("woa.list.limit_tap")
+            )
+        )
+        .button(_e.close);
 }
 function Hf(e, t, n = 0) {
     let r = t();
-    H_(r)
+    H_(r, woaSlots(e))
         .show(e)
         .then((o) => {
+            if (!o.canceled && o.selection === 0) {
+                woaLimitToggle(e), Hf(e, t);
+                return;
+            }
             if (o.cancelationReason === N_.UserBusy && n < 20) {
                 le(
                     "list.retry",
@@ -7329,7 +7384,7 @@ import {
     system as JA,
 } from "@minecraft/server";
 import { world as xb } from "@minecraft/server";
-var ki = "1.3.5";
+var ki = "1.3.6";
 var $m = "xvoid.watermark";
 function Am() {
     N(xb.afterEvents.playerSpawn, "watermark.playerSpawn", (e) => {
@@ -7391,7 +7446,7 @@ function Dm() {
 function Nm(e) {
     wi.delete(e);
 }
-Ar({ mod: "WOA", version: "1.3.5", build: "release", api: "2.11.0", echo: void 0 });
+Ar({ mod: "WOA", version: "1.3.6", build: "release", api: "2.11.0", echo: void 0 });
 function pr(e, t) {
     try {
         t();
@@ -7417,6 +7472,453 @@ Rf((e) => R(e.id));
 jt((e, t) => {
     if (e.mode !== t.mode) for (let n of re.getAllPlayers()) a(() => (e.mode === "starter" ? Ei(n) : xi(n)));
 });
+import { InputPermissionCategory as woaInput } from "@minecraft/server";
+var woaSealItem = "xvoid:seal_of_judgment",
+    woaSealProp = "xvoid:seal_bound",
+    woaSealCdProp = "xvoid:seal_cooldown",
+    woaSealCd = new Map(),
+    woaSeal = {
+        radius: 32,
+        height: 40,
+        below: 24,
+        need: 8,
+        holdTicks: 20,
+        steps: 8,
+        stepTicks: 15,
+        bindAfter: 30,
+        skyAfter: 80,
+        loopTicks: 40,
+        firstStrike: 40,
+        strikeEvery: 30,
+        damage: 20,
+        maxMisses: 6,
+        tiredTicks: 600,
+        drain: 0.5,
+        cooldown: 12e3,
+        saveEvery: 100,
+        skip: new Set(["minecraft:armor_stand", "minecraft:npc", "minecraft:agent"]),
+    },
+    woaDomains = new Map(),
+    woaBound = new Map(),
+    woaTired = new Map(),
+    woaSealHold = new Map(),
+    woaSealLocked = new Set(),
+    woaSealStriking = !1;
+function woaSealed(e) {
+    return woaBound.has(e) || woaDomains.has(e) || woaTired.has(e);
+}
+function woaSealSay(e, ...t) {
+    T(e, "seal", x(...t));
+}
+function woaSealFx(e, t, n, r) {
+    a(() => {
+        if (!r) return fxSpawn(e, t, n);
+        let o = new fxMolang();
+        for (let i in r) typeof r[i] == "number" ? o.setFloat(`variable.${i}`, r[i]) : o.setVector3(`variable.${i}`, r[i]);
+        fxSpawn(e, t, n, o);
+    });
+}
+function woaSealHud(e, t) {
+    let n = ee(e);
+    rs(e, l_(e, n, t, ju(n).watching), t);
+}
+function woaSealTop(e) {
+    return { x: e.center.x, y: e.sky, z: e.center.z };
+}
+function woaSealInside(e, t) {
+    let n = t.x - e.center.x,
+        r = t.z - e.center.z,
+        o = t.y - e.center.y;
+    return n * n + r * r < woaSeal.radius * woaSeal.radius && o > -woaSeal.below && o < woaSeal.height + 8;
+}
+function woaSealNear(e) {
+    let t = e.center,
+        n = woaSeal.radius;
+    return (
+        a(() =>
+            e.dim.getEntities({
+                location: { x: t.x - n, y: t.y - woaSeal.below, z: t.z - n },
+                volume: { x: 2 * n, y: woaSeal.below + woaSeal.height + 8, z: 2 * n },
+                excludeTypes: ["minecraft:item", "minecraft:xp_orb"],
+                excludeFamilies: ["inanimate"],
+            })
+        ) ?? []
+    );
+}
+function woaSealKind(e, t) {
+    if (e.id === t || woaSeal.skip.has(e.typeId) || !Hi(e)) return;
+    let n = k(e);
+    if (n) {
+        let r = a(() => n.getGameMode());
+        return r === "Creative" || r === "Spectator" ? void 0 : "bind";
+    }
+    return a(() => e.getComponent("minecraft:tameable")?.tamedToPlayerId) === t ? "pet" : "bind";
+}
+function woaSealLock(e, t) {
+    t ? woaSealLocked.add(e.id) : woaSealLocked.delete(e.id),
+        a(() => e.inputPermissions.setPermissionCategory(woaInput.Movement, !t)),
+        a(() => e.setDynamicProperty(woaSealProp, t ? !0 : void 0));
+}
+function woaSealCdOf(e, t) {
+    let n = woaSealCd.get(e.id);
+    if (n === void 0) {
+        let r = a(() => e.getDynamicProperty(woaSealCdProp));
+        (n = typeof r == "number" && r > 0 ? t + r : 0), woaSealCd.set(e.id, n);
+    }
+    return n;
+}
+function woaSealCdSet(e, t, n) {
+    woaSealCd.set(e.id, n > 0 ? t + n : 0), a(() => e.setDynamicProperty(woaSealCdProp, n > 0 ? n : void 0));
+}
+function woaSealClock(e) {
+    let t = Math.ceil(e / 20);
+    return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
+}
+function woaSealWhy(e) {
+    if (!R(e.id)) return p("woa.seal.need_wheel");
+    if (woaSealed(e.id)) return p("woa.seal.busy");
+    let t = Be.currentTick,
+        n = woaSealCdOf(e, t) - t;
+    if (n > 0) return p("woa.seal.cooldown", woaSealClock(n));
+    let r = Dt(ee(e));
+    if (r < woaSeal.need) return p("woa.seal.need_full", `${r}`, `${woaSeal.need}`);
+}
+function woaSealDeny(e, t) {
+    woaSealSay(e, B("cross"), " \xA7c", t), a(() => e.playSound("note.bass"));
+}
+function woaSealHeld(e) {
+    return a(() => e.getComponent("minecraft:equippable")?.getEquipment(Nh.Mainhand)?.typeId) === woaSealItem;
+}
+function woaSealUse(e) {
+    if (e.itemStack?.typeId !== woaSealItem) return;
+    let t = e.source,
+        n = woaSealWhy(t);
+    if (n) return woaSealDeny(t, n);
+    let r = { dim: t.dimension, center: t.location };
+    if (!woaSealNear(r).some((o) => woaSealInside(r, o.location) && woaSealKind(o, t.id) === "bind"))
+        return woaSealDeny(t, p("woa.seal.no_target"));
+    woaSealHold.set(t.id, { player: t, at: Be.currentTick }),
+        woaSealSay(t, "\xA7e", p("woa.seal.hold")),
+        z(t.dimension, "xvoid.seal.tick", Ye(t), 0.6, 0.7);
+}
+function woaSealDrop(e) {
+    e.itemStack?.typeId === woaSealItem && woaSealHold.delete(e.source.id);
+}
+function woaSealOpen(e, t) {
+    let n = woaSealWhy(e);
+    if (n) return woaSealDeny(e, n);
+    let r = e.location,
+        o = {
+            host: e,
+            id: e.id,
+            dim: e.dimension,
+            center: { x: r.x, y: r.y, z: r.z },
+            sky: r.y + 2.4 + woaSeal.height,
+            start: t,
+            step: -1,
+            phase: "charge",
+            inside: new Set(),
+            allowed: new Set(),
+            ignore: new Set(),
+            bound: new Map(),
+            pushed: new Map(),
+            thunder: 0,
+            endAt: 0,
+        };
+    for (let s of woaSealNear(o)) {
+        if (!woaSealInside(o, s.location)) continue;
+        let c = woaSealKind(s, e.id);
+        c === "bind" ? o.inside.add(s.id) : c === "pet" && o.allowed.add(s.id);
+    }
+    kc(e), woaSealCdSet(e, t, woaSeal.cooldown);
+    let i = ee(e);
+    (i.lastKey = void 0),
+        (i.hudKey = void 0),
+        (i.graceUntil = 0),
+        (i.firstSpin = void 0),
+        (i.landing = void 0),
+        (i.lastTurn = void 0),
+        woaDomains.set(e.id, o),
+        a(() => Qt(e, "seal")),
+        a(() => sd(e)),
+        ce(e, "seal"),
+        woaSealLock(e, !0),
+        woaSealFx(o.dim, "xvoid:seal_dial", o.center),
+        v(o.dim, I.ripple, Re(e, 0.08));
+}
+function woaSealStep(e, t) {
+    let n = (t * Math.PI) / 4,
+        r = { x: e.center.x + Math.cos(n) * 2.7, y: e.center.y + 0.3, z: e.center.z + Math.sin(n) * 2.7 },
+        o = Ye(e.host);
+    z(e.dim, "xvoid.seal.tick", o, 0.8 + 0.06 * t, 1),
+        woaSealFx(e.dim, "xvoid:seal_knob", r, { life: ((woaSeal.steps - t) * woaSeal.stepTicks) / 20 + 0.6 }),
+        woaSealFx(e.dim, "xvoid:seal_tick_pop", r),
+        v(e.dim, I.ringPopGold, o),
+        v(e.dim, I.twinkle, o),
+        woaSealSay(e.host, "\xA76", p("woa.seal.charge", `${t + 1}`, `${woaSeal.steps}`));
+}
+function woaSealRise(e) {
+    e.phase = "rise";
+    let t = e.center,
+        n = { x: t.x, y: t.y + 2.4, z: t.z };
+    woaSealFx(e.dim, "xvoid:seal_rise", n),
+        woaSealFx(e.dim, "xvoid:seal_beam", t),
+        woaSealFx(e.dim, "xvoid:seal_shock", t),
+        v(e.dim, I.shockwave, { x: t.x, y: t.y + 0.08, z: t.z }),
+        v(e.dim, I.flash, n);
+    for (let r of a(() => e.dim.getPlayers({ location: t, maxDistance: woaSeal.radius + 16 })) ?? []) Xe(r, "adapted");
+}
+function woaSealChains(e, t, n) {
+    let r = t.entity.location,
+        o = { x: r.x, y: r.y + t.height * 0.55, z: r.z },
+        i = 2.4 + 0.3 * t.height;
+    for (let s = 0; s < 4; s++) {
+        let c = t.turn + (s * Math.PI) / 2,
+            d = { x: r.x + Math.cos(c) * i, y: r.y + 0.15, z: r.z + Math.sin(c) * i },
+            u = Math.hypot(o.x - d.x, o.y - d.y, o.z - d.z),
+            m = { x: (o.x - d.x) / u, y: (o.y - d.y) / u, z: (o.z - d.z) / u },
+            b = (u + 0.6) / 2;
+        woaSealFx(e.dim, n, { x: d.x + m.x * b, y: d.y + m.y * b, z: d.z + m.z * b }, { dir: m, len: b }),
+            woaSealFx(e.dim, "xvoid:seal_anchor", d, { dir: m });
+    }
+}
+function woaSealBind(e, t) {
+    (e.phase = "hold"), woaSealLock(e.host, !1);
+    let n = 0;
+    for (let r of woaSealNear(e)) {
+        if (!e.inside.has(r.id) || woaBound.has(r.id) || !woaSealInside(e, r.location) || woaSealKind(r, e.id) !== "bind")
+            continue;
+        let o = k(r),
+            i = r.location,
+            s = {
+                entity: r,
+                player: o,
+                at: { x: i.x, y: i.y, z: i.z },
+                since: t + 1,
+                next: t + woaSeal.firstStrike + (n % 6) * 3,
+                misses: 0,
+                height: Math.min(4, Math.max(0.6, (a(() => r.getHeadLocation().y) ?? i.y + 1) - i.y + 0.3)),
+                turn: (Math.random() * Math.PI) / 2,
+            };
+        e.bound.set(r.id, s),
+            woaBound.set(r.id, e),
+            o && (woaSealLock(o, !0), R(o.id) && (a(() => Qt(o, "seal")), a(() => sd(o))), Xe(o, "adapted")),
+            woaSealChains(e, s, "xvoid:seal_chain_in"),
+            woaSealFx(e.dim, "xvoid:seal_bind_flash", pe(r)),
+            n < 8 && z(e.dim, "xvoid.seal.chain", i, 0.9 + Math.random() * 0.2, 1),
+            n++;
+    }
+    e.inside.clear(),
+        woaSealSay(e.host, n ? "\xA76" : "\xA77", n ? p("woa.seal.open", `${n}`) : p("woa.seal.empty"));
+}
+function woaSealFree(e, t, n) {
+    e.bound.delete(t), woaBound.delete(t), n.player && n.player.isValid && woaSealLock(n.player, !1);
+}
+function woaSealHit(e, t, n) {
+    woaSealStriking = !0;
+    try {
+        e.applyDamage(t, { cause: nr.lightning, damagingEntity: n });
+    } catch (r) {
+    } finally {
+        woaSealStriking = !1;
+    }
+}
+function woaSealStrike(e, t, n, r) {
+    let o = n.entity,
+        i = o.location,
+        s = Math.max(2, (e.sky - i.y) / 2),
+        c = { x: i.x, y: i.y + s, z: i.z },
+        d = pe(o);
+    woaSealFx(e.dim, "xvoid:seal_bolt", c, { len: s }),
+        woaSealFx(e.dim, "xvoid:seal_bolt_core", c, { len: s }),
+        woaSealFx(e.dim, "xvoid:seal_bolt_sky", { x: i.x, y: i.y + 2 * s, z: i.z }),
+        woaSealFx(e.dim, "xvoid:seal_bolt_hit", d),
+        woaSealFx(e.dim, "xvoid:seal_bolt_ring", { x: i.x, y: i.y + 0.1, z: i.z }),
+        woaSealFx(e.dim, "xvoid:seal_bolt_sparks", d),
+        r >= e.thunder && ((e.thunder = r + 4), z(e.dim, "xvoid.seal.thunder", i, 0.9 + Math.random() * 0.25, 1)),
+        n.player && Xe(n.player, "kick");
+    let u = a(() => o.getComponent("minecraft:health")),
+        m = u?.currentValue ?? 0,
+        b = m - woaSeal.damage;
+    woaSealHit(o, b <= 0 ? 1e6 : woaSeal.damage, e.host);
+    let y = a(() => (o.isValid ? u.currentValue : 0)) ?? 0;
+    b > 0 && y > b && (a(() => u.setCurrentValue(b)), (y = a(() => u.currentValue) ?? y)),
+        y >= m ? ++n.misses >= woaSeal.maxMisses && woaSealFree(e, t, n) : (n.misses = 0);
+}
+function woaSealKeep(e, t, n, r) {
+    let o = n.entity;
+    if (!o.isValid || !Hi(o)) return woaSealFree(e, t, n);
+    let i = r - n.since;
+    if (i % 2 === 0) {
+        let s = o.location,
+            c = n.at,
+            d = Math.abs(s.x - c.x) > 0.3 || Math.abs(s.z - c.z) > 0.3;
+        n.player
+            ? d && a(() => o.teleport({ x: c.x, y: s.y, z: c.z }, { keepVelocity: !0 }))
+            : (d || Math.abs(s.y - c.y) > 0.3) && a(() => o.teleport(c));
+    }
+    i % 20 === 0 &&
+        (n.player
+            ? woaSealSay(n.player, "\xA7c", p("woa.seal.bound"))
+            : (a(() => o.addEffect("slowness", 40, { amplifier: 255, showParticles: !1 })),
+              a(() => o.addEffect("weakness", 40, { amplifier: 255, showParticles: !1 })))),
+        i > 0 && i % woaSeal.loopTicks === 0 && woaSealChains(e, n, "xvoid:seal_chain"),
+        r >= n.next && ((n.next = r + woaSeal.strikeEvery), woaSealStrike(e, t, n, r));
+}
+function woaSealPush(e, t, n, r) {
+    let o = n.x - e.center.x,
+        i = n.z - e.center.z,
+        s = Math.hypot(o, i);
+    s < 0.01 ? ((o = 1), (i = 0)) : ((o /= s), (i /= s));
+    let c = woaSeal.radius + 1.2,
+        d = !1;
+    for (let u = 0; u < 3 && !d; u++)
+        d =
+            a(() =>
+                t.tryTeleport({ x: e.center.x + o * c, y: n.y + u, z: e.center.z + i * c }, { checkForBlocks: !0 })
+            ) === !0;
+    if ((d || a(() => t.applyKnockback({ x: o * 2.5, z: i * 2.5 }, 0.4)), r < (e.pushed.get(t.id) ?? 0))) return;
+    e.pushed.set(t.id, r + 10);
+    let u = { x: e.center.x + o * woaSeal.radius, y: n.y + 1, z: e.center.z + i * woaSeal.radius },
+        m = k(t);
+    woaSealFx(e.dim, "xvoid:seal_repel", u, { dir: { x: o, y: 0, z: i } }),
+        z(e.dim, "xvoid.seal.repel", u),
+        m && woaSealSay(m, B("cross"), " \xA7c", p("woa.seal.barrier"));
+}
+function woaSealBarrier(e, t) {
+    let n = e.phase !== "hold",
+        r = new Set();
+    for (let o of woaSealNear(e)) {
+        let i = o.id;
+        if (i === e.id || e.bound.has(i) || e.allowed.has(i) || e.ignore.has(i)) continue;
+        let s = o.location;
+        if (!woaSealInside(e, s)) continue;
+        if (n && e.inside.has(i)) {
+            r.add(i);
+            continue;
+        }
+        if (woaBound.has(i)) continue;
+        let c = k(o);
+        if (woaSeal.skip.has(o.typeId) || !Hi(o) || (c && a(() => c.getGameMode()) === "Spectator")) {
+            c || e.ignore.add(i);
+            continue;
+        }
+        woaSealPush(e, o, s, t);
+    }
+    if (n) for (let o of [...e.inside]) r.has(o) || e.inside.delete(o);
+}
+function woaSealTire(e, t) {
+    let n = a(() => e.getComponent("minecraft:health")?.effectiveMax) ?? 20;
+    woaTired.set(e.id, {
+        player: e,
+        until: t + woaSeal.tiredTicks,
+        next: t + 20,
+        drain: (n * woaSeal.drain) / (woaSeal.tiredTicks / 20),
+    });
+    for (let [r, o] of [
+        ["slowness", 1],
+        ["weakness", 1],
+        ["mining_fatigue", 2],
+    ])
+        a(() => e.addEffect(r, woaSeal.tiredTicks, { amplifier: o }));
+    woaSealSay(e, "\xA77", p("woa.seal.tired", `${woaSeal.tiredTicks / 20}`));
+}
+function woaSealRest(e, t, n) {
+    let r = t.player;
+    if (!r.isValid || !Hi(r)) return woaTired.delete(e);
+    if (n >= t.next) {
+        t.next = n + 20;
+        let o = r.getComponent("minecraft:health");
+        o && o.currentValue > 1 && o.setCurrentValue(Math.max(1, o.currentValue - t.drain)),
+            woaSealFx(r.dimension, "xvoid:seal_tired", Ye(r)),
+            n < t.until && woaSealSay(r, "\xA77", p("woa.seal.tired", `${Math.ceil((t.until - n) / 20)}`));
+    }
+    n >= t.until && (woaTired.delete(e), woaSealSay(r, "\xA7a", p("woa.seal.rested")));
+}
+function woaSealEnd(e, t, n) {
+    woaDomains.delete(e.id);
+    for (let [o, i] of [...e.bound]) woaSealFree(e, o, i);
+    Ce.delete(e.id),
+        e.phase !== "charge" && woaSealFx(e.dim, "xvoid:seal_fall", woaSealTop(e)),
+        z(e.dim, "xvoid.seal.close", e.center);
+    let r = e.host;
+    r.isValid &&
+        (woaSealLock(r, !1), n && Hi(r) ? woaSealTire(r, t) : woaSealSay(r, "\xA77", p("woa.seal.closed")));
+}
+function woaSealRun(e, t) {
+    let n = e.host;
+    if (!n.isValid || !Hi(n)) return woaSealEnd(e, t, !1);
+    if (n.dimension.id !== e.dim.id) return woaSealEnd(e, t, !0);
+    let r = t - e.start,
+        o = woaSeal.steps * woaSeal.stepTicks;
+    r % woaSeal.loopTicks === 0 &&
+        woaSealFx(e.dim, "xvoid:seal_wall", { x: e.center.x, y: e.center.y + 1, z: e.center.z });
+    if (e.phase === "charge") {
+        let i = Math.floor(r / woaSeal.stepTicks);
+        i > e.step && i < woaSeal.steps && ((e.step = i), woaSealStep(e, i)),
+            r === o - 18 && z(e.dim, "xvoid.seal.open", Ye(n)),
+            r >= o && woaSealRise(e);
+    } else if (e.phase === "rise") r >= o + woaSeal.bindAfter && woaSealBind(e, t);
+    else {
+        for (let [s, c] of [...e.bound]) woaSealKeep(e, s, c, t);
+        e.bound.size ? (e.endAt = 0) : e.endAt || (e.endAt = t + 20);
+        let i = r - o - woaSeal.skyAfter;
+        if (i >= 0 && i % woaSeal.loopTicks === 0) {
+            if (e.endAt && t >= e.endAt) return woaSealEnd(e, t, !0);
+            woaSealFx(e.dim, "xvoid:seal_sky", woaSealTop(e));
+        }
+    }
+    r % 2 === 0 && woaSealBarrier(e, t);
+}
+function woaSealHurt(e) {
+    if (woaSealStriking) return !0;
+    let t = a(() => e.damageSource.damagingEntity?.id);
+    return t && (woaBound.has(t) || woaTired.has(t)) ? ((e.cancel = !0), !0) : !1;
+}
+function woaSealNoHeal(e) {
+    if (!woaTired.size) return !1;
+    let t = a(() => e.healedEntity.id);
+    return t && woaTired.has(t) ? ((e.cancel = !0), !0) : !1;
+}
+function woaSealForget(e) {
+    woaSealHold.delete(e), woaTired.delete(e), woaSealLocked.delete(e), woaSealCd.delete(e);
+    let t = woaBound.get(e);
+    t && (t.bound.delete(e), woaBound.delete(e));
+}
+function woaSealTick() {
+    let e = Be.currentTick;
+    for (let [t, n] of [...woaSealHold]) {
+        if (!n.player.isValid || !woaSealHeld(n.player)) {
+            woaSealHold.delete(t);
+            continue;
+        }
+        e - n.at >= woaSeal.holdTicks && (woaSealHold.delete(t), a(() => woaSealOpen(n.player, e)));
+    }
+    for (let t of [...woaDomains.values()]) a(() => woaSealRun(t, e));
+    for (let [t, n] of [...woaTired]) a(() => woaSealRest(t, n, e));
+    if (e % 20 === 0)
+        for (let t of a(() => re.getAllPlayers()) ?? []) {
+            woaSealLocked.has(t.id) || (a(() => t.getDynamicProperty(woaSealProp)) && woaSealLock(t, !1));
+            let n = woaSealCdOf(t, e);
+            n > 0 &&
+                (e >= n
+                    ? (woaSealCdSet(t, e, 0),
+                      woaSealSay(t, "\xA7a", p("woa.seal.ready")),
+                      a(() => t.playSound("note.pling")))
+                    : e % woaSeal.saveEvery === 0 && a(() => t.setDynamicProperty(woaSealCdProp, n - e)));
+        }
+}
+function woaSealInit() {
+    N(re.afterEvents.itemStartUse, "seal.start", woaSealUse),
+        N(re.afterEvents.itemReleaseUse, "seal.release", woaSealDrop),
+        N(re.afterEvents.itemStopUse, "seal.stop", woaSealDrop),
+        N(re.beforeEvents.playerBreakBlock, "seal.break", (e) => {
+            let t = e.player.id;
+            (woaBound.has(t) || woaTired.has(t)) && (e.cancel = !0);
+        }),
+        Pr("seal.tick", 1, woaSealTick);
+}
+woaSealInit();
 function $b(e) {
     Ot.add(e.id), Ec(e), z(e.dimension, w.equip, e.location), T(e, "equip", S.equip);
 }
@@ -7437,11 +7939,11 @@ function Rb(e, t) {
         t % 20 === 0 && j("sanitize", () => ks(e)),
         t % 20 === 0 && j("rewards", () => hf(e)),
         !(!i || !o) &&
-            (j("modes", () => ad(e, t)),
+            (j("modes", () => woaSealed(e.id) || ad(e, t)),
             j("guard", () => am(e)),
             j("weaponScan", () => na(e, t)),
             j("wheel", () => Es(e, o, t)),
-            j("adaptation", () => sf(e, t)),
+            j("adaptation", () => (woaSealed(e.id) ? woaSealHud(e, t) : sf(e, t))),
             j(
                 "effectSnapshot",
                 () => ud(e, t)
@@ -7464,14 +7966,14 @@ N(
     "combat.entityHurt",
     (e) =>
         j("entityHurt", () => {
-            if (e.cancel || e.damage <= 0) return;
+            if (e.cancel || e.damage <= 0 || woaSealHurt(e)) return;
             let t = e.hurtEntity,
                 n = e.damage,
                 r = k(t);
             r && void 0;
             let o = k(e.damageSource.damagingEntity);
             o && o.id !== t.id && Pb(e, o, t, n),
-                !(e.cancel || !r || !R(r.id)) &&
+                !(e.cancel || !r || !R(r.id) || woaSealed(r.id)) &&
                     (e.damage !== n && void 0, Fd(e, r), e.cancel || sm(e, r), e.cancel || Ju(e, r, n));
         })
 );
@@ -7526,7 +8028,8 @@ N(
 N(re.beforeEvents.playerLeave, "main.playerLeave", (e) => {
     let t = e.player.id;
     q("main.forgetPlayer", () => {
-        wc(t),
+        woaSealForget(t),
+            wc(t),
             si(t),
             Do(t),
             xd(t),

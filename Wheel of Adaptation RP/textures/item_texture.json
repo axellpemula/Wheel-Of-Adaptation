@@ -31,6 +31,9 @@
     },
     "xvoid_mahoraga_boots": {
       "textures": "textures/items/xvoid/mahoraga_boots"
+    },
+    "xvoid_seal_of_judgment": {
+      "textures": "textures/items/xvoid/seal_of_judgment"
     }
   }
 }

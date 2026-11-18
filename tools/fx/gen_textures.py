@@ -8,6 +8,7 @@ script. Every texture is an intensity map, alpha carries the brightness.
 
   adapt_*  RGB carries a baked amber -> gold -> white ramp (the wheel).
   fx_*     RGB is white, the particle tints it (every other move).
+  seal_*   Baked gold like adapt_*, for the domain seal.
 """
 
 import math
@@ -346,6 +347,144 @@ def puff():
     return (i / i.max()) ** 1.3 * 0.9 * window(size, 0.6, 0.98)
 
 
+# --------------------------------------------------------------------------
+# domain seal
+# --------------------------------------------------------------------------
+
+
+def oval(cx, cy, rx, ry, deg, steps=28):
+    """Closed outline of an ellipse turned by deg."""
+    a = math.radians(deg)
+    pts = []
+    for k in range(steps + 1):
+        t = 2 * math.pi * k / steps
+        x, y = rx * math.cos(t), ry * math.sin(t)
+        pts.append((cx + x * math.cos(a) - y * math.sin(a), cy + x * math.sin(a) + y * math.cos(a)))
+    return pts
+
+
+def seal_circle():
+    """Circle of the domain seal: the wheel inside a ring of chain.
+
+    Eight-fold on purpose. The sky circle is respawned every two seconds while
+    it turns 45 degrees, so the hand-over between two particles is invisible.
+    """
+    a = Art(512)
+    a.ring(233, 3.2)
+    a.ring(224, 1.2, 190)
+    for k in range(64):  # minute marks on the rim
+        d = k * 5.625
+        a.line([polar(226, d), polar(232, d)], 1.6 if k % 8 else 3.0, 230)
+    # chain band
+    a.ring(213, 1.3, 170)
+    a.ring(193, 1.3, 170)
+    for k in range(48):
+        d = k * 7.5 + 3.75
+        cx, cy = polar(203, d)
+        if k % 2:
+            ex, ey = polar(7.5, d + 90)
+            a.line([(cx - ex, cy - ey), (cx + ex, cy + ey)], 3.2)
+        else:
+            a.line(oval(cx, cy, 5.2, 10.5, d), 2.4)
+    # two squares make the eight-pointed star the wheel sits in
+    for off in (0.0, 45.0):
+        a.line([polar(190, off + k * 90) for k in range(5)], 2.4, 235)
+    a.ring(134, 9.0)
+    a.ring(149, 1.4, 190)
+    a.ring(120, 1.6, 200)
+    for k in range(8):
+        d = k * 45
+        a.line([polar(30, d), polar(176, d)], 6.0)  # spoke and handle
+        a.dot(*polar(178, d), 10.0)
+        m = d + 22.5
+        a.line([polar(150, m), polar(164, m)], 3.0)  # hour marks between the handles
+        a.line([polar(74, m), polar(92, m - 5.5), polar(110, m), polar(92, m + 5.5), polar(74, m)], 1.8, 220)
+        a.dot(*polar(92, m), 2.6)
+        a.line(petal(34, 62, m, 15), 1.5, 215)
+    a.ring(64, 2.6)
+    a.ring(24, 6.0)
+    a.dot(0, 0, 9.5)
+    i = glow(a.array() * 0.74, [(2, 0.5), (7, 0.4), (18, 0.3)])
+    return i * window(512, 0.94, 1.0)
+
+
+def seal_chain():
+    """One length of chain, drawn along x. Links face the viewer and stand on edge in turn."""
+    w, h = 256, 32
+    im = Image.new("L", (w * SS, h * SS), 0)
+    d = ImageDraw.Draw(im)
+    pitch, cy = 19.0, h / 2
+    k, x = 0, 9.0
+    while x < w - 4:
+        if k % 2:
+            d.line([((x - 7.5) * SS, cy * SS), ((x + 7.5) * SS, cy * SS)], fill=255, width=round(4.2 * SS))
+        else:
+            box = [((x - 12.5) * SS, (cy - 7.5) * SS), ((x + 12.5) * SS, (cy + 7.5) * SS)]
+            d.rounded_rectangle(box, radius=round(7.5 * SS), outline=255, width=round(3.6 * SS))
+        k, x = k + 1, x + pitch
+    i = np.asarray(im.resize((w, h), Image.LANCZOS), dtype=float) / 255.0
+    i = glow(i * 0.8, [(1.2, 0.45), (3.5, 0.35)])
+    y = np.abs(np.mgrid[0:h, 0:w][0] + 0.5 - h / 2)
+    return i * np.clip((h / 2 - y) / 3.0, 0, 1)
+
+
+def fork(rng, a, b, rough, depth):
+    """Lightning path from a to b by midpoint displacement."""
+    if depth == 0:
+        return [a, b]
+    mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+    length = math.hypot(b[0] - a[0], b[1] - a[1])
+    nx, ny = -(b[1] - a[1]) / length, (b[0] - a[0]) / length
+    off = rng.normal(0, rough * length)
+    mid = (mx + nx * off, my + ny * off)
+    return fork(rng, a, mid, rough, depth - 1)[:-1] + fork(rng, mid, b, rough, depth - 1)
+
+
+def seal_bolt():
+    """Flipbook of the giant lightning, 4 frames of 128x512: leader, strike, strike, embers."""
+    w, h = 128, 512
+    rng = np.random.default_rng(23)
+    top, bottom = (rng.uniform(-10, 10), -h / 2 - 6), (0.0, h / 2 + 6)
+    trunk = fork(rng, top, bottom, 0.2, 6)
+    widest = max(abs(x) for x, _ in trunk)
+    trunk = [(x * min(1.0, 40 / widest), y) for x, y in trunk]
+    branches = []
+    for k in range(7):
+        at = trunk[int(rng.uniform(0.08, 0.8) * len(trunk))]
+        side = 1 if at[0] < 0 else -1
+        if rng.uniform() < 0.3:
+            side = -side
+        end = (at[0] + side * rng.uniform(18, 46), at[1] + rng.uniform(40, 110))
+        path = fork(rng, at, end, 0.22, 4)
+        reach = max(abs(x) for x, _ in path)
+        if reach > 52:  # pull the branch back towards its root so it stays inside the frame
+            path = [(at[0] + (x - at[0]) * max(0.0, 52 - abs(at[0])) / (reach - abs(at[0])), y) for x, y in path]
+        branches.append(path)
+
+    def frame(trunk_t, branch_t, branch_n, level, gaps=0.0):
+        im = Image.new("L", (w * SS, h * SS), 0)
+        d = ImageDraw.Draw(im)
+
+        def draw(path, t, v=255):
+            pts = [((x + w / 2) * SS, (y + h / 2) * SS) for x, y in path]
+            if not gaps:
+                d.line(pts, fill=v, width=max(1, round(t * SS)), joint="curve")
+                return
+            for p, q in zip(pts, pts[1:]):
+                if rng.uniform() > gaps:
+                    d.line([p, q], fill=v, width=max(1, round(t * SS)))
+
+        for path in branches[:branch_n]:
+            draw(path, branch_t, 200)
+        draw(trunk, trunk_t)
+        i = np.asarray(im.resize((w, h), Image.LANCZOS), dtype=float) / 255.0
+        i = glow(i * 0.8, [(2, 0.55), (6, 0.4), (14, 0.3)]) * level
+        x, y = grid(w, h)
+        return i * np.clip((w / 2 - np.abs(x)) / 12.0, 0, 1)
+
+    return np.hstack([frame(2.2, 1.2, 3, 0.8), frame(7.0, 2.6, 7, 1.15), frame(4.5, 2.0, 7, 1.0), frame(2.0, 1.2, 5, 0.6, 0.45)])
+
+
 # name -> (intensity map, baked gold ramp?)
 TEXTURES = {
     "adapt_mandala": (mandala, True),
@@ -365,6 +504,9 @@ TEXTURES = {
     "fx_burst": (burst, False),
     "fx_vortex": (vortex, False),
     "fx_puff": (puff, False),
+    "seal_circle": (seal_circle, True),
+    "seal_chain": (seal_chain, True),
+    "seal_bolt": (seal_bolt, True),
 }
 
 
