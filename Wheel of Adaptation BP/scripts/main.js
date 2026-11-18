@@ -1536,35 +1536,65 @@ function Ma(e, t) {
 function Ca(e) {
     mn.delete(e);
 }
-var Hl = ["blunt", "slash", "pierce", "bite", "sting"];
-var Kl = "blunt",
-    Fl = "kind:",
+var Hl = [
+    "sword",
+    "axe",
+    "spear",
+    "mace",
+    "trident",
+    "tool",
+    "zombie",
+    "spider",
+    "bug",
+    "slime",
+    "animal",
+    "sting",
+    "skeleton",
+    "piglin",
+    "hoglin",
+];
+var Fl = "kind:",
+    woaKindSpins = { sword: f.turn2, axe: f.turn2, spear: f.turn2, mace: f.turn3, trident: f.turn2, piglin: f.turn2, hoglin: f.turn2 },
     zl = {
-        sword: "slash",
-        axe: "slash",
-        hoe: "slash",
-        spear: "pierce",
-        trident: "pierce",
-        pickaxe: "pierce",
-        mace: "blunt",
-        shovel: "blunt",
+        sword: "sword",
+        axe: "axe",
+        spear: "spear",
+        mace: "mace",
+        trident: "trident",
+        pickaxe: "tool",
+        shovel: "tool",
+        hoe: "tool",
     },
-    Bl = {
-        "minecraft:hoglin": "pierce",
-        "minecraft:zoglin": "pierce",
-        "minecraft:spider": "bite",
-        "minecraft:cave_spider": "bite",
-        "minecraft:wolf": "bite",
-        "minecraft:silverfish": "bite",
-        "minecraft:endermite": "bite",
-        "minecraft:phantom": "bite",
-        "minecraft:bee": "sting",
-        "minecraft:pufferfish": "sting",
-    },
-    Vl = new Set([
-        "minecraft:guardian",
-        "minecraft:elder_guardian",
-        "minecraft:evocation_illager",
+    Bl = new Map([
+        ...h("zombie", [
+            "minecraft:zombie",
+            "minecraft:husk",
+            "minecraft:drowned",
+            "minecraft:zombie_villager",
+            "minecraft:zombie_villager_v2",
+        ]),
+        ...h("spider", ["minecraft:spider", "minecraft:cave_spider"]),
+        ...h("bug", ["minecraft:silverfish", "minecraft:endermite"]),
+        ...h("slime", ["minecraft:slime", "minecraft:magma_cube"]),
+        ...h("animal", [
+            "minecraft:wolf",
+            "minecraft:fox",
+            "minecraft:panda",
+            "minecraft:goat",
+            "minecraft:dolphin",
+            "minecraft:ocelot",
+            "minecraft:cat",
+        ]),
+        ...h("sting", ["minecraft:bee", "minecraft:pufferfish"]),
+        ...h("skeleton", [
+            "minecraft:skeleton",
+            "minecraft:stray",
+            "minecraft:bogged",
+            "minecraft:parched",
+            "minecraft:wither_skeleton",
+        ]),
+        ...h("piglin", ["minecraft:piglin", "minecraft:piglin_brute", "minecraft:zombie_pigman"]),
+        ...h("hoglin", ["minecraft:hoglin", "minecraft:zoglin"]),
     ]),
     Wl = {
         "mob:minecraft:blaze": "proj:minecraft:small_fireball",
@@ -1572,7 +1602,23 @@ var Kl = "blunt",
         "mob:minecraft:shulker": "proj:minecraft:shulker_bullet",
         "mob:minecraft:breeze": "proj:minecraft:breeze_wind_charge_projectile",
     },
-    Oa = { blunt: "weaponMace", slash: "weaponSword", pierce: "weaponSpear", bite: "beast", sting: "thorn" };
+    Oa = {
+        sword: "weaponSword",
+        axe: "weaponAxe",
+        spear: "weaponSpear",
+        mace: "weaponMace",
+        trident: "weaponTrident",
+        tool: "weaponPickaxe",
+        zombie: "zombie",
+        spider: "spider",
+        bug: "silverfish",
+        slime: "slime",
+        animal: "beast",
+        sting: "thorn",
+        skeleton: "skull",
+        piglin: "piglin",
+        hoglin: "hoglin",
+    };
 function Je(e) {
     return Fl + e;
 }
@@ -1580,10 +1626,10 @@ function ln(e) {
     return Hl.includes(e);
 }
 function Et(e) {
-    if (!(!e.startsWith("minecraft:") || Vl.has(e))) return Bl[e] ?? Kl;
+    return Bl.get(e);
 }
 function Ur(e) {
-    return zl[e];
+    return Object.hasOwn(zl, e) ? zl[e] : void 0;
 }
 function Da(e) {
     let t = Wl[e];
@@ -1675,7 +1721,7 @@ function Me(e) {
     return { key: St(e), spins: Math.max(qr(e), zr(e) ?? 0) };
 }
 function Yr(e) {
-    return { key: Je(e), spins: 1 };
+    return { key: Je(e), spins: woaKindSpins[e] ?? f.turn1 };
 }
 function Na(e) {
     let t = Et(e),
@@ -2750,8 +2796,9 @@ function Ec(e) {
                 o = (r.v ?? 1) < ig;
             for (let [i, s] of Object.entries(r.m ?? {})) {
                 if (o && la.includes(i)) continue;
-                let c = Da(ma[i] ?? i),
-                    d = wt(c)?.spins ?? s[1],
+                let c = Da(ma[i] ?? i);
+                if (c.startsWith(Fl) && !ln(c.slice(Fl.length))) continue;
+                let d = wt(c)?.spins ?? s[1],
                     u = On(s[0], s[1], d);
                 d !== s[1] && void 0;
                 let m = t.map.get(c),

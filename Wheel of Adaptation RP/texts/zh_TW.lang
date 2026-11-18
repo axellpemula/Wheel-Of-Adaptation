@@ -92,11 +92,21 @@ woa.env.charging=衝撞
 woa.env.explosion_of=%s爆炸
 woa.env.firework_by=煙火（%s）
 
-woa.kind.blunt=鈍擊
-woa.kind.slash=斬擊
-woa.kind.pierce=穿刺
-woa.kind.bite=撕咬
+woa.kind.sword=劍
+woa.kind.axe=斧
+woa.kind.spear=矛
+woa.kind.mace=重錘
+woa.kind.trident=三叉戟
+woa.kind.tool=工具
+woa.kind.zombie=殭屍
+woa.kind.spider=蜘蛛
+woa.kind.bug=害蟲
+woa.kind.slime=史萊姆
+woa.kind.animal=野獸
 woa.kind.sting=蜇刺
+woa.kind.skeleton=骷髏
+woa.kind.piglin=豬布林
+woa.kind.hoglin=豬布獸
 
 item.xvoid.adaptation_config=§e適應設定
 woa.config.title=Wheel of Adaptation · 設定

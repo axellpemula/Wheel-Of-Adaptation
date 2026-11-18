@@ -92,11 +92,21 @@ woa.env.charging=突進
 woa.env.explosion_of=%sの爆発
 woa.env.firework_by=花火（%s）
 
-woa.kind.blunt=打撃
-woa.kind.slash=斬撃
-woa.kind.pierce=刺突
-woa.kind.bite=噛みつき
+woa.kind.sword=剣
+woa.kind.axe=斧
+woa.kind.spear=槍
+woa.kind.mace=メイス
+woa.kind.trident=トライデント
+woa.kind.tool=道具
+woa.kind.zombie=ゾンビ
+woa.kind.spider=クモ
+woa.kind.bug=害虫
+woa.kind.slime=スライム
+woa.kind.animal=獣
 woa.kind.sting=毒針
+woa.kind.skeleton=スケルトン
+woa.kind.piglin=ピグリン
+woa.kind.hoglin=ホグリン
 
 item.xvoid.adaptation_config=§e適応設定
 woa.config.title=Wheel of Adaptation · 設定
