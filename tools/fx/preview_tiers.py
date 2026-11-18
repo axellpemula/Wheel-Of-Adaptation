@@ -27,6 +27,7 @@ STEP = 1 / 30
 
 GROUND = (0, 0.08, 0)
 WHEEL = (0, 2.45, 0)
+NECK = (0, 1.41, 0)  # where the game puts an effect of the wheel attachable; the w_* effects lift themselves
 BODY = (0, 0.9, 0)
 TARGET = (0, 1.0, 0)
 
@@ -36,8 +37,8 @@ TARGET = (0, 1.0, 0)
 # The w_* effects are the ones the wheel plays itself, the same on every tier.
 SCENES = {
     "wheel turn": (0.14, 9, [
-        ("w_wheel_spin", WHEEL), ("w_adapt_halo", WHEEL), ("w_wheel_crackle", WHEEL), ("w_fx_arcs_gold", WHEEL),
-        ("w_twinkle_gold", WHEEL), ("wheel_turn_more", WHEEL), ("adapt_ripple", GROUND),
+        ("w_wheel_spin", NECK), ("w_adapt_halo", NECK), ("w_wheel_crackle", NECK), ("w_fx_arcs_gold", NECK),
+        ("w_twinkle_gold", NECK), ("wheel_turn_more", WHEEL), ("adapt_ripple", GROUND),
     ]),
     "full adaptation, 0.25 s": (0.25, 34, None),
     "full adaptation, 1.3 s": (1.3, 34, None),

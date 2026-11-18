@@ -24,7 +24,7 @@
         "surface_only": true,
         "offset": [
           0,
-          0,
+          0.879,
           0
         ]
       },

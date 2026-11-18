@@ -19,7 +19,13 @@
       "minecraft:emitter_lifetime_once": {
         "active_time": 0.05
       },
-      "minecraft:emitter_shape_point": {},
+      "minecraft:emitter_shape_point": {
+        "offset": [
+          0,
+          0.879,
+          0
+        ]
+      },
       "minecraft:particle_lifetime_expression": {
         "max_lifetime": 0.36
       },

@@ -24,7 +24,7 @@
         "direction": "outwards",
         "offset": [
           0,
-          0,
+          0.879,
           0
         ]
       },

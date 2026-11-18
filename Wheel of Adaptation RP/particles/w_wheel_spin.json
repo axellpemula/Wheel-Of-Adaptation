@@ -23,7 +23,12 @@
         "radius": 0.75,
         "plane_normal": "y",
         "surface_only": true,
-        "direction": "outwards"
+        "direction": "outwards",
+        "offset": [
+          0,
+          0.879,
+          0
+        ]
       },
       "minecraft:particle_lifetime_expression": {
         "max_lifetime": "math.random(0.35, 0.6)"
