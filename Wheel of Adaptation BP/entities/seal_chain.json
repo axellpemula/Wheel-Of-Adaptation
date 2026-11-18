@@ -42,9 +42,6 @@
         "value": 1.0
       },
       "minecraft:fire_immune": {},
-      "minecraft:loot": {
-        "table": ""
-      },
       "minecraft:conditional_bandwidth_optimization": {}
     }
   }
