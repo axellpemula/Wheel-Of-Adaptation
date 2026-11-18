@@ -92,11 +92,21 @@ woa.env.charging=Charge
 woa.env.explosion_of=%s Explosion
 woa.env.firework_by=Firework (%s)
 
-woa.kind.blunt=Blunt Force
-woa.kind.slash=Slashing
-woa.kind.pierce=Piercing
-woa.kind.bite=Bite
+woa.kind.sword=Sword
+woa.kind.axe=Axe
+woa.kind.spear=Spear
+woa.kind.mace=Mace
+woa.kind.trident=Trident
+woa.kind.tool=Tools
+woa.kind.zombie=Zombies
+woa.kind.spider=Spiders
+woa.kind.bug=Vermin
+woa.kind.slime=Slimes
+woa.kind.animal=Beasts
 woa.kind.sting=Sting
+woa.kind.skeleton=Skeletons
+woa.kind.piglin=Piglins
+woa.kind.hoglin=Hoglins
 
 item.xvoid.adaptation_config=§eAdaptation Settings
 woa.config.title=Wheel of Adaptation · Settings

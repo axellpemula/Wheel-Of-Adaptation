@@ -1,0 +1,28 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "xvoid:seal_chain",
+      "materials": {
+        "default": "enderman"
+      },
+      "textures": {
+        "default": "textures/entity/xvoid/seal_chain"
+      },
+      "geometry": {
+        "default": "geometry.xvoid.seal_chain"
+      },
+      "animations": {
+        "bind": "animation.xvoid.seal_chain.bind"
+      },
+      "scripts": {
+        "animate": [
+          "bind"
+        ]
+      },
+      "render_controllers": [
+        "controller.render.default"
+      ]
+    }
+  }
+}

@@ -523,7 +523,6 @@ var FX_TIERS = {
     "xvoid:heal_crackle": { low: [], ultra: ["xvoid:heal_crackle_ultra", "xvoid:u_arcs_red"] },
     "xvoid:seal_sky": { ultra: ["xvoid:seal_sky", "xvoid:seal_sky_inner"] },
     "xvoid:seal_wall": { low: ["xvoid:seal_wall_lite"], ultra: ["xvoid:seal_wall_ultra"] },
-    "xvoid:seal_anchor": { low: [] },
     "xvoid:seal_bolt": { ultra: ["xvoid:seal_bolt", "xvoid:seal_bolt_wide"] },
     "xvoid:seal_bolt_sparks": { low: [], ultra: ["xvoid:seal_bolt_sparks_ultra"] },
     "xvoid:seal_bolt_ring": { low: [] },
@@ -1537,35 +1536,65 @@ function Ma(e, t) {
 function Ca(e) {
     mn.delete(e);
 }
-var Hl = ["blunt", "slash", "pierce", "bite", "sting"];
-var Kl = "blunt",
-    Fl = "kind:",
+var Hl = [
+    "sword",
+    "axe",
+    "spear",
+    "mace",
+    "trident",
+    "tool",
+    "zombie",
+    "spider",
+    "bug",
+    "slime",
+    "animal",
+    "sting",
+    "skeleton",
+    "piglin",
+    "hoglin",
+];
+var Fl = "kind:",
+    woaKindSpins = { sword: f.turn2, axe: f.turn2, spear: f.turn2, mace: f.turn3, trident: f.turn2, piglin: f.turn2, hoglin: f.turn2 },
     zl = {
-        sword: "slash",
-        axe: "slash",
-        hoe: "slash",
-        spear: "pierce",
-        trident: "pierce",
-        pickaxe: "pierce",
-        mace: "blunt",
-        shovel: "blunt",
+        sword: "sword",
+        axe: "axe",
+        spear: "spear",
+        mace: "mace",
+        trident: "trident",
+        pickaxe: "tool",
+        shovel: "tool",
+        hoe: "tool",
     },
-    Bl = {
-        "minecraft:hoglin": "pierce",
-        "minecraft:zoglin": "pierce",
-        "minecraft:spider": "bite",
-        "minecraft:cave_spider": "bite",
-        "minecraft:wolf": "bite",
-        "minecraft:silverfish": "bite",
-        "minecraft:endermite": "bite",
-        "minecraft:phantom": "bite",
-        "minecraft:bee": "sting",
-        "minecraft:pufferfish": "sting",
-    },
-    Vl = new Set([
-        "minecraft:guardian",
-        "minecraft:elder_guardian",
-        "minecraft:evocation_illager",
+    Bl = new Map([
+        ...h("zombie", [
+            "minecraft:zombie",
+            "minecraft:husk",
+            "minecraft:drowned",
+            "minecraft:zombie_villager",
+            "minecraft:zombie_villager_v2",
+        ]),
+        ...h("spider", ["minecraft:spider", "minecraft:cave_spider"]),
+        ...h("bug", ["minecraft:silverfish", "minecraft:endermite"]),
+        ...h("slime", ["minecraft:slime", "minecraft:magma_cube"]),
+        ...h("animal", [
+            "minecraft:wolf",
+            "minecraft:fox",
+            "minecraft:panda",
+            "minecraft:goat",
+            "minecraft:dolphin",
+            "minecraft:ocelot",
+            "minecraft:cat",
+        ]),
+        ...h("sting", ["minecraft:bee", "minecraft:pufferfish"]),
+        ...h("skeleton", [
+            "minecraft:skeleton",
+            "minecraft:stray",
+            "minecraft:bogged",
+            "minecraft:parched",
+            "minecraft:wither_skeleton",
+        ]),
+        ...h("piglin", ["minecraft:piglin", "minecraft:piglin_brute", "minecraft:zombie_pigman"]),
+        ...h("hoglin", ["minecraft:hoglin", "minecraft:zoglin"]),
     ]),
     Wl = {
         "mob:minecraft:blaze": "proj:minecraft:small_fireball",
@@ -1573,7 +1602,23 @@ var Kl = "blunt",
         "mob:minecraft:shulker": "proj:minecraft:shulker_bullet",
         "mob:minecraft:breeze": "proj:minecraft:breeze_wind_charge_projectile",
     },
-    Oa = { blunt: "weaponMace", slash: "weaponSword", pierce: "weaponSpear", bite: "beast", sting: "thorn" };
+    Oa = {
+        sword: "weaponSword",
+        axe: "weaponAxe",
+        spear: "weaponSpear",
+        mace: "weaponMace",
+        trident: "weaponTrident",
+        tool: "weaponPickaxe",
+        zombie: "zombie",
+        spider: "spider",
+        bug: "silverfish",
+        slime: "slime",
+        animal: "beast",
+        sting: "thorn",
+        skeleton: "skull",
+        piglin: "piglin",
+        hoglin: "hoglin",
+    };
 function Je(e) {
     return Fl + e;
 }
@@ -1581,10 +1626,10 @@ function ln(e) {
     return Hl.includes(e);
 }
 function Et(e) {
-    if (!(!e.startsWith("minecraft:") || Vl.has(e))) return Bl[e] ?? Kl;
+    return Bl.get(e);
 }
 function Ur(e) {
-    return zl[e];
+    return Object.hasOwn(zl, e) ? zl[e] : void 0;
 }
 function Da(e) {
     let t = Wl[e];
@@ -1676,7 +1721,7 @@ function Me(e) {
     return { key: St(e), spins: Math.max(qr(e), zr(e) ?? 0) };
 }
 function Yr(e) {
-    return { key: Je(e), spins: 1 };
+    return { key: Je(e), spins: woaKindSpins[e] ?? f.turn1 };
 }
 function Na(e) {
     let t = Et(e),
@@ -2751,8 +2796,9 @@ function Ec(e) {
                 o = (r.v ?? 1) < ig;
             for (let [i, s] of Object.entries(r.m ?? {})) {
                 if (o && la.includes(i)) continue;
-                let c = Da(ma[i] ?? i),
-                    d = wt(c)?.spins ?? s[1],
+                let c = Da(ma[i] ?? i);
+                if (c.startsWith(Fl) && !ln(c.slice(Fl.length))) continue;
+                let d = wt(c)?.spins ?? s[1],
                     u = On(s[0], s[1], d);
                 d !== s[1] && void 0;
                 let m = t.map.get(c),
@@ -7496,13 +7542,16 @@ var woaSealItem = "xvoid:seal_of_judgment",
         drain: 0.5,
         cooldown: 12e3,
         saveEvery: 100,
-        skip: new Set(["minecraft:armor_stand", "minecraft:npc", "minecraft:agent"]),
+        chain: "xvoid:seal_chain",
+        maxFrozen: 96,
+        skip: new Set(["minecraft:armor_stand", "minecraft:npc", "minecraft:agent", "xvoid:seal_chain"]),
     },
     woaDomains = new Map(),
     woaBound = new Map(),
     woaTired = new Map(),
     woaSealHold = new Map(),
     woaSealLocked = new Set(),
+    woaSealChainIds = new Set(),
     woaSealStriking = !1;
 function woaSealed(e) {
     return woaBound.has(e) || woaDomains.has(e) || woaTired.has(e);
@@ -7554,9 +7603,10 @@ function woaSealKind(e, t) {
     }
     return a(() => e.getComponent("minecraft:tameable")?.tamedToPlayerId) === t ? "pet" : "bind";
 }
-function woaSealLock(e, t) {
+function woaSealLock(e, t, n) {
     t ? woaSealLocked.add(e.id) : woaSealLocked.delete(e.id),
         a(() => e.inputPermissions.setPermissionCategory(woaInput.Movement, !t)),
+        (n || !t) && a(() => e.inputPermissions.setPermissionCategory(woaInput.Camera, !t)),
         a(() => e.setDynamicProperty(woaSealProp, t ? !0 : void 0));
 }
 function woaSealCdOf(e, t) {
@@ -7621,6 +7671,7 @@ function woaSealOpen(e, t) {
             allowed: new Set(),
             ignore: new Set(),
             bound: new Map(),
+            frozen: new Map(),
             pushed: new Map(),
             thunder: 0,
             endAt: 0,
@@ -7668,19 +7719,13 @@ function woaSealRise(e) {
         v(e.dim, I.flash, n);
     for (let r of a(() => e.dim.getPlayers({ location: t, maxDistance: woaSeal.radius + 16 })) ?? []) Xe(r, "adapted");
 }
-function woaSealChains(e, t, n) {
-    let r = t.entity.location,
-        o = { x: r.x, y: r.y + t.height * 0.55, z: r.z },
-        i = 2.4 + 0.3 * t.height;
-    for (let s = 0; s < 4; s++) {
-        let c = t.turn + (s * Math.PI) / 2,
-            d = { x: r.x + Math.cos(c) * i, y: r.y + 0.15, z: r.z + Math.sin(c) * i },
-            u = Math.hypot(o.x - d.x, o.y - d.y, o.z - d.z),
-            m = { x: (o.x - d.x) / u, y: (o.y - d.y) / u, z: (o.z - d.z) / u },
-            b = (u + 0.6) / 2;
-        woaSealFx(e.dim, n, { x: d.x + m.x * b, y: d.y + m.y * b, z: d.z + m.z * b }, { dir: m, len: b }),
-            woaSealFx(e.dim, "xvoid:seal_anchor", d, { dir: m });
-    }
+function woaSealChain(e, t) {
+    let n = a(() => e.dim.spawnEntity(woaSeal.chain, t.at, { initialRotation: Math.random() * 360 }));
+    n && ((t.chain = n), woaSealChainIds.add(n.id));
+}
+function woaSealUnchain(e) {
+    let t = e.chain;
+    t && ((e.chain = void 0), woaSealChainIds.delete(t.id), a(() => t.isValid && t.remove()));
 }
 function woaSealBind(e, t) {
     (e.phase = "hold"), woaSealLock(e.host, !1);
@@ -7694,6 +7739,7 @@ function woaSealBind(e, t) {
                 entity: r,
                 player: o,
                 at: { x: i.x, y: i.y, z: i.z },
+                rot: a(() => r.getRotation()),
                 since: t + 1,
                 next: t + woaSeal.firstStrike + (n % 6) * 3,
                 misses: 0,
@@ -7702,8 +7748,8 @@ function woaSealBind(e, t) {
             };
         e.bound.set(r.id, s),
             woaBound.set(r.id, e),
-            o && (woaSealLock(o, !0), R(o.id) && (a(() => Qt(o, "seal")), a(() => sd(o))), Xe(o, "adapted")),
-            woaSealChains(e, s, "xvoid:seal_chain_in"),
+            o && (woaSealLock(o, !0, !0), R(o.id) && (a(() => Qt(o, "seal")), a(() => sd(o))), Xe(o, "adapted")),
+            woaSealChain(e, s),
             woaSealFx(e.dim, "xvoid:seal_bind_flash", pe(r)),
             n < 8 && z(e.dim, "xvoid.seal.chain", i, 0.9 + Math.random() * 0.2, 1),
             n++;
@@ -7712,7 +7758,7 @@ function woaSealBind(e, t) {
         woaSealSay(e.host, n ? "\xA76" : "\xA77", n ? p("woa.seal.open", `${n}`) : p("woa.seal.empty"));
 }
 function woaSealFree(e, t, n) {
-    e.bound.delete(t), woaBound.delete(t), n.player && n.player.isValid && woaSealLock(n.player, !1);
+    e.bound.delete(t), woaBound.delete(t), woaSealUnchain(n), n.player && n.player.isValid && woaSealLock(n.player, !1);
 }
 function woaSealHit(e, t, n) {
     woaSealStriking = !0;
@@ -7748,21 +7794,20 @@ function woaSealStrike(e, t, n, r) {
 function woaSealKeep(e, t, n, r) {
     let o = n.entity;
     if (!o.isValid || !Hi(o)) return woaSealFree(e, t, n);
-    let i = r - n.since;
-    if (i % 2 === 0) {
-        let s = o.location,
-            c = n.at,
-            d = Math.abs(s.x - c.x) > 0.3 || Math.abs(s.z - c.z) > 0.3;
-        n.player
-            ? d && a(() => o.teleport({ x: c.x, y: s.y, z: c.z }, { keepVelocity: !0 }))
-            : (d || Math.abs(s.y - c.y) > 0.3) && a(() => o.teleport(c));
-    }
+    let i = r - n.since,
+        s = o.location,
+        c = n.at,
+        d = Math.abs(s.x - c.x) > 0.02 || Math.abs(s.y - c.y) > 0.02 || Math.abs(s.z - c.z) > 0.02;
+    n.player
+        ? d && a(() => o.teleport(c, { keepVelocity: !1 }))
+        : (a(() => o.teleport(c, n.rot ? { rotation: n.rot, keepVelocity: !1 } : { keepVelocity: !1 })),
+          a(() => o.clearVelocity()));
     i % 20 === 0 &&
         (n.player
             ? woaSealSay(n.player, "\xA7c", p("woa.seal.bound"))
             : (a(() => o.addEffect("slowness", 40, { amplifier: 255, showParticles: !1 })),
               a(() => o.addEffect("weakness", 40, { amplifier: 255, showParticles: !1 })))),
-        i > 0 && i % woaSeal.loopTicks === 0 && woaSealChains(e, n, "xvoid:seal_chain"),
+        i > 0 && i % woaSeal.loopTicks === 0 && !(n.chain && n.chain.isValid) && (woaSealUnchain(n), woaSealChain(e, n)),
         r >= n.next && ((n.next = r + woaSeal.strikeEvery), woaSealStrike(e, t, n, r));
 }
 function woaSealPush(e, t, n, r) {
@@ -7790,7 +7835,7 @@ function woaSealBarrier(e, t) {
         r = new Set();
     for (let o of woaSealNear(e)) {
         let i = o.id;
-        if (i === e.id || e.bound.has(i) || e.allowed.has(i) || e.ignore.has(i)) continue;
+        if (i === e.id || e.bound.has(i) || e.allowed.has(i) || e.ignore.has(i) || e.frozen.has(i)) continue;
         let s = o.location;
         if (!woaSealInside(e, s)) continue;
         if (n && e.inside.has(i)) {
@@ -7798,6 +7843,17 @@ function woaSealBarrier(e, t) {
             continue;
         }
         if (woaBound.has(i)) continue;
+        let d = a(() => o.getComponent("minecraft:projectile"));
+        if (d) {
+            if (n) continue;
+            let u = a(() => d.owner?.id);
+            u === e.id || (u && e.allowed.has(u))
+                ? e.ignore.add(i)
+                : e.frozen.size < woaSeal.maxFrozen
+                  ? e.frozen.set(i, { entity: o, at: { x: s.x, y: s.y, z: s.z } })
+                  : a(() => o.remove());
+            continue;
+        }
         let c = k(o);
         if (woaSeal.skip.has(o.typeId) || !Hi(o) || (c && a(() => c.getGameMode()) === "Spectator")) {
             c || e.ignore.add(i);
@@ -7853,6 +7909,12 @@ function woaSealRun(e, t) {
         o = woaSeal.steps * woaSeal.stepTicks;
     r % woaSeal.loopTicks === 0 &&
         woaSealFx(e.dim, "xvoid:seal_wall", { x: e.center.x, y: e.center.y + 1, z: e.center.z });
+    if (e.phase !== "hold") {
+        let i = n.location,
+            s = e.center;
+        (Math.abs(i.x - s.x) > 0.05 || Math.abs(i.z - s.z) > 0.05) &&
+            a(() => n.teleport({ x: s.x, y: i.y, z: s.z }, { keepVelocity: !1 }));
+    }
     if (e.phase === "charge") {
         let i = Math.floor(r / woaSeal.stepTicks);
         i > e.step && i < woaSeal.steps && ((e.step = i), woaSealStep(e, i)),
@@ -7861,6 +7923,10 @@ function woaSealRun(e, t) {
     } else if (e.phase === "rise") r >= o + woaSeal.bindAfter && woaSealBind(e, t);
     else {
         for (let [s, c] of [...e.bound]) woaSealKeep(e, s, c, t);
+        for (let [s, c] of [...e.frozen])
+            c.entity.isValid
+                ? (a(() => c.entity.teleport(c.at, { keepVelocity: !1 })), a(() => c.entity.clearVelocity()))
+                : e.frozen.delete(s);
         e.bound.size ? (e.endAt = 0) : e.endAt || (e.endAt = t + 20);
         let i = r - o - woaSeal.skyAfter;
         if (i >= 0 && i % woaSeal.loopTicks === 0) {
@@ -7870,10 +7936,33 @@ function woaSealRun(e, t) {
     }
     r % 2 === 0 && woaSealBarrier(e, t);
 }
+function woaSealStops(e, t) {
+    if (!t || !woaDomains.size) return !1;
+    let n = a(() => e.location),
+        r = a(() => e.dimension.id);
+    if (!n) return !1;
+    for (let o of woaDomains.values())
+        if (o.phase === "hold" && t !== o.id && !o.allowed.has(t) && r === o.dim.id && woaSealInside(o, n)) return !0;
+    return !1;
+}
 function woaSealHurt(e) {
     if (woaSealStriking) return !0;
-    let t = a(() => e.damageSource.damagingEntity?.id);
-    return t && (woaBound.has(t) || woaTired.has(t)) ? ((e.cancel = !0), !0) : !1;
+    let t = e.hurtEntity,
+        n = a(() => e.damageSource.damagingEntity?.id),
+        r = woaDomains.get(a(() => t.id));
+    return (n && (woaBound.has(n) || woaTired.has(n))) ||
+        (r && r.phase !== "hold" && !Qh.has(a(() => e.damageSource.cause))) ||
+        woaSealStops(t, n)
+        ? ((e.cancel = !0), !0)
+        : !1;
+}
+function woaSealBlast(e) {
+    let t = e.source;
+    t && (woaBound.has(t.id) || woaSealStops(t, t.id)) && (e.cancel = !0);
+}
+function woaSealNoUse(e) {
+    let t = a(() => (e.source ?? e.player).id);
+    t && woaBound.has(t) && (e.cancel = !0);
 }
 function woaSealNoHeal(e) {
     if (!woaTired.size) return !1;
@@ -7882,8 +7971,9 @@ function woaSealNoHeal(e) {
 }
 function woaSealForget(e) {
     woaSealHold.delete(e), woaTired.delete(e), woaSealLocked.delete(e), woaSealCd.delete(e);
-    let t = woaBound.get(e);
-    t && (t.bound.delete(e), woaBound.delete(e));
+    let t = woaBound.get(e),
+        n = t?.bound.get(e);
+    t && (n && woaSealUnchain(n), t.bound.delete(e), woaBound.delete(e));
 }
 function woaSealTick() {
     let e = Be.currentTick;
@@ -7907,6 +7997,16 @@ function woaSealTick() {
                       a(() => t.playSound("note.pling")))
                     : e % woaSeal.saveEvery === 0 && a(() => t.setDynamicProperty(woaSealCdProp, n - e)));
         }
+    if (e % 200 === 0) {
+        let t = new Set();
+        for (let n of a(() => re.getAllPlayers()) ?? []) {
+            let r = a(() => n.dimension);
+            if (!r || t.has(r.id)) continue;
+            t.add(r.id);
+            for (let o of a(() => r.getEntities({ type: woaSeal.chain })) ?? [])
+                woaSealChainIds.has(o.id) || a(() => o.remove());
+        }
+    }
 }
 function woaSealInit() {
     N(re.afterEvents.itemStartUse, "seal.start", woaSealUse),
@@ -7916,6 +8016,10 @@ function woaSealInit() {
             let t = e.player.id;
             (woaBound.has(t) || woaTired.has(t)) && (e.cancel = !0);
         }),
+        N(re.beforeEvents.explosion, "seal.explosion", woaSealBlast),
+        N(re.beforeEvents.itemUse, "seal.itemUse", woaSealNoUse),
+        N(re.beforeEvents.playerInteractWithBlock, "seal.useBlock", woaSealNoUse),
+        N(re.beforeEvents.playerInteractWithEntity, "seal.useEntity", woaSealNoUse),
         Pr("seal.tick", 1, woaSealTick);
 }
 woaSealInit();

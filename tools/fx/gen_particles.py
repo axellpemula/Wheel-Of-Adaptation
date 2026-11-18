@@ -1022,7 +1022,7 @@ flat("u_aura_ring", "fb_ripple", 1.3, f"0.4 + 1.5 * {T}", grad((0, PALE, 0.45), 
 # Domain seal (Seal of Judgment) ----------------------------------------------
 #
 # The script passes v.life (seconds), v.len (half length in blocks) and v.dir.
-# Circle, chains and wall last as long as the domain does, which has no set
+# Circle and wall last as long as the domain does, which has no set
 # length: the script respawns them every LOOP seconds and each copy fades over
 # its first and last quarter second, so two copies always add up to one.
 
@@ -1093,22 +1093,7 @@ effect(
 )
 facing_pop("seal_repel", "adapt_ward", "dir", 0.5, 0.5, 1.1, grad((0, WHITE, 1), (0.5, PALE, 0.8), (1, AMBER, 0)))
 
-# binding: chains from four small seals around the target
-SEAL_CHAIN = dict(material="particles_add", texture="seal_chain")
-for name, length, gradient in (
-    ("seal_chain_in", "v.len * math.min(1, v.particle_age / 0.16)",
-     grad((0, WHITE, 1), (0.1, WHITE, 1), (1 - SEAL_IN, WHITE, 1), (1, WHITE, 0))),
-    ("seal_chain", "v.len", seal_cross()),
-):
-    effect(
-        name, SEAL_CHAIN["material"], SEAL_CHAIN["texture"], once(1), shape("point", direction=vec("dir")),
-        life(SEAL_LIFE), speed(0.05), motion(), billboard([length, 0.2], "lookat_direction"), tint(gradient),
-    )
-effect(
-    "seal_anchor", "particles_add", "adapt_ward", once(1), shape("point", direction=vec("dir")), life(SEAL_LIFE),
-    speed(0.05), spin(0, 90 / SEAL_LOOP), motion(rotation_drag=0.0), billboard(0.75, "direction_z"),
-    tint(seal_cross(PALE, 0.9)),
-)
+# binding: the chains are an entity (xvoid:seal_chain); only the flash on the target is a particle
 pop("seal_bind_flash", "fb_burst", 0.35, 0.5, 1.2, gold_fade())
 
 # the lightning: a flipbook bolt from the circle down to the target
@@ -1250,7 +1235,6 @@ tier("heal_crackle", low=[], ultra=[variant("heal_crackle", "ultra", size=1.5), 
 # domain seal
 tier("seal_sky", ultra=["seal_sky", "seal_sky_inner"])
 tier("seal_wall", low=[lite("seal_wall", 0.4)], ultra=[grand("seal_wall", 1.6, 1.0)])
-tier("seal_anchor", low=[])
 tier("seal_bolt", ultra=["seal_bolt", "seal_bolt_wide"])
 tier("seal_bolt_sparks", low=[], ultra=[grand("seal_bolt_sparks", 2.2, 1.2)])
 tier("seal_bolt_ring", low=[])
