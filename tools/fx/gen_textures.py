@@ -408,26 +408,6 @@ def seal_circle():
     return i * window(512, 0.94, 1.0)
 
 
-def seal_chain():
-    """One length of chain, drawn along x. Links face the viewer and stand on edge in turn."""
-    w, h = 256, 32
-    im = Image.new("L", (w * SS, h * SS), 0)
-    d = ImageDraw.Draw(im)
-    pitch, cy = 19.0, h / 2
-    k, x = 0, 9.0
-    while x < w - 4:
-        if k % 2:
-            d.line([((x - 7.5) * SS, cy * SS), ((x + 7.5) * SS, cy * SS)], fill=255, width=round(4.2 * SS))
-        else:
-            box = [((x - 12.5) * SS, (cy - 7.5) * SS), ((x + 12.5) * SS, (cy + 7.5) * SS)]
-            d.rounded_rectangle(box, radius=round(7.5 * SS), outline=255, width=round(3.6 * SS))
-        k, x = k + 1, x + pitch
-    i = np.asarray(im.resize((w, h), Image.LANCZOS), dtype=float) / 255.0
-    i = glow(i * 0.8, [(1.2, 0.45), (3.5, 0.35)])
-    y = np.abs(np.mgrid[0:h, 0:w][0] + 0.5 - h / 2)
-    return i * np.clip((h / 2 - y) / 3.0, 0, 1)
-
-
 def fork(rng, a, b, rough, depth):
     """Lightning path from a to b by midpoint displacement."""
     if depth == 0:
@@ -505,7 +485,6 @@ TEXTURES = {
     "fx_vortex": (vortex, False),
     "fx_puff": (puff, False),
     "seal_circle": (seal_circle, True),
-    "seal_chain": (seal_chain, True),
     "seal_bolt": (seal_bolt, True),
 }
 
