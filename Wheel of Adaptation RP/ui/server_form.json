@@ -1,0 +1,76 @@
+{
+  "namespace": "server_form",
+  "main_screen_content": {
+    "anchor_from": "top_middle",
+    "anchor_to": "top_middle",
+    "size": "$xvoid_form_area",
+    "min_size": [
+      "100%",
+      190
+    ],
+    "$xvoid_form_area|default": [
+      "100%",
+      "100%"
+    ],
+    "variables": [
+      {
+        "requires": "$touch",
+        "$xvoid_form_area": [
+          "100%",
+          "100% - 24px"
+        ]
+      }
+    ],
+    "controls": [
+      {
+        "server_form_factory": {
+          "type": "factory",
+          "control_ids": {
+            "long_form": "@server_form.xvoid_long_form",
+            "custom_form": "@server_form.custom_form"
+          }
+        }
+      }
+    ]
+  },
+  "xvoid_long_form": {
+    "type": "panel",
+    "bindings": [
+      {
+        "binding_name": "#title_text"
+      }
+    ],
+    "controls": [
+      {
+        "xvoid_list@xvoid_list.root": {
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "xvoid_long_form",
+              "source_property_name": "(not ((#title_text - $xvoid_list_tag) = #title_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "vanilla_long_form": {
+          "type": "panel",
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "xvoid_long_form",
+              "source_property_name": "((#title_text - $xvoid_list_tag) = #title_text)",
+              "target_property_name": "#visible"
+            }
+          ],
+          "controls": [
+            {
+              "long_form@server_form.long_form": {}
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
