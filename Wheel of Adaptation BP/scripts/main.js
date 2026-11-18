@@ -522,13 +522,16 @@ var FX_TIERS = {
     "xvoid:heal_sever": { low: ["xvoid:heal_sever_lite"], ultra: ["xvoid:heal_sever_ultra"] },
     "xvoid:heal_crackle": { low: [], ultra: ["xvoid:heal_crackle_ultra", "xvoid:u_arcs_red"] },
     "xvoid:seal_sky": { ultra: ["xvoid:seal_sky", "xvoid:seal_sky_inner"] },
-    "xvoid:seal_wall": { low: ["xvoid:seal_wall_lite"], ultra: ["xvoid:seal_wall_ultra"] },
+    "xvoid:seal_wall": { low: ["xvoid:seal_wall_lite"], ultra: ["xvoid:seal_wall_ultra", "xvoid:seal_wall_hoop", "xvoid:seal_motes"] },
+    "xvoid:seal_floor": { low: [], medium: [], ultra: ["xvoid:seal_ground"] },
     "xvoid:seal_bolt": { ultra: ["xvoid:seal_bolt", "xvoid:seal_bolt_wide"] },
     "xvoid:seal_bolt_sparks": { low: [], ultra: ["xvoid:seal_bolt_sparks_ultra"] },
     "xvoid:seal_bolt_ring": { low: [] },
     "xvoid:seal_tired": { low: [] },
     "xvoid:ultra_aura": { low: [], medium: [], ultra: ["xvoid:u_aura_arcs", "xvoid:u_aura_motes"] },
     "xvoid:ultra_aura_ground": { low: [], medium: [], ultra: ["xvoid:u_aura_ring"] },
+    "xvoid:wheel_turn_more": { low: [], medium: [], ultra: ["xvoid:u_ride_disc", "xvoid:u_ride_arcs"] },
+    "xvoid:wheel_build_more": { low: [], medium: [], ultra: ["xvoid:u_ride_implode", "xvoid:u_ride_arcs", "xvoid:u_charge_ground"] },
 };
 /* fx-tiers:end */
 var woaPerfProp = "xvoid:perf",
@@ -597,6 +600,24 @@ function fxDir(e, t, n, r, o) {
         i.setVector3(r, o), fxSpawn(e, t, n, i);
     });
 }
+var woaRideLead = 1;
+function fxRide(e, t, n) {
+    a(() => {
+        let r = e.getVelocity(),
+            o = e.isOnGround ? 0 : r.y,
+            i = Math.hypot(r.x, o, r.z),
+            s = i > 0.01,
+            c = new fxMolang();
+        c.setVector3("variable.ride", s ? { x: r.x / i, y: o / i, z: r.z / i } : { x: 0, y: 1, z: 0 }),
+            c.setFloat("variable.ride_speed", s ? i * 20 : 0),
+            fxSpawn(
+                e.dimension,
+                t,
+                s ? { x: n.x + r.x * woaRideLead, y: n.y + o * woaRideLead, z: n.z + r.z * woaRideLead } : n,
+                c
+            );
+    });
+}
 function fxPositive(e, t) {
     v(e, I.positive, t), v(e, I.positiveFlash, t), v(e, I.positiveRing, t), v(e, I.twinkleMint, t), v(e, I.ringPopMint, t);
 }
@@ -635,20 +656,24 @@ function Ye(e) {
     let t = e.getHeadLocation();
     return { x: t.x, y: t.y + C.heightAboveEyes, z: t.z };
 }
-function _t(e, t = w.spin) {
+function _t(e, t = w.spin, r) {
     let n = Ye(e);
-    z(e.dimension, t, n), v(e.dimension, I.spin, n), v(e.dimension, I.halo, n), v(e.dimension, I.crackle, n), v(e.dimension, I.arcs, n), v(e.dimension, I.twinkle, n), v(e.dimension, I.ripple, Re(e, 0.08));
+    z(e.dimension, t, n),
+        r
+            ? fxRide(e, "xvoid:wheel_turn_more", n)
+            : (v(e.dimension, I.spin, n), v(e.dimension, I.halo, n), v(e.dimension, I.crackle, n), v(e.dimension, I.arcs, n), v(e.dimension, I.twinkle, n)),
+        v(e.dimension, I.ripple, Re(e, 0.08));
 }
-function Ki(e, t) {
+function Ki(e, t, woaBound) {
     let n = Ye(e);
     z(e.dimension, w.adapted, n),
-        v(e.dimension, I.charge, n),
-        v(e.dimension, I.gather, n),
+        woaBound ? fxRide(e, "xvoid:wheel_build_more", n) : (v(e.dimension, I.charge, n), v(e.dimension, I.gather, n)),
         v(e.dimension, I.mandala, Re(e, 0.08));
     for (let r of C.fullBuildTicks)
         ge(r, () => {
             if (!e.isValid) return;
             let o = Ye(e);
+            if (woaBound) return fxRide(e, "xvoid:wheel_build_more", o);
             v(e.dimension, I.spin, o),
                 v(e.dimension, I.charge, o),
                 v(e.dimension, I.halo, o),
@@ -1052,7 +1077,7 @@ function woaAura() {
             if (!e.isValid || !R(e.id)) return;
             let t = e.dimension;
             woaViewers(t).mixed &&
-                (fxSpawn(t, "xvoid:ultra_aura", Ye(e)),
+                (fxRide(e, "xvoid:ultra_aura", Ye(e)),
                 Be.currentTick % 40 < 10 && fxSpawn(t, "xvoid:ultra_aura_ground", Re(e, 0.08)));
         });
 }
@@ -5730,8 +5755,7 @@ function qh(e, t, n) {
               : "adapting";
 }
 function Yu(e, t, n, r) {
-    ce(e, "full"),
-        Ki(e, () => Xe(e, "adapted")),
+    Ki(e, () => Xe(e, "adapted"), ce(e, "full")),
         (t.lastSpin = r + C.fullLock - C.spinInterval),
         (t.lastTurn = { key: n, at: r }),
         (t.landing = { key: n, at: r + $e.full, full: !0 });
@@ -5759,8 +5783,7 @@ function Yh(e, t, n, r) {
                 key: n,
                 at: r + C.firstLock,
             }),
-            ce(e, "first"),
-            _t(e, w.first);
+            _t(e, w.first, ce(e, "first"));
         return;
     }
     (t.lastSpin = r), (t.lastTurn = { key: n, at: r });
@@ -5769,8 +5792,8 @@ function Yh(e, t, n, r) {
         o ===
         "fast"
     )
-        ce(e, "fast"), _t(e, w.fast), (i = $e.fast);
-    else if (o === "adapting") ce(e, "spin"), _t(e, w.spin);
+        _t(e, w.fast, ce(e, "fast")), (i = $e.fast);
+    else if (o === "adapting") _t(e, w.spin, ce(e, "spin"));
     else {
         Yu(e, t, n, r);
         return;
@@ -5803,8 +5826,7 @@ function e_(e, t, n, r) {
         Be.run(() => {
             e.isValid &&
                 (a(() => e.getComponent("minecraft:health")?.setCurrentValue(1)),
-                ce(e, "spin"),
-                _t(e, w.spin),
+                _t(e, w.spin, ce(e, "spin")),
                 fxUndying(e),
                 z(e.dimension, w.undying, Ye(e)));
         }),
@@ -6025,7 +6047,7 @@ function woaAttackHit(e, t, n, r) {
 }
 function woaAttackTurn(e, t, n, r) {
     if (!e.isValid || !R(e.id)) return;
-    vt(e.id, Be.currentTick) || ce(e, "spin"), _t(e, w.spin);
+    _t(e, w.spin, !vt(e.id, Be.currentTick) && ce(e, "spin"));
     let o = [" \xA7f\xBB ", bt(Ee(t)), " \xA7f", hn(t)];
     if (n >= r) {
         let i = Ye(e);
@@ -8015,7 +8037,8 @@ function woaSealRun(e, t) {
         let i = r - o - woaSeal.skyAfter;
         if (i >= 0 && i % woaSeal.loopTicks === 0) {
             if (e.endAt && t >= e.endAt) return woaSealEnd(e, t, !0);
-            woaSealFx(e.dim, "xvoid:seal_sky", woaSealTop(e));
+            woaSealFx(e.dim, "xvoid:seal_sky", woaSealTop(e)),
+                woaSealFx(e.dim, "xvoid:seal_floor", { x: e.center.x, y: e.center.y + 0.15, z: e.center.z });
         }
     }
     r % 2 === 0 && woaSealBarrier(e, t);

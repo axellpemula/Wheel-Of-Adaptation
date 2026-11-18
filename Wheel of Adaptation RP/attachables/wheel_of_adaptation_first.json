@@ -17,7 +17,12 @@
       "animations": {
         "hide_first_person": "animation.xvoid.wheel.hide_first_person",
         "idle": "animation.mahoraga_wheel.idle",
-        "adapt_first": "animation.mahoraga_wheel.adapt_first"
+        "adapt_first": "animation.mahoraga_wheel.adapt_first",
+        "fx_spin": "animation.xvoid.wheel.turn_spin",
+        "fx_halo": "animation.xvoid.wheel.turn_halo",
+        "fx_crackle": "animation.xvoid.wheel.turn_crackle",
+        "fx_arcs": "animation.xvoid.wheel.turn_arcs",
+        "fx_twinkle": "animation.xvoid.wheel.turn_twinkle"
       },
       "scripts": {
         "animate": [
@@ -25,12 +30,34 @@
           {
             "hide_first_person": "c.is_first_person"
           },
-          "adapt_first"
+          "adapt_first",
+          {
+            "fx_spin": "!c.is_first_person"
+          },
+          {
+            "fx_halo": "!c.is_first_person"
+          },
+          {
+            "fx_crackle": "!c.is_first_person"
+          },
+          {
+            "fx_arcs": "!c.is_first_person"
+          },
+          {
+            "fx_twinkle": "!c.is_first_person"
+          }
         ]
       },
       "render_controllers": [
         "controller.render.item_default"
-      ]
+      ],
+      "particle_effects": {
+        "spin": "xvoid:w_wheel_spin",
+        "halo": "xvoid:w_adapt_halo",
+        "crackle": "xvoid:w_wheel_crackle",
+        "arcs": "xvoid:w_fx_arcs_gold",
+        "twinkle": "xvoid:w_twinkle_gold"
+      }
     }
   }
 }
