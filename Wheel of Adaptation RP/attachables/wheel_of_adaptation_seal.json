@@ -1,0 +1,44 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "xvoid:wheel_of_adaptation_seal",
+      "materials": {
+        "default": "entity_alphatest",
+        "enchanted": "entity_alphatest_glint",
+        "glow": "entity_beam_additive",
+        "lit": "entity_emissive"
+      },
+      "textures": {
+        "default": "textures/entity/xvoid/wheel_of_adaptation",
+        "enchanted": "textures/misc/enchanted_item_glint",
+        "glow": "textures/entity/xvoid/wheel_of_adaptation_glow",
+        "lit": "textures/entity/xvoid/wheel_of_adaptation_lit_7"
+      },
+      "geometry": {
+        "default": "geometry.xvoid.wheel_of_adaptation",
+        "seal_lit": "geometry.xvoid.wheel_of_adaptation_seal_lit",
+        "seal_glow": "geometry.xvoid.wheel_of_adaptation_seal_glow"
+      },
+      "animations": {
+        "hide_first_person": "animation.xvoid.wheel.hide_first_person",
+        "idle": "animation.mahoraga_wheel.idle",
+        "seal": "animation.xvoid.wheel.seal"
+      },
+      "scripts": {
+        "animate": [
+          "idle",
+          {
+            "hide_first_person": "c.is_first_person"
+          },
+          "seal"
+        ]
+      },
+      "render_controllers": [
+        "controller.render.item_default",
+        "controller.render.xvoid_wheel_seal_lit",
+        "controller.render.xvoid_wheel_seal_glow"
+      ]
+    }
+  }
+}

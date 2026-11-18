@@ -242,6 +242,72 @@
           "volume": 1.0
         }
       ]
+       },
+    "xvoid.seal.tick": {
+      "category": "player",
+      "min_distance": 6.0,
+      "max_distance": 48.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_tick",
+          "volume": 0.9
+        }
+      ]
+    },
+    "xvoid.seal.open": {
+      "category": "player",
+      "min_distance": 24.0,
+      "max_distance": 96.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_open",
+          "volume": 1.0
+        }
+      ]
+    },
+    "xvoid.seal.chain": {
+      "category": "player",
+      "min_distance": 8.0,
+      "max_distance": 48.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_chain",
+          "volume": 1.0
+        }
+      ]
+    },
+    "xvoid.seal.thunder": {
+      "category": "player",
+      "min_distance": 24.0,
+      "max_distance": 96.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_thunder",
+          "volume": 1.0
+        }
+      ]
+    },
+    "xvoid.seal.repel": {
+      "category": "player",
+      "min_distance": 6.0,
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_repel",
+          "volume": 0.8
+        }
+      ]
+    },
+    "xvoid.seal.close": {
+      "category": "player",
+      "min_distance": 24.0,
+      "max_distance": 96.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_close",
+          "volume": 1.0
+        }
+      ]
     }
   }
 }

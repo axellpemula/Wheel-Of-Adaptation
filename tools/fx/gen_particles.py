@@ -1019,6 +1019,128 @@ glints(
 )
 flat("u_aura_ring", "fb_ripple", 1.3, f"0.4 + 1.5 * {T}", grad((0, PALE, 0.45), (0.5, GOLD, 0.4), (1, AMBER, 0.2)))
 
+# Domain seal (Seal of Judgment) ----------------------------------------------
+#
+# The script passes v.life (seconds), v.len (half length in blocks) and v.dir.
+# Circle, chains and wall last as long as the domain does, which has no set
+# length: the script respawns them every LOOP seconds and each copy fades over
+# its first and last quarter second, so two copies always add up to one.
+
+FLIP["seal_bolt"] = {"cell": [128, 512], "frames": 4}
+SEAL_RADIUS, SEAL_HEIGHT, SEAL_LOOP, SEAL_FADE_TIME = 32, 40, 2.0, 0.25
+SEAL_LIFE = SEAL_LOOP + SEAL_FADE_TIME
+SEAL_TURN = 45 / SEAL_LOOP  # the circle is eight-fold: 45 degrees per copy keeps the hand-over invisible
+SEAL_IN = round(SEAL_FADE_TIME / SEAL_LIFE, 3)
+
+
+def seal_cross(colour=WHITE, alpha=1.0):
+    return grad((0, colour, 0), (SEAL_IN, colour, alpha), (1 - SEAL_IN, colour, alpha), (1, colour, 0))
+
+
+# charging: the dial under the host, one handle after the other
+effect(
+    "seal_dial", "particles_add", "adapt_wheel", once(1), shape("point", offset=[0, 0.08, 0]), life(6.7), speed(0),
+    billboard(f"3.2 * (1 + 0.04 * math.sin(480 * v.particle_age))", "emitter_transform_xz"),
+    tint(grad((0, GOLD, 0), (0.06, GOLD, 0.5), (0.88, PALE, 0.75), (1, WHITE, 0))),
+)
+effect(
+    "seal_knob", "particles_add", "adapt_flare", once(1), shape("point"), life("v.life"), speed(0),
+    billboard(f"0.5 + 0.9 * math.exp(-9 * v.particle_age) + 0.06 * math.sin(600 * v.particle_age)"),
+    tint(grad((0, WHITE, 1), (0.9, PALE, 1), (1, GOLD, 0))),
+)
+pop("seal_tick_pop", "ring", 0.4, 0.15, 0.9, GOLD_RING, facing="emitter_transform_xz")
+
+# opening: the circle leaves the wheel, climbs and widens until it roofs the domain
+SEAL_EASE = "(1 - math.exp(-2 * v.particle_age))"
+effect(
+    "seal_rise", "particles_add", "seal_circle", once(1), shape("point", direction=[0, 1, 0]), life(4.0 + SEAL_FADE_TIME),
+    speed(SEAL_HEIGHT * 2), spin(0, SEAL_TURN), motion(drag=2.0, rotation_drag=0.0),
+    billboard(f"0.8 + {SEAL_RADIUS - 0.8} * {SEAL_EASE}", "emitter_transform_xz"),
+    tint(grad((0, WHITE, 1), (1 - round(SEAL_FADE_TIME / (4.0 + SEAL_FADE_TIME), 3), WHITE, 1), (1, WHITE, 0))),
+)
+effect(
+    "seal_sky", "particles_add", "seal_circle", once(1), shape("point"), life(SEAL_LIFE), speed(0),
+    spin(0, SEAL_TURN), motion(rotation_drag=0.0), billboard(SEAL_RADIUS, "emitter_transform_xz"), tint(seal_cross()),
+)
+effect(
+    "seal_sky_inner", "particles_add", "seal_circle", once(1), shape("point", offset=[0, 3, 0]), life(SEAL_LIFE),
+    speed(0), spin(22.5, -SEAL_TURN), motion(rotation_drag=0.0),
+    billboard(SEAL_RADIUS * 0.55, "emitter_transform_xz"), tint(seal_cross(PALE, 0.55)),
+)
+effect(
+    "seal_beam", "particles_add", "adapt_ray", once(1), shape("point", offset=[0, SEAL_HEIGHT / 2, 0]), life(1.1),
+    speed(0), billboard([f"0.4 + 2.2 * (1 - {T}) * (1 - {T})", SEAL_HEIGHT / 2], "lookat_y"),
+    tint(grad((0, WHITE, 1), (0.4, PALE, 0.9), (1, GOLD, 0))),
+)
+effect(
+    "seal_shock", "particles_add", "adapt_nova", once(1), shape("point", offset=[0, 0.12, 0]), life(1.3), speed(0),
+    billboard(f"1 + {SEAL_RADIUS - 1} * math.sqrt({T})", "emitter_transform_xz"),
+    tint(grad((0, WHITE, 1), (0.6, PALE, 0.8), (1, AMBER, 0))),
+)
+effect(
+    "seal_fall", "particles_add", "seal_circle", once(1), shape("point"), life(1.4), speed(0), spin(0, 120),
+    motion(rotation_drag=0.0), billboard(f"{SEAL_RADIUS} * (1 - 0.92 * {T} * {T})", "emitter_transform_xz"),
+    tint(grad((0, WHITE, 1), (0.5, PALE, 0.8), (1, AMBER, 0))),
+)
+
+# the edge of the domain: shafts of light standing on the rim
+effect(
+    "seal_wall", "particles_add", "adapt_ray", steady(40, 120, SEAL_LOOP),
+    shape("disc", radius=SEAL_RADIUS, plane_normal="y", surface_only=True, direction=[0, 1, 0]),
+    life("math.random(1.6, 2.4)"), speed("math.random(0.6, 2.2)"), motion(),
+    billboard([f"0.1 + 0.12 * {R1}", f"(2.2 + 2.6 * {R1}) * math.sin(180 * {T})"], "lookat_y"),
+    tint(grad((0, GOLD, 0), (0.25, PALE, 0.7), (0.75, GOLD, 0.6), (1, AMBER, 0))),
+)
+facing_pop("seal_repel", "adapt_ward", "dir", 0.5, 0.5, 1.1, grad((0, WHITE, 1), (0.5, PALE, 0.8), (1, AMBER, 0)))
+
+# binding: chains from four small seals around the target
+SEAL_CHAIN = dict(material="particles_add", texture="seal_chain")
+for name, length, gradient in (
+    ("seal_chain_in", "v.len * math.min(1, v.particle_age / 0.16)",
+     grad((0, WHITE, 1), (0.1, WHITE, 1), (1 - SEAL_IN, WHITE, 1), (1, WHITE, 0))),
+    ("seal_chain", "v.len", seal_cross()),
+):
+    effect(
+        name, SEAL_CHAIN["material"], SEAL_CHAIN["texture"], once(1), shape("point", direction=vec("dir")),
+        life(SEAL_LIFE), speed(0.05), motion(), billboard([length, 0.2], "lookat_direction"), tint(gradient),
+    )
+effect(
+    "seal_anchor", "particles_add", "adapt_ward", once(1), shape("point", direction=vec("dir")), life(SEAL_LIFE),
+    speed(0.05), spin(0, 90 / SEAL_LOOP), motion(rotation_drag=0.0), billboard(0.75, "direction_z"),
+    tint(seal_cross(PALE, 0.9)),
+)
+pop("seal_bind_flash", "fb_burst", 0.35, 0.5, 1.2, gold_fade())
+
+# the lightning: a flipbook bolt from the circle down to the target
+effect(
+    "seal_bolt", "particles_add", "seal_bolt", once(1), shape("point"), life(0.44), speed(0),
+    billboard(["v.len * 0.25", "v.len"], "lookat_y", flip_uv("seal_bolt")),
+    tint(grad((0, WHITE, 1), (0.75, WHITE, 1), (1, PALE, 0))),
+)
+effect(
+    "seal_bolt_wide", "particles_add", "seal_bolt", once(1), shape("point"), life(0.7), speed(0),
+    billboard(["v.len * 0.34", "v.len"], "lookat_y", flip_uv("seal_bolt")),
+    tint(grad((0, PALE, 0.55), (0.6, GOLD, 0.45), (1, AMBER, 0))),
+)
+effect(
+    "seal_bolt_core", "particles_add", "adapt_ray", once(1), shape("point"), life(0.3), speed(0),
+    billboard([f"1.1 * (1 - {T})", "v.len"], "lookat_y"), tint(grad((0, WHITE, 0.9), (0.5, PALE, 0.7), (1, GOLD, 0))),
+)
+pop("seal_bolt_hit", "adapt_flare", 0.4, 2.2, 3.2, gold_fade())
+pop("seal_bolt_sky", "adapt_flare", 0.35, 3.5, 4.0, gold_fade())
+pop("seal_bolt_ring", "adapt_nova", 0.55, 0.6, 4.4, GOLD_RING, facing="emitter_transform_xz")
+needles(
+    "seal_bolt_sparks", 16, shape("sphere", radius=0.4, direction="outwards"), "math.random(0.3, 0.6)",
+    "math.random(6, 15)", 0.9, 0.07, gold_fade(), drag=3.0, gravity=-9.0,
+)
+
+# afterwards: the host is spent
+effect(
+    "seal_tired", "particles_blend", "fx_puff", once(2), shape("sphere", radius=0.35), life("math.random(0.7, 1.1)"),
+    speed(0.3), motion(drag=1.0, accel=[0, -0.6, 0]), billboard(f"(0.12 + 0.1 * {R1}) * (1 + {T})"),
+    tint(grad((0, (0.5, 0.48, 0.42), 0), (0.2, (0.45, 0.43, 0.4), 0.45), (1, (0.3, 0.3, 0.3), 0))),
+)
+
 # The table: script id -> what it spawns on low and on ultra ------------------
 
 # wheel turn
@@ -1124,6 +1246,15 @@ tier("quake_dust", low=[lite("quake_dust")], ultra=[grand("quake_dust", 2.2, 1.3
 tier("reflect_bolt", ultra=[grand("reflect_bolt", 3.0, 1.3)])
 tier("heal_sever", low=[lite("heal_sever")], ultra=[grand("heal_sever", 2.0, 1.2)])
 tier("heal_crackle", low=[], ultra=[variant("heal_crackle", "ultra", size=1.5), "u_arcs_red"])
+
+# domain seal
+tier("seal_sky", ultra=["seal_sky", "seal_sky_inner"])
+tier("seal_wall", low=[lite("seal_wall", 0.4)], ultra=[grand("seal_wall", 1.6, 1.0)])
+tier("seal_anchor", low=[])
+tier("seal_bolt", ultra=["seal_bolt", "seal_bolt_wide"])
+tier("seal_bolt_sparks", low=[], ultra=[grand("seal_bolt_sparks", 2.2, 1.2)])
+tier("seal_bolt_ring", low=[])
+tier("seal_tired", low=[])
 
 # ids that exist only as a hook for ultra
 tier("ultra_aura", low=[], medium=[], ultra=["u_aura_arcs", "u_aura_motes"])
