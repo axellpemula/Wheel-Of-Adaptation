@@ -6697,6 +6697,7 @@ function woaSwordClaim(e) {
         if (woaSwordFresh(n))
             return (
                 a(() => e.setDynamicProperty(woaSwordProp, !0)),
+                a(() => e.setDynamicProperty($n, void 0)),
                 woaSwordCache.set(e.id, !0),
                 a(() => e.sendMessage(x(B("checkMark"), " \xA7a\xA7l", p("woa.sword.unlocked")))),
                 a(() => e.playSound(Gs)),
@@ -6785,7 +6786,7 @@ function A_(e, t, n) {
 }
 function Ve(e, t) {
     let woaOwned = woaSwordClaim(e),
-        n = Tf.filter((r) => !A_(e, r, t && (r.armor ? !woaArmorOff(e) : r.ids !== Z || woaOwned)));
+        n = Tf.filter((r) => !A_(e, r, t && (r.armor ? !woaArmorOff(e) : woaOwned)));
     n.length && (T(e, "inventoryFull", S.inventoryFull), void 0);
 }
 function Rf(e) {
