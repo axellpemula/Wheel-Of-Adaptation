@@ -2,9 +2,9 @@
   "format_version": 2,
   "header": {
     "name": "§6§lWheel of Adaptation §r§8[§b§lRESOURCE§r§8]",
-    "description": "§g§l魔虚羅 §r§6Mahoraga's Dharma Wheel §7— §flore-accurate adaptation\n§7Adapts to every phenomenon · §fSword of Extermination\n§6§lWheel of Adaptation §r§ev1.3.8 §8· §7needs Minecraft §f26.60+",
+    "description": "§g§l魔虚羅 §r§6Mahoraga's Dharma Wheel §7— §flore-accurate adaptation\n§7Adapts to every phenomenon · §fSword of Extermination\n§6§lWheel of Adaptation §r§ev1.3.9 §8· §7needs Minecraft §f26.60+",
     "uuid": "2e53925f-d2d9-4323-8fd9-87170cfd7f88",
-    "version": [1, 3, 8],
+    "version": [1, 3, 9],
     "min_engine_version": [
       1,
       26,
@@ -15,13 +15,13 @@
     {
       "type": "resources",
       "uuid": "683ce8a0-7f62-4c3d-bb6f-d6dd3d1f3609",
-      "version": [1, 3, 8]
+      "version": [1, 3, 9]
     }
   ],
   "dependencies": [
     {
       "uuid": "4f0ecd37-d2ee-4c38-8d1f-0cc59e8717d3",
-      "version": [1, 3, 8]
+      "version": [1, 3, 9]
     }
   ],
   "metadata": {

@@ -8,14 +8,13 @@
     "pattern": [
       "ACA",
       "GTG",
-      "CSC"
+      "CGC"
     ],
     "key": {
       "A": { "item": "minecraft:golden_apple" },
       "C": { "item": "minecraft:clock" },
       "G": { "item": "minecraft:gold_ingot" },
-      "T": { "item": "minecraft:totem_of_undying" },
-      "S": { "item": "minecraft:diamond_sword" }
+      "T": { "item": "minecraft:totem_of_undying" }
     },
     "unlock": [
       { "item": "minecraft:totem_of_undying" },

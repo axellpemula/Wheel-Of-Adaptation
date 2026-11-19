@@ -2419,7 +2419,7 @@ function fo(e) {
     return !!e && Z.has(e.typeId);
 }
 function E(e) {
-    return Rs(a(() => e.getDynamicProperty(ao)));
+    return woaSwordOwned(e) ? Rs(a(() => e.getDynamicProperty(ao))) : Sn;
 }
 function Ds(e, t) {
     return co($t.get(e.id), t);
@@ -2614,7 +2614,7 @@ function bo(e) {
     return qs(a(() => e.getDynamicProperty($n)));
 }
 function yo(e) {
-    return An(E(e), bo(e));
+    return woaSwordOwned(e) ? An(E(e), bo(e)) : "barehand";
 }
 function Cn(e) {
     return yo(e) === "sword" ? Ws(e.id) : Xs(Mn.currentTick < (Pn.get(e.id) ?? 0));
@@ -2660,6 +2660,7 @@ function Zp(e, t) {
 }
 function eg(e, t, n) {
     if (!t.wearing(e)) return "no wheel";
+    if (!woaSwordOwned(e)) return "no sword";
     let r = E(e);
     if (!Js(r)) return `mode=${r}`;
     if (!e.isOnGround)
@@ -6678,6 +6679,37 @@ var Tf = [{ ids: If, want: Cn }, { ids: Z, want: vf }, ...[...Ft].map((e) => ({ 
 function kf(e) {
     return _f(new S_(e, 1));
 }
+var woaSwordProp = "xvoid:sword_unlocked",
+    woaSwordHintProp = "xvoid:sword_hint",
+    woaSwordCache = new Map(),
+    woaSwordIds = new Set([br]);
+function woaSwordOwned(e) {
+    let t = woaSwordCache.get(e.id);
+    return t === void 0 && ((t = a(() => e.getDynamicProperty(woaSwordProp)) === !0), woaSwordCache.set(e.id, t)), t;
+}
+function woaSwordFresh(e) {
+    return !!e && e.typeId === br && (a(() => e.getLore().length) ?? 1) === 0;
+}
+function woaSwordClaim(e) {
+    if (woaSwordOwned(e)) return !0;
+    let { items: t } = T_(e, woaSwordIds);
+    for (let n of t.values())
+        if (woaSwordFresh(n))
+            return (
+                a(() => e.setDynamicProperty(woaSwordProp, !0)),
+                a(() => e.setDynamicProperty($n, void 0)),
+                woaSwordCache.set(e.id, !0),
+                a(() => e.sendMessage(x(B("checkMark"), " \xA7a\xA7l", p("woa.sword.unlocked")))),
+                a(() => e.playSound(Gs)),
+                !0
+            );
+    return !1;
+}
+function woaSwordHint(e) {
+    woaSwordClaim(e) ||
+        a(() => e.getDynamicProperty(woaSwordHintProp)) === !0 ||
+        (a(() => e.setDynamicProperty(woaSwordHintProp, !0)), a(() => e.sendMessage(x("\xA77", p("woa.sword.hint")))));
+}
 function Af(e) {
     let t = a(() => e.getLore().length) ?? 0,
         n = Xt(e.typeId).length,
@@ -6726,8 +6758,9 @@ function $_(e, t, n) {
             c = a(() => e.dimension.getBlock(s)?.getComponent("minecraft:inventory")?.container);
         if (c)
             for (let d = 0; d < c.size; d++) {
-                let u = c.getItem(d)?.typeId;
-                if (!u || !t.has(u)) continue;
+                let woaItem = c.getItem(d),
+                    u = woaItem?.typeId;
+                if (!u || !t.has(u) || woaSwordFresh(woaItem)) continue;
                 let m = !!a(() => (c.setItem(d, void 0), !0));
                 o++;
             }
@@ -6752,7 +6785,8 @@ function A_(e, t, n) {
     return !0;
 }
 function Ve(e, t) {
-    let n = Tf.filter((r) => !A_(e, r, t && !(r.armor && woaArmorOff(e))));
+    let woaOwned = woaSwordClaim(e),
+        n = Tf.filter((r) => !A_(e, r, t && (r.armor ? !woaArmorOff(e) : woaOwned)));
     n.length && (T(e, "inventoryFull", S.inventoryFull), void 0);
 }
 function Rf(e) {
@@ -6782,7 +6816,7 @@ function Rf(e) {
 function Pf(e) {
     if (e.typeId !== "minecraft:item") return;
     let t = a(() => e.getComponent("minecraft:item")?.itemStack);
-    if (!t || !$f.has(t.typeId)) return;
+    if (!t || !$f.has(t.typeId) || woaSwordFresh(t)) return;
     let n = e.location;
     e.remove();
 }
@@ -7342,7 +7376,7 @@ function ym(e) {
             {
                 name: "woa:mode",
                 description:
-                    "Wheel of Adaptation: item acquisition mode (starter = free items on spawn, crafting = craft them)",
+                    "Wheel of Adaptation: item acquisition mode (starter = free wheel on spawn, crafting = craft it)",
                 permissionLevel: hm.Any,
                 cheatsRequired: !1,
                 mandatoryParameters: [{ name: "woa:item_mode", type: _m.Enum }],
@@ -7536,7 +7570,7 @@ import {
     system as JA,
 } from "@minecraft/server";
 import { world as xb } from "@minecraft/server";
-var ki = "1.3.8";
+var ki = "1.3.9";
 var $m = "xvoid.watermark";
 function Am() {
     N(xb.afterEvents.playerSpawn, "watermark.playerSpawn", (e) => {
@@ -7598,7 +7632,7 @@ function Dm() {
 function Nm(e) {
     wi.delete(e);
 }
-Ar({ mod: "WOA", version: "1.3.8", build: "release", api: "2.11.0", echo: void 0 });
+Ar({ mod: "WOA", version: "1.3.9", build: "release", api: "2.11.0", echo: void 0 });
 function pr(e, t) {
     try {
         t();
@@ -8131,7 +8165,7 @@ function woaSealInit() {
 }
 woaSealInit();
 function $b(e) {
-    Ot.add(e.id), Ec(e), z(e.dimension, w.equip, e.location), T(e, "equip", S.equip);
+    Ot.add(e.id), Ec(e), z(e.dimension, w.equip, e.location), T(e, "equip", S.equip), woaSwordHint(e);
 }
 function Ab(e) {
     Ot.delete(e.id), sd(e), Sd(e.id), Hs(e), sc(e), cm(e), Sc(e), si(e.id), Do(e.id), os(e), T(e, "unequip", S.unequip);
