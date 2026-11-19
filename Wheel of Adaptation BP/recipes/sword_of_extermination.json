@@ -1,0 +1,41 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "xvoid:sword_of_extermination"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      " A ",
+      "GDG",
+      " B "
+    ],
+    "key": {
+      "A": {
+        "item": "minecraft:golden_apple"
+      },
+      "G": {
+        "item": "minecraft:gold_ingot"
+      },
+      "D": {
+        "item": "minecraft:diamond_sword"
+      },
+      "B": {
+        "item": "minecraft:blaze_rod"
+      }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:blaze_rod"
+      },
+      {
+        "item": "minecraft:diamond_sword"
+      }
+    ],
+    "result": {
+      "item": "xvoid:sword_of_extermination"
+    }
+  }
+}
