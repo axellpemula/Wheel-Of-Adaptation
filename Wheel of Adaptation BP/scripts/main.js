@@ -5221,7 +5221,7 @@ function lh(e, t, n) {
         v(r, I.iceArcs, pe(t));
 }
 function ph(e) {
-    if (!_.slashCutsBlocks) return !1;
+    if (!_.slashCutsBlocks || !Gt("cut")) return !1;
     let t = a(() => e.getGameMode());
     return t !== hu.Adventure && t !== hu.Spectator;
 }
@@ -6888,10 +6888,14 @@ function woaMenuForm(e) {
         r(woaMenuToggle(p("woa.menu.armor"), d), () => woaArmorSet(e, d ? "off" : "on")),
         r(woaMenuToggle(p("woa.menu.limit", String(ie.slots)), !!o), () => woaLimitToggle(e));
     if (ib(e)) {
-        let u = Gt("mode");
+        let u = Gt("mode"),
+            woaCut = Gt("cut");
         t.divider().header(p("woa.menu.world")),
             r(x(p("woa.config.mode"), ": \xA7p", p(`woa.config.value.${u}`)), () => {
                 er({ mode: ft[(ft.indexOf(u) + 1) % ft.length] ?? "starter" }, e.name);
+            }),
+            r(woaMenuToggle(p("woa.config.cut"), woaCut), () => {
+                er({ cut: !woaCut }, e.name);
             });
     }
     return t.divider().button(_e.close), { form: t, actions: n };
