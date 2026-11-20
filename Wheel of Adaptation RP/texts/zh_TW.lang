@@ -16,6 +16,7 @@ woa.hud.seconds=%s秒
 woa.toast.equip=布瑠部由良由良
 woa.toast.unequip=法陣已卸下，適應已重置
 woa.toast.death=適應已重置
+woa.toast.death_kept=適應已保留
 woa.toast.adapted=已適應
 woa.notice.adapting=適應中
 woa.toast.cured=已治癒

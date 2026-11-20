@@ -16,6 +16,7 @@ woa.hud.seconds=%s秒
 woa.toast.equip=布瑠部由良由良
 woa.toast.unequip=法陣を外した。適応はリセットされた
 woa.toast.death=適応がリセットされた
+woa.toast.death_kept=適応は保持された
 woa.toast.adapted=適応完了
 woa.notice.adapting=適応中
 woa.toast.cured=治癒

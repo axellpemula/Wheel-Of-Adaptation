@@ -981,6 +981,7 @@ var Gi = new Set([
             )
         ),
         death: x(B("wheelRedraw"), " \xA7c", p("woa.toast.death")),
+        deathKept: x(B("wheelRedraw"), " \xA7a", p("woa.toast.death_kept")),
         progress: (e, t, n, r) =>
             x(
                 "\xA7a\xA7l",
@@ -2883,7 +2884,18 @@ function Sc(e) {
     et.delete(e.id), e.setDynamicProperty(mt, void 0);
 }
 function wc(e) {
-    et.delete(e), Ot.delete(e), X.delete(e);
+    et.delete(e), Ot.delete(e), X.delete(e), woaDied.delete(e);
+}
+var woaDied = new Set();
+function woaDeathKeep(e) {
+    if (!Gt("keepOnDeath")) return !1;
+    if (woaDied.has(e.id)) return !0;
+    let t = a(() => e.getComponent("minecraft:health")?.currentValue);
+    return typeof t == "number" && t <= 0;
+}
+function woaDeathStash(e) {
+    let t = et.get(e.id);
+    t && a(() => Dn(e, t)), et.delete(e.id);
 }
 function Ic(e) {
     if (e.firstSpin || e.landing) return !1;
@@ -6364,7 +6376,7 @@ function s_(e, t, n) {
 }
 function nf(e) {
     if (!R(e.id)) return;
-    kc(e);
+    Gt("keepOnDeath") || kc(e);
     let t = ee(e);
     (t.lastKey = void 0),
         (t.hudKey = void 0),
@@ -6889,13 +6901,17 @@ function woaMenuForm(e) {
         r(woaMenuToggle(p("woa.menu.limit", String(ie.slots)), !!o), () => woaLimitToggle(e));
     if (ib(e)) {
         let u = Gt("mode"),
-            woaCut = Gt("cut");
+            woaCut = Gt("cut"),
+            woaKeep = Gt("keepOnDeath");
         t.divider().header(p("woa.menu.world")),
             r(x(p("woa.config.mode"), ": \xA7p", p(`woa.config.value.${u}`)), () => {
                 er({ mode: ft[(ft.indexOf(u) + 1) % ft.length] ?? "starter" }, e.name);
             }),
             r(woaMenuToggle(p("woa.config.cut"), woaCut), () => {
                 er({ cut: !woaCut }, e.name);
+            }),
+            r(woaMenuToggle(p("woa.config.keep_on_death"), woaKeep), () => {
+                er({ keepOnDeath: !woaKeep }, e.name);
             });
     }
     return t.divider().button(_e.close), { form: t, actions: n };
@@ -8172,7 +8188,18 @@ function $b(e) {
     Ot.add(e.id), Ec(e), z(e.dimension, w.equip, e.location), T(e, "equip", S.equip), woaSwordHint(e);
 }
 function Ab(e) {
-    Ot.delete(e.id), sd(e), Sd(e.id), Hs(e), sc(e), cm(e), Sc(e), si(e.id), Do(e.id), os(e), T(e, "unequip", S.unequip);
+    let woaKeep = woaDeathKeep(e);
+    Ot.delete(e.id),
+        sd(e),
+        Sd(e.id),
+        Hs(e),
+        sc(e),
+        cm(e),
+        woaKeep ? woaDeathStash(e) : Sc(e),
+        si(e.id),
+        Do(e.id),
+        os(e),
+        woaKeep ? T(e, "death", S.deathKept) : T(e, "unequip", S.unequip);
 }
 function Rb(e, t) {
     let n = e.getComponent("minecraft:equippable");
@@ -8241,13 +8268,16 @@ N(re.afterEvents.entityDie, "adaptation.entityDie", (e) => {
     let t = e.deadEntity,
         n = k(t);
     woaWounds.size && woaWounds.delete(a(() => t.id));
-    n && void 0,
+    let woaKeep = !!Gt("keepOnDeath");
+    n && woaKeep && woaDied.add(n.id),
         n && pr("starter.traceKitAtDeath", () => Im(n)),
-        !(!n || !R(n.id)) && (pr("adaptation.playerDeath", () => nf(n)), T(n, "death", S.death));
+        !(!n || !R(n.id)) && (pr("adaptation.playerDeath", () => nf(n)), T(n, "death", woaKeep ? S.deathKept : S.death));
 });
 N(re.afterEvents.playerSpawn, "starter.playerSpawn", (e) => {
-    let t = e.player;
-    le("starter.ensureKit", lt.delayTicks, () => (Ei(t), woaConfigFirst(t)));
+    let t = e.player,
+        woaId = t.id;
+    e.initialSpawn ? woaDied.delete(woaId) : le("death.keepWindow", 20, () => woaDied.delete(woaId)),
+        le("starter.ensureKit", lt.delayTicks, () => (Ei(t), woaConfigFirst(t)));
 });
 N(re.afterEvents.entitySpawn, "main.entitySpawn", (e) => {
     pr("wheel.sanitizeDrop", () => Ss(e.entity)),

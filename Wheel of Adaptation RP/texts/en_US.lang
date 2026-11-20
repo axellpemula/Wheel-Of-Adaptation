@@ -16,6 +16,7 @@ woa.hud.seconds=%ss
 woa.toast.equip=布瑠部由良由良
 woa.toast.unequip=Wheel removed, adaptations reset
 woa.toast.death=Adaptations reset
+woa.toast.death_kept=Adaptations kept
 woa.toast.adapted=Adapted
 woa.notice.adapting=Adapting
 woa.toast.cured=Cured
