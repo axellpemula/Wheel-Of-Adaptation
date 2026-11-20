@@ -190,6 +190,7 @@ woa.lore.switcher.5=§7攻擊 · 均衡 · 防禦
 woa.lore.sword.1=§f與法陣相連的刀刃
 woa.lore.sword.2=§e攻擊 §f突刺
 woa.lore.sword.3=§e使用 §f斬擊，可切斷方塊
+woa.lore.sword.3.safe=§e使用 §f斬擊 §7(不切斷方塊)
 woa.lore.sword.4=§e潛行 + 使用 §f空氣衝擊 §7(攻擊、均衡)
 woa.lore.sword.5=§e空中跳躍 §f衝刺
 woa.lore.sword.6=§e雙擊潛行 §f徒手 §7(均衡)

@@ -190,6 +190,7 @@ woa.lore.switcher.5=§7Attack · Balance · Defense
 woa.lore.sword.1=§fBlade bound to the wheel
 woa.lore.sword.2=§eAttack §fStab
 woa.lore.sword.3=§eUse §fSlash, cuts blocks
+woa.lore.sword.3.safe=§eUse §fSlash §7(no block cutting)
 woa.lore.sword.4=§eSneak + Use §fAir Blast §7(Attack, Balance)
 woa.lore.sword.5=§eJump in the air §fDash
 woa.lore.sword.6=§eDouble-tap Sneak §fBarehand §7(Balance)

@@ -190,6 +190,7 @@ woa.lore.switcher.5=§7攻撃 · 均衡 · 防御
 woa.lore.sword.1=§f法陣に結ばれた刃
 woa.lore.sword.2=§e攻撃 §f突き
 woa.lore.sword.3=§e使用 §f斬撃、ブロックを切る
+woa.lore.sword.3.safe=§e使用 §f斬撃 §7(ブロックは切れない)
 woa.lore.sword.4=§eスニーク + 使用 §fエアブラスト §7(攻撃、均衡)
 woa.lore.sword.5=§e空中でジャンプ §fダッシュ
 woa.lore.sword.6=§eスニークを2回タップ §f素手 §7(均衡)

@@ -2884,7 +2884,7 @@ function Sc(e) {
     et.delete(e.id), e.setDynamicProperty(mt, void 0);
 }
 function wc(e) {
-    et.delete(e), Ot.delete(e), X.delete(e), woaDied.delete(e);
+    et.delete(e), Ot.delete(e), X.delete(e), woaDied.delete(e), woaLoreSeen.delete(e);
 }
 var woaDied = new Set();
 function woaDeathKeep(e) {
@@ -6645,9 +6645,12 @@ function E_(e) {
     if (Se.has(e)) return "sword";
     if (P.has(e)) return "barehand";
 }
+function woaLoreKey(e, t) {
+    return e === "sword" && t === 3 && !Gt("cut") ? "woa.lore.sword.3.safe" : `woa.lore.${e}.${t}`;
+}
 function Xt(e) {
     let t = E_(e);
-    return t ? Array.from({ length: x_[t] }, (n, r) => `woa.lore.${t}.${r + 1}`) : [];
+    return t ? Array.from({ length: x_[t] }, (n, r) => woaLoreKey(t, r + 1)) : [];
 }
 function _f(e) {
     let t = Xt(e.typeId);
@@ -6799,7 +6802,15 @@ function A_(e, t, n) {
 function Ve(e, t) {
     let woaOwned = woaSwordClaim(e),
         n = Tf.filter((r) => !A_(e, r, t && (r.armor ? !woaArmorOff(e) : woaOwned)));
-    n.length && (T(e, "inventoryFull", S.inventoryFull), void 0);
+    n.length && (T(e, "inventoryFull", S.inventoryFull), void 0), a(() => woaLoreSync(e));
+}
+var woaLoreSeen = new Map();
+function woaLoreSync(e) {
+    let t = !!Gt("cut");
+    if (woaLoreSeen.get(e.id) === t) return;
+    woaLoreSeen.set(e.id, t);
+    let { items: n } = T_(e, Se);
+    for (let [r, o] of n) r === "cursor" || woaSwordFresh(o) || Sf(e, r, _f(o));
 }
 function Rf(e) {
     In((t, n) => {
@@ -7677,6 +7688,7 @@ Bu();
 Rf((e) => R(e.id));
 jt((e, t) => {
     if (e.mode !== t.mode) for (let n of re.getAllPlayers()) a(() => (e.mode === "starter" ? Ei(n) : xi(n)));
+    if (e.cut !== t.cut) for (let n of re.getAllPlayers()) a(() => woaLoreSync(n));
 });
 import { InputPermissionCategory as woaInput } from "@minecraft/server";
 var woaSealItem = "xvoid:seal_of_judgment",
