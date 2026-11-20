@@ -2108,7 +2108,7 @@ function kp(e) {
     if (e.atk) return [`\xA7r${l.sword} ${Ee(e.atk.key)} ${to(e.atk)}`];
     if (!e.key || !e.entry) return [`${l.hourglass} \xA78`, S.idle];
     let t = e.others ? `  \xA77+${e.others}` : "";
-    return [`\xA7r${Ee(e.key)} ${to(e, !1)}${t}`];
+    return [`\xA7r${Ee(e.key)} ${e.evo ? "\xA7d\xA7lII\xA7r " : ""}${to(e, !1)}${t}`];
 }
 function Sp(e) {
     if (!e.key || !e.entry)
@@ -2833,8 +2833,10 @@ function Ec(e) {
                     b = m !== void 0;
                 t.map.set(c, { s: Math.max(u, m?.s ?? 0), n: d, used: Math.max(s[2] ?? 0, m?.used ?? 0) });
                 let y = Math.max(s[3] ?? 0, t.pending.get(c)?.p ?? 0),
-                    K = t.map.get(c).s;
-                if (((c !== i || b) && void 0, y > 0 && K < d)) {
+                    woaEntry = t.map.get(c),
+                    K = woaEntry.s;
+                K >= d && (woaEntry.e = Math.min(woaEvoNeed(woaEntry), Math.max(0, Math.floor(Number(s[5]) || 0), m?.e ?? 0)));
+                if (((c !== i || b) && void 0, y > 0 && !woaEvolved(woaEntry))) {
                     let U = wo();
                     (U.p = he(y)),
                         (U.activeLeft = Math.max(
@@ -2860,9 +2862,9 @@ function Ec(e) {
 function Dn(e, t) {
     let n = {};
     for (let [o, i] of t.map) {
-        let s = i.s < i.n ? t.pending.get(o) : void 0,
+        let s = woaEvolved(i) ? void 0 : t.pending.get(o),
             c = s ? he(s.p) : 0;
-        (i.s > 0 || c > 0) && (n[o] = [i.s, i.n, i.used ?? 0, c, s?.activeLeft ?? 0]);
+        (i.s > 0 || c > 0) && (n[o] = [i.s, i.n, i.used ?? 0, c, s?.activeLeft ?? 0, i.e ?? 0]);
     }
     let r = { m: n, p: t.spin, v: og, a: woaAtkSave(t) },
         k = woaLocks(t);
@@ -5612,7 +5614,7 @@ function Hh(e, t, n) {
         o = r.rate;
     for (let [i, s] of t.pending) {
         let c = t.map.get(i);
-        if (!c || c.s >= c.n) {
+        if (!c || woaEvolved(c)) {
             t.pending.delete(i);
             continue;
         }
@@ -5682,6 +5684,7 @@ function Kh(e, t, n) {
     for (let j = 0; k.length - j >= m && j < r.length; j++) {
         let [o, i] = r[j];
         (i.s = 0),
+            (i.e = 0),
             (t.dirty = !0),
             ge(C.forgottenNoticeTicks, () => {
                 e.isValid && T(e, "forgotten", S.forgotten(hn(o), bt(Ee(o))));
@@ -5715,7 +5718,7 @@ function zh(e, t, n) {
     }
 }
 function Bh(e, t, n, r) {
-    (r.used = Date.now()), Fh(t, n), zh(e, t, n), Kh(e, t, n), qu(e, n), T(e, "adapted", Ja(n));
+    (r.used = Date.now()), (r.e = 0), t.pending.delete(n), Fh(t, n), zh(e, t, n), Kh(e, t, n), qu(e, n), T(e, "adapted", Ja(n));
 }
 function Vh(e) {
     if (!ie.useHunger) return;
@@ -5757,7 +5760,7 @@ function jh(e, t) {
 }
 function qh(e, t, n) {
     let r = e.map.get(t);
-    return r && r.s < r.n && r.s + 1 >= r.n
+    return r && (r.s < r.n ? r.s + 1 >= r.n : woaEvoLast(r))
         ? "adapted"
         : Ic(e)
           ? "first"
@@ -5775,16 +5778,18 @@ function Yu(e, t, n, r) {
 }
 function Xu(e, t, n, r, o = !1) {
     let i = t.map.get(n);
-    if (!o && i && i.s < i.n && i.s + 1 >= i.n) {
+    if (!o && i && (i.s < i.n ? i.s + 1 >= i.n : woaEvoLast(i))) {
         Yu(e, t, n, r);
         return;
     }
     (t.spin = (t.spin + 1) % C.handles), (t.lastKey = n), (t.lastKeyAt = r);
-    let s = !!i && i.s < i.n;
+    let s = !!i && i.s < i.n,
+        woaE = !!i && !s && !woaEvolved(i);
     s && i.s++;
+    woaE && ((i.e = (i.e ?? 0) + 1), (t.dirty = !0));
     let c = s && i.s >= i.n;
-    c ? Bh(e, t, n, i) : s && i && T(e, "progress", S.progress(hn(n), bt(Ee(n)), i.s, i.n)),
-        Uh(e, t, c),
+    c ? Bh(e, t, n, i) : s ? T(e, "progress", S.progress(hn(n), bt(Ee(n)), i.s, i.n)) : woaE && woaEvoTurn(e, t, n, i),
+        Uh(e, t, c || (woaE && woaEvolved(i))),
         Vh(e),
         a(() => Dn(e, t));
 }
@@ -5910,7 +5915,7 @@ function Ju(e, t, n = e.damage) {
                   `${s.key}`,
                   void 0)
                 : ((e.cancel = !0), void 0);
-        woaNullified(e, t, o, s.key, d, r);
+        woaNullified(e, t, o, s.key, d, r), woaEvolved(u) || woaEvoFeed(t, o, u, s, d, r, c);
         let K = !Xa(s.key),
             U = K && kd(t.id, s.key, r),
             oe = K && r - o.lastFlash >= C.nullifyFlashInterval;
@@ -5997,6 +6002,216 @@ var woa = {
     woaQuiet = !1,
     woaReflected = new Map(),
     woaWounds = new Map();
+var woaEvoCfg = {
+        min: 2,
+        parryKnockback: 1.4,
+        parryLift: 0.35,
+        parryTicks: 60,
+        burnSeconds: 8,
+        igniteSeconds: 4,
+        blastRadius: 5,
+        blastRatio: 0.5,
+        blastMax: 20,
+        waveGap: 10,
+        quakeRadius: 7,
+        quakeMax: 20,
+        flipGap: 40,
+        absorbRatio: 0.25,
+        absorbMax: 4,
+        absorbGap: 40,
+        reflectSpeedMin: 2.4,
+        ownEffectTicks: 60,
+        drownAfter: 300,
+    },
+    woaEvoFire = new Set(["fire", "soul_fire", "lava", "magma", "sulfur_cube_magma"]),
+    woaEvoImpact = new Set(["fall", "fly_into_wall", "anvil", "falling_block", "piston", "stalactite", "stalagmite", "charging"]),
+    woaEvoWeapons = new Set(["sword", "axe", "spear", "mace", "trident", "tool"]),
+    woaFlips = {
+        poison: ["regeneration", 100, 1],
+        fatal_poison: ["regeneration", 100, 1],
+        wither: ["regeneration", 100, 1],
+        instant_damage: ["instant_health", 1, 0],
+        slowness: ["speed", 100, 1],
+        weakness: ["strength", 100, 0],
+        mining_fatigue: ["haste", 100, 1],
+        blindness: ["night_vision", 300, 0],
+        darkness: ["night_vision", 300, 0],
+        levitation: ["slow_falling", 100, 0],
+        hunger: ["saturation", 5, 0],
+        nausea: ["absorption", 100, 0],
+        infested: ["absorption", 100, 0],
+        oozing: ["absorption", 100, 0],
+        weaving: ["absorption", 100, 0],
+        wind_charged: ["absorption", 100, 0],
+    },
+    woaFlipAt = new Map();
+function woaEvoNeed(e) {
+    return Math.max(woaEvoCfg.min, e.n);
+}
+function woaEvolved(e) {
+    return !!e && e.s >= e.n && (e.e ?? 0) >= woaEvoNeed(e);
+}
+function woaEvoLast(e) {
+    return e.s >= e.n && !woaEvolved(e) && (e.e ?? 0) + 1 >= woaEvoNeed(e);
+}
+function woaEvo(e, t) {
+    return woaEvolved(e.map.get(t));
+}
+function woaEvoGroup(e) {
+    let [t, n] = Ya(e);
+    return t === "proj"
+        ? "projectile"
+        : t === "effect"
+          ? "effect"
+          : t === "kind"
+            ? woaEvoWeapons.has(n)
+                ? "weapon"
+                : "creature"
+            : t === "mob"
+              ? "creature"
+              : t !== "env"
+                ? "nature"
+                : n === "projectile"
+                  ? "projectile"
+                  : woaEvoFire.has(n)
+                    ? "fire"
+                    : n.includes("explosion") || n.includes("firework")
+                      ? "blast"
+                      : woaEvoImpact.has(n)
+                        ? "impact"
+                        : "nature";
+}
+function woaTargetKey(e) {
+    let t = a(() => e.typeId) ?? "unknown",
+        n = Et(t);
+    return n ? Je(n) : St(t);
+}
+function woaEvoActive(e, t) {
+    let n = e.map.get(t),
+        r = e.pending.get(t);
+    return !!n && n.s >= n.n && !woaEvolved(n) && !!r && He(r);
+}
+function woaEvoView(e, t) {
+    return e && e.s >= e.n && !woaEvolved(e) && ((e.e ?? 0) > 0 || (t?.p ?? 0) > 0)
+        ? { s: e.e ?? 0, n: woaEvoNeed(e), used: e.used }
+        : e;
+}
+function woaEvoTurn(e, t, n, r) {
+    let o = [" \xA7f\xBB ", bt(Ee(n)), " \xA7f", hn(n)];
+    if (woaEvolved(r)) {
+        (r.used = Date.now()), t.pending.delete(n);
+        let i = Ye(e);
+        v(e.dimension, I.flare, i),
+            v(e.dimension, I.sparks, i),
+            v(e.dimension, I.positiveRays, Re(e)),
+            T(e, "adapted", x("\xA7d\xA7l", p("woa.toast.evolved"), ...o));
+    } else
+        T(
+            e,
+            "progress",
+            x("\xA7d\xA7l", p("woa.notice.evolving"), ...o, ` \xA7d\xA7l[\xA7f${r.e ?? 0}/${woaEvoNeed(r)}\xA7d\xA7l]`)
+        );
+}
+function woaEvoFeed(e, t, n, r, o, i, s) {
+    r.lingering
+        ? Lh(t, r.key, Math.max(1, o), 0, o)
+        : oi(t, r.key, Math.max(1, o), 0, i, or(e), "hit", {
+              raw: o,
+              amplifier: cc.has(s) ? void 0 : a(() => e.getEffect("resistance")?.amplifier),
+          });
+}
+var woaLavaBlocks = new Set(["minecraft:lava", "minecraft:flowing_lava"]),
+    woaHere = { x: 0, y: 0, z: 0 },
+    woaBelow = { x: 0, y: -1, z: 0 };
+function woaEvoVirtual(e, t, n, r, o) {
+    let i = t.map.get(n);
+    if (!i || i.s < i.n) return;
+    if (((i.used = Date.now()), woaEvolved(i))) {
+        woaEvoGroup(n) === "nature" && woaAbsorb(e, t, r, o);
+        return;
+    }
+    (t.hudKey = n), (t.hudKeyAt = o), oi(t, n, Math.max(1, r), 0, o, or(e), "hit", { raw: r, amplifier: void 0 });
+}
+function woaOwnEffect(e, t) {
+    let n = a(() => e.getEffect(t));
+    return !n || (n.duration >= 0 && n.duration <= woaEvoCfg.ownEffectTicks);
+}
+function woaEvoHeat(e) {
+    let t = ga(e, woaHere);
+    return t && woaLavaBlocks.has(t)
+        ? ["env:lava", 4]
+        : t === "minecraft:soul_fire"
+          ? ["env:soul_fire", 2]
+          : t === "minecraft:fire"
+            ? ["env:fire", 1]
+            : e.isOnGround && !e.isSneaking && ga(e, woaBelow) === "minecraft:magma"
+              ? ["env:magma", 1]
+              : a(() => e.getComponent("minecraft:onfire"))
+                ? ["env:fire", 1]
+                : void 0;
+}
+function woaEvoExpose(e, t, n) {
+    if (n % ko !== 0) return;
+    let r = (c) => {
+            let d = t.map.get(c);
+            return !!d && d.s >= d.n;
+        },
+        o = p_.some((c) => r(c) && !woaEvo(t, c)),
+        i = r("env:drowning");
+    if (!o && !i) {
+        t.evoWet = 0;
+        return;
+    }
+    let s = a(() => e.getGameMode());
+    if (s === "Creative" || s === "Spectator") {
+        t.evoWet = 0;
+        return;
+    }
+    if (o && woaOwnEffect(e, "fire_resistance")) {
+        let c = woaEvoHeat(e);
+        c && woaEvoVirtual(e, t, c[0], c[1], n);
+    }
+    if (i) {
+        let c =
+            !!e.isInWater &&
+            woaOwnEffect(e, "water_breathing") &&
+            !a(() => e.getEffect("conduit_power")) &&
+            /water/.test(a(() => e.dimension.getBlock(e.getHeadLocation())?.typeId) ?? "");
+        (t.evoWet = c ? (t.evoWet ?? 0) + ko : 0), c && t.evoWet >= woaEvoCfg.drownAfter && woaEvoVirtual(e, t, "env:drowning", 2, n);
+    }
+}
+function woaParry(e, t) {
+    if (!e.isValid || !t.isValid) return;
+    let n = ct(t),
+        r = pe(t),
+        o = t.dimension;
+    a(() => t.applyKnockback(at(e.location, t.location, woaEvoCfg.parryKnockback * n), woaEvoCfg.parryLift * n)),
+        a(() => t.addEffect("slowness", woaEvoCfg.parryTicks, { amplifier: 1 })),
+        a(() => t.addEffect("weakness", woaEvoCfg.parryTicks, { amplifier: 0 })),
+        v(o, I.guardFlash, r),
+        v(o, I.kickRing, r),
+        z(o, "xvoid.guard.catch", r, 1, 0.9);
+}
+function woaAbsorb(e, t, n, r) {
+    if (r < (t.evoHealAt ?? 0)) return;
+    let o = Math.min(woaEvoCfg.absorbMax, n * woaEvoCfg.absorbRatio);
+    o < 0.25 ||
+        ((t.evoHealAt = r + woaEvoCfg.absorbGap),
+        Be.run(() => {
+            e.isValid && ii(e) > 0 && (a(() => Pe(e, o)), v(e.dimension, I.rise, Re(e)), v(e.dimension, I.regen, Re(e)));
+        }));
+}
+function woaFlip(e, t) {
+    let n = woaFlips[pn(t)];
+    if (!n) return;
+    let r = Be.currentTick,
+        o = `${e.id}:${n[0]}`;
+    r < (woaFlipAt.get(o) ?? 0) ||
+        (woaFlipAt.set(o, r + woaEvoCfg.flipGap),
+        Be.run(() => {
+            e.isValid && R(e.id) && (a(() => e.addEffect(n[0], n[1], { amplifier: n[2] })), v(e.dimension, I.rise, Re(e)));
+        }));
+}
 function woaFull(e, t) {
     let n = e.map.get(t);
     return !!n && n.s >= n.n;
@@ -6088,9 +6303,16 @@ function woaPierce(e, c) {
     return Math.min(woa.pierceCap, n * o);
 }
 function woaCounterUse(e, t, n, r) {
-    let o = t.counter;
-    if (!o || o.id !== n.id) return 1;
-    if (((t.counter = void 0), r > o.until)) return 1;
+    let o = t.counter,
+        woaHit = !!o && o.id === n.id;
+    woaHit && (t.counter = void 0);
+    if (woaEvo(t, woaTargetKey(n))) {
+        let woaAt = a(() => pe(n)),
+            woaDim = n.dimension;
+        return woaAt && Be.run(() => (v(woaDim, I.counterCut, woaAt), v(woaDim, I.impactGold, woaAt))), woa.counterMult;
+    }
+    if (!woaHit) return 1;
+    if (r > o.until) return 1;
     let i = a(() => pe(n)),
         s = n.dimension;
     return i && Be.run(() => woaCounterFx(e, s, i)), woa.counterMult;
@@ -6186,28 +6408,37 @@ function woaBurnAttacker(e, t, n) {
         a(() => r.id) === t.id ||
         !p_.some((o) => woaFull(n, o)) ||
         Be.run(() => {
-            r.isValid && a(() => r.setOnFire(woa.burnSeconds, !0));
+            r.isValid && a(() => r.setOnFire(p_.some((o) => woaEvo(n, o)) ? woaEvoCfg.burnSeconds : woa.burnSeconds, !0));
         });
 }
 function woaNullified(e, t, n, r, o, i) {
-    let s = e.damageSource,
+    let woaG = woaEvo(n, r) ? woaEvoGroup(r) : void 0,
+        s = e.damageSource,
         c = Gu(e) ? gn(s) : void 0,
         d = a(() => s.damagingProjectile);
     if ((c && a(() => c.id) === t.id && (c = void 0), c && (n.counter = { id: c.id, until: i + woa.counterTicks }), c && d)) {
         let u = a(() => d.getVelocity()),
             m = { entity: d, type: a(() => d.typeId), speed: u ? Math.hypot(u.x, u.y, u.z) : 0 };
-        Be.run(() => woaReflect(t, c, o, m));
+        Be.run(() => woaReflect(t, c, o, m, woaG === "projectile"));
     }
-    r === "env:fall" && o >= woa.quakeMinDamage && Be.run(() => woaQuake(t, o));
+    woaG === "impact"
+        ? o >= woa.quakeMinDamage && Be.run(() => woaQuake(t, o, woaEvoCfg.quakeRadius, woa.quakeDamageRatio, woaEvoCfg.quakeMax))
+        : r === "env:fall" && o >= woa.quakeMinDamage && Be.run(() => woaQuake(t, o));
+    woaG === "blast" &&
+        i >= (n.evoWaveAt ?? 0) &&
+        ((n.evoWaveAt = i + woaEvoCfg.waveGap),
+        Be.run(() => woaQuake(t, o, woaEvoCfg.blastRadius, woaEvoCfg.blastRatio, woaEvoCfg.blastMax, !0)));
+    woaG === "weapon" && c && !d && Be.run(() => woaParry(t, c));
+    woaG === "nature" && woaAbsorb(t, n, o, i);
 }
 function woaReflectDrop(e) {
     let t = woaReflected.get(e);
     t && (woaReflected.delete(e), a(() => t.isValid && t.remove()));
 }
-function woaReflectShoot(e, t, r, o, i) {
+function woaReflectShoot(e, t, r, o, i, woaAll) {
     let s = t.type;
     if (!s || !woa.reflectTypes.has(s)) return !1;
-    let c = Math.max(woa.reflectSpeedMin, Math.min(woa.reflectSpeedMax, t.speed)),
+    let c = Math.max(woaAll ? woaEvoCfg.reflectSpeedMin : woa.reflectSpeedMin, Math.min(woa.reflectSpeedMax, t.speed)),
         d = { x: r.x + o.x, y: r.y + 0.3 + o.y, z: r.z + o.z },
         u = e.dimension,
         m = a(() => u.spawnEntity(s, d));
@@ -6222,7 +6453,7 @@ function woaReflectShoot(e, t, r, o, i) {
         fxDir(u, I.reflectBolt, { x: d.x + o.x * U, y: d.y + o.y * U, z: d.z + o.z * U }, "variable.ward_dir", o);
     return (v(u, I.guardFlash, d), v(u, I.ringPopGold, d)), z(u, "xvoid.guard.catch", d, 1.2, 0.8), a(() => t.entity.isValid && t.entity.remove()), !0;
 }
-function woaReflect(e, t, n, r) {
+function woaReflect(e, t, n, r, woaAll) {
     if (!e.isValid || !t.isValid || e.dimension.id !== t.dimension.id) return;
     let i = pe(e),
         s = pe(t),
@@ -6230,35 +6461,38 @@ function woaReflect(e, t, n, r) {
         d = Math.hypot(c.x, c.y, c.z);
     if (d < 0.5 || d > woa.reflectRange) return;
     let u = { x: c.x / d, y: c.y / d, z: c.z / d };
-    woaReflectShoot(e, r, i, u, d) || woaReflectDamage(e, t, n, i, s, u, d);
+    woaReflectShoot(e, r, i, u, d, woaAll) || woaReflectDamage(e, t, n, i, s, u, d, woaAll);
 }
-function woaReflectDamage(e, t, n, r, o, c, s) {
+function woaReflectDamage(e, t, n, r, o, c, s, woaAll) {
     let d = e.dimension;
     for (let u = 1; u < s; u += 1.5)
         fxDir(d, I.reflectBolt, { x: r.x + c.x * u, y: r.y + c.y * u, z: r.z + c.z * u }, "variable.ward_dir", c);
     v(d, I.goldHit, o), v(d, I.kickRing, o), v(d, I.shatterGold, o), v(d, I.arcs, o), (woaQuiet = !0);
     try {
-        a(() => t.applyDamage(Math.max(1, n * woa.reflectRatio), { cause: nr.magic, damagingEntity: e }));
+        a(() => t.applyDamage(Math.max(1, n * (woaAll ? 1 : woa.reflectRatio)), { cause: nr.magic, damagingEntity: e }));
     } finally {
         woaQuiet = !1;
     }
 }
-function woaQuake(e, t) {
+function woaQuake(e, t, woaRadius = woa.quakeRadius, woaRatio = woa.quakeDamageRatio, woaMax = woa.quakeMaxDamage, woaBlast = !1) {
     if (!e.isValid) return;
     let n = e.dimension,
         r = e.location,
         o = Re(e, 0.08),
-        i = Math.min(woa.quakeMaxDamage, t * woa.quakeDamageRatio),
+        i = Math.min(woaMax, t * woaRatio),
         s =
             a(() =>
                 n.getEntities({
                     location: r,
-                    maxDistance: woa.quakeRadius,
+                    maxDistance: woaRadius,
                     excludeFamilies: ["inanimate"],
                     excludeTypes: ["minecraft:item", "minecraft:xp_orb"],
                 })
             ) ?? [];
-    v(n, I.quakeRing, o), v(n, I.quakeDust, o), v(n, I.quakeCrack, o), v(n, I.groundFlash, o), v(n, I.ringWave, o), v(n, I.dust, o), z(n, "mace.smash_ground", r, 0.9, 0.9), Xe(e, "kick"), (woaQuiet = !0);
+    woaBlast
+        ? (v(n, I.shockwave, Re(e)), v(n, I.ringWave, o), v(n, I.shatterGold, Re(e)), v(n, I.dust, o), z(n, "random.explode", r, 1.4, 0.6))
+        : (v(n, I.quakeRing, o), v(n, I.quakeDust, o), v(n, I.quakeCrack, o), v(n, I.groundFlash, o), v(n, I.ringWave, o), v(n, I.dust, o), z(n, "mace.smash_ground", r, 0.9, 0.9));
+    Xe(e, "kick"), (woaQuiet = !0);
     try {
         for (let c of s) {
             if (c.id === e.id || vu(c) || !a(() => c.getComponent("minecraft:health"))) continue;
@@ -6282,6 +6516,13 @@ function Qu(e, t, n) {
         m = a_(e, n) ? V(t).melee : 1,
         b = woaOffense(e, t, n, r);
     (i <= 0 && u <= 0 && m === 1 && b === 1) || (e.damage = e.damage * (1 + i) * (1 + u) * m * b);
+    e.damage > 0 &&
+        !woaQuiet &&
+        e.damageSource.cause === nr.entityAttack &&
+        p_.some((y) => woaEvo(r, y)) &&
+        Be.run(() => {
+            n.isValid && a(() => n.setOnFire(woaEvoCfg.igniteSeconds, !0));
+        });
 }
 function Zu(e, t) {
     Pa(e, t);
@@ -6291,7 +6532,16 @@ function Zu(e, t) {
         o = Be.currentTick;
     if (o - r.shieldTick <= rn.effectWindow) return { kind: "blocked" };
     let i = Yt(r, n);
-    if (((r.hudKey = n.key), (r.hudKeyAt = o), i.s >= i.n)) return (i.used = Date.now()), { kind: "nullified" };
+    if (((r.hudKey = n.key), (r.hudKeyAt = o), i.s >= i.n)) {
+        i.used = Date.now();
+        let woaE = woaEvolved(i);
+        if (!woaE && Wr(t)) {
+            oi(r, n.key, 2, 0, o, or(e));
+            let woaP = r.pending.get(n.key);
+            woaP && (woaP.lastPulse = o);
+        }
+        return { kind: "nullified", evo: woaE };
+    }
     let s = { kind: "partial", s: i.s, n: i.n };
     if (
         ((r.recentEffects = r.recentEffects.filter((d) => o - d.tick <= rn.effectWindow)),
@@ -6316,7 +6566,7 @@ function ef(e) {
     if (!o) return;
     let i = Be.currentTick;
     if (o.kind !== "partial") {
-        e.cancel = !0;
+        (e.cancel = !0), o.evo && woaFlip(t, n);
         return;
     }
     if (r < 0) {
@@ -6338,7 +6588,7 @@ function tf(e) {
     let i = Zu(t, o);
     if (i) {
         if (i.kind !== "partial") {
-            t.removeEffect(o);
+            t.removeEffect(o), i.evo && woaFlip(t, o);
             return;
         }
     }
@@ -6393,7 +6643,7 @@ function ju(e) {
         o = -1;
     for (let [i, s] of e.pending) {
         let c = e.map.get(i);
-        if (!c || c.s >= c.n) {
+        if (!c || woaEvolved(c)) {
             e.pending.delete(i);
             continue;
         }
@@ -6440,7 +6690,7 @@ function u_(e, t, n) {
             from: "spinning",
         };
     let o = e.hudKey && e.map.has(e.hudKey) && n - e.hudKeyAt <= Eo ? e.hudKey : void 0;
-    if (o && !c_(e, o))
+    if (o && (!c_(e, o) || woaEvoActive(e, o)))
         return {
             key: o,
             from: "latest-hit",
@@ -6492,10 +6742,11 @@ function l_(e, t, n, r) {
         atk: woaHudAtk(t, n, !!s),
         slots: woaSlots(e),
         key: s ? i : void 0,
-        entry: s,
+        entry: woaEvoView(s, c),
+        evo: !!s && (woaEvolved(s) || woaEvoView(s, c) !== s),
         hits: c?.p ?? 0,
         need: s ? Ze(s.n) : 0,
-        paused: s ? rf(t, i) : !1,
+        paused: s ? (woaEvoView(s, c) !== s ? !c || !He(c) : rf(t, i)) : !1,
         completing: of(t, i),
         spinning: !!i && ai(t) === i,
         others: f_(t, s ? i : void 0),
@@ -6515,7 +6766,7 @@ function l_(e, t, n, r) {
 }
 function sf(e, t) {
     let n = ee(e);
-    Gh(e, n, t), Jh(e, n, t), Xh(e, n, t), s_(e, n, t), Hh(e, n, t);
+    Gh(e, n, t), Jh(e, n, t), Xh(e, n, t), s_(e, n, t), woaEvoExpose(e, n, t), Hh(e, n, t);
     let r = ju(n);
     r.ready &&
         t - n.lastSpin >= C.spinInterval &&
@@ -6606,7 +6857,7 @@ function y_(e, t) {
         let r = n.currentValue,
             o = pf(r, mf);
         if (o === void 0) return;
-        n.setCurrentValue(o);
+        n.setCurrentValue(o), t === "env:starvation" && woaEvoVirtual(e, ee(e), t, 1, Be.currentTick);
     } catch (n) {
         A(
             "rewards.saturation",
@@ -6877,6 +7128,7 @@ var _e = {
     pierce: x(" \xA76\xB7 ", p("woa.list.pierce")),
     tier: (e) => x("\xA76", p(`woa.tier.${Cf(e)}`)),
     locked: x(" \xA7p", p("woa.list.locked")),
+    evoHint: x("\xA77", p("woa.list.evo_hint")),
     lockHint: (e) => x("\xA77", p("woa.list.lock_hint", `${e}/${woaLockMax}`)),
     lockFull: x("\xA7c", p("woa.list.lock_full", String(woaLockMax))),
     back: p("woa.list.back"),
@@ -6950,6 +7202,14 @@ function woaMenu(e, t = 0) {
 function Lf(e) {
     return x(`\xA7r${Ee(e.key)} \xA7f`, Qr(e.key), " ", _e.tier(e.entry));
 }
+function woaListRow(e) {
+    let t = e.entry;
+    return woaEvolved(t)
+        ? x(Lf(e), " \xA7d\xA7lII")
+        : (t.e ?? 0) > 0
+          ? x(Lf(e), ` \xA7d${t.e}/${woaEvoNeed(t)}`)
+          : Lf(e);
+}
 function L_(e) {
     let t = to({ ...e, others: 0 });
     return x(
@@ -6985,9 +7245,10 @@ function H_(e, m, k, w) {
     for (let r of t.analysing) n.label(L_(r));
     n.divider().header(_e.adapted(m ? `${t.adapted.length}/${m}` : t.adapted.length)),
         n.label(t.adapted.length ? (w ? _e.lockFull : _e.lockHint(woaLocks(k).length)) : _e.emptyAdapted);
+    t.adapted.length && n.label(_e.evoHint);
     for (let r of t.adapted) {
         let c = woaLocked(k, r.key);
-        i.push(r.key), n.button(x(c ? woaRowLocked : woaRowOpen, Lf(r), ...(c ? [_e.locked] : [])));
+        i.push(r.key), n.button(x(c ? woaRowLocked : woaRowOpen, woaListRow(r), ...(c ? [_e.locked] : [])));
     }
     let o = e.atk ?? [];
     n.divider().header(_e.attack(o.length)), o.length || n.label(_e.emptyAttack);
