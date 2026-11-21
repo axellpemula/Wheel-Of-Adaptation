@@ -21,12 +21,13 @@ var f = { turn1: 1, turn2: 2, turn3: 3, turn4: 4, turn5: 5, turn6: 6, turn7: 7, 
         step: "xvoid:wheel_of_adaptation_step",
         step_back: "xvoid:wheel_of_adaptation_step_back",
         seal: "xvoid:wheel_of_adaptation_seal",
+        rewind: "xvoid:wheel_of_adaptation_rewind",
     },
     be = new Set([Q, ...Object.values(_r)]),
     br = "xvoid:sword_of_extermination",
     mt = "xvoid:adaptation",
     lt = { soulbound: !0, equipWheel: !0, delayTicks: 20 },
-    $e = { spin: 40, full: 76, react: 25, first: 79, fast: 17, step: 15, step_back: 15, seal: 1e9 },
+    $e = { spin: 40, full: 76, react: 25, first: 79, fast: 17, step: 15, step_back: 15, seal: 1e9, rewind: 96 },
     w = {
         spin: "xvoid.wheel.spin",
         first: "xvoid.wheel.first",
@@ -7155,6 +7156,7 @@ function woaMenuForm(e) {
         d = !woaArmorOff(e);
     t.header(p("woa.menu.adaptations")),
         r(x(woaRowNav, p("woa.menu.list"), ` \xA77${o ? `${i}/${o}` : i}`), () => (Hf(e, () => af(e)), !0)),
+        t.label(woaRbdLine(e)),
         t.divider().header(p("woa.menu.personal")).label(x("\xA77", p("woa.menu.hint"))),
         r(x(p("woa.menu.effects"), ": \xA7p", p(`woa.menu.level.${s}`)), () =>
             woaPerfSet(e, woaPerfLevels[(woaPerfLevels.indexOf(s) + 1) % woaPerfLevels.length])
@@ -7987,7 +7989,7 @@ var woaSealItem = "xvoid:seal_of_judgment",
     woaSealChainIds = new Set(),
     woaSealStriking = !1;
 function woaSealed(e) {
-    return woaBound.has(e) || woaDomains.has(e) || woaTired.has(e);
+    return woaBound.has(e) || woaDomains.has(e) || woaTired.has(e) || woaRbdHeld.has(e);
 }
 function woaSealSay(e, ...t) {
     T(e, "seal", x(...t));
@@ -8457,6 +8459,755 @@ function woaSealInit() {
         Pr("seal.tick", 1, woaSealTick);
 }
 woaSealInit();
+import { BlockPermutation as woaPerm } from "@minecraft/server";
+var woaRbd = {
+        need: 8,
+        cooldown: 18e3,
+        radius: 32,
+        every: 10,
+        heavyEvery: 20,
+        span: 200,
+        minSpan: 40,
+        keep: 24,
+        fallTicks: 16,
+        playTicks: 60,
+        fadeLead: 7,
+        endTicks: 12,
+        pinAfter: 4,
+        safeTicks: 60,
+        saveEvery: 100,
+        maxMobs: 96,
+        maxItems: 64,
+        maxLog: 4096,
+        undoPerTick: 192,
+        prop: "xvoid:rbd_cooldown",
+        lockProp: "xvoid:rbd_lock",
+        fall: "animation.xvoid.rbd.fall",
+        rise: "animation.xvoid.rbd.rise",
+        controller: "controller.xvoid.rbd",
+        totem: "minecraft:totem_of_undying",
+        gear: [Lm.Head, Lm.Chest, Lm.Legs, Lm.Feet, Lm.Offhand],
+        skip: new Set([
+            "minecraft:player",
+            "minecraft:item",
+            "minecraft:xp_orb",
+            "minecraft:ender_dragon",
+            "minecraft:npc",
+            "minecraft:agent",
+            "xvoid:seal_chain",
+        ]),
+        flash: { red: 1, green: 0.94, blue: 0.78 },
+    },
+    woaRbdCd = new Map(),
+    woaRbdFrames = [],
+    woaRbdLog = [],
+    woaRbdBorn = new Map(),
+    woaRbdDead = new Map(),
+    woaRbdProbe = new Map(),
+    woaRbdRuns = new Map(),
+    woaRbdHeld = new Set(),
+    woaRbdSafe = new Map(),
+    woaRbdMade = new Set(),
+    woaRbdPending = new Map(),
+    woaRbdArmed = new Set(),
+    woaRbdOn = !1,
+    woaRbdBusy = !1,
+    woaRbdAirPerm;
+function woaRbdCdOf(e, t) {
+    let n = woaRbdCd.get(e.id);
+    if (n === void 0) {
+        let r = a(() => e.getDynamicProperty(woaRbd.prop));
+        (n = typeof r == "number" && r > 0 ? t + r : 0), woaRbdCd.set(e.id, n);
+    }
+    return n;
+}
+function woaRbdCdSet(e, t, n) {
+    woaRbdCd.set(e.id, n > 0 ? t + n : 0), a(() => e.setDynamicProperty(woaRbd.prop, n > 0 ? n : void 0));
+}
+function woaRbdCan(e, t) {
+    return R(e.id) && !woaRbdHeld.has(e.id) && !woaSealed(e.id) && woaRbdCdOf(e, t) <= t && Dt(ee(e)) >= woaRbd.need;
+}
+function woaRbdLine(e) {
+    let t = Be.currentTick,
+        n = R(e.id) ? woaRbdCdOf(e, t) - t : 0,
+        r = R(e.id) ? Dt(ee(e)) : 0;
+    return n > 0
+        ? x("\xA77", p("woa.rbd.menu.cooldown", woaSealClock(n)))
+        : r >= woaRbd.need
+          ? x("\xA7a", p("woa.rbd.menu.ready"))
+          : x("\xA77", p("woa.rbd.menu.need", `${r}`, `${woaRbd.need}`));
+}
+function woaRbdPos(e) {
+    let t = e.location;
+    return { x: t.x, y: t.y, z: t.z };
+}
+function woaRbdNear(e, t, n) {
+    let r = e.x - t.x,
+        o = e.y - t.y,
+        i = e.z - t.z;
+    return r * r + o * o + i * i <= n * n;
+}
+function woaRbdIn(e, t, n) {
+    let r = a(() => t.id);
+    return (
+        (r === e.dimId && woaRbdNear(n, e.center, woaRbd.radius)) ||
+        (r === e.homeDimId && woaRbdNear(n, e.home.loc, woaRbd.radius))
+    );
+}
+function woaRbdMix(e, t, n) {
+    return { x: e.x + (t.x - e.x) * n, y: e.y + (t.y - e.y) * n, z: e.z + (t.z - e.z) * n };
+}
+function woaRbdAttr(e, t, n) {
+    let r = e.getComponent(t);
+    r && typeof n == "number" && r.setCurrentValue(Math.max(r.effectiveMin, Math.min(r.effectiveMax, n)));
+}
+function woaRbdAttrOf(e, t) {
+    return a(() => e.getComponent(t)?.currentValue);
+}
+function woaRbdSnap(e) {
+    let t = e.getComponent("minecraft:inventory")?.container,
+        n = e.getComponent("minecraft:equippable"),
+        r = [],
+        o = {};
+    if (t) for (let i = 0; i < t.size; i++) r.push(t.getItem(i));
+    for (let i of woaRbd.gear) o[i] = n?.getEquipment(i);
+    return {
+        hp: woaRbdAttrOf(e, "minecraft:health"),
+        food: woaRbdAttrOf(e, "minecraft:player.hunger"),
+        sat: woaRbdAttrOf(e, "minecraft:player.saturation"),
+        exh: woaRbdAttrOf(e, "minecraft:player.exhaustion"),
+        fx: (a(() => e.getEffects()) ?? []).map((i) => ({ id: i.typeId, dur: i.duration, amp: i.amplifier })),
+        level: a(() => e.level) ?? 0,
+        xp: a(() => e.xpEarnedAtCurrentLevel) ?? 0,
+        items: r,
+        gear: o,
+        cursor: a(() => e.getComponent("minecraft:cursor_inventory")?.item),
+        slot: a(() => e.selectedSlotIndex),
+    };
+}
+function woaRbdScan(e, t, n) {
+    let r = t.dimension,
+        o = a(() => r.getEntities({ location: t.location, maxDistance: woaRbd.radius })) ?? [];
+    for (let i of o)
+        a(() => {
+            let s = i.id,
+                c = i.typeId;
+            if (e.players.has(s) || e.mobs.has(s) || e.items.has(s)) return;
+            if (c === "minecraft:player") {
+                if (!(woaRbdAttrOf(i, "minecraft:health") > 0)) return;
+                let d = { e: i, dim: r, loc: woaRbdPos(i), rot: i.getRotation() };
+                n && (d.heavy = woaRbdSnap(i)), e.players.set(s, d);
+                return;
+            }
+            if (c === "minecraft:item") {
+                if (!n || e.items.size >= woaRbd.maxItems) return;
+                let d = i.getComponent("minecraft:item")?.itemStack;
+                d && e.items.set(s, { e: i, dim: r, loc: woaRbdPos(i), stack: d });
+                return;
+            }
+            if (woaRbd.skip.has(c) || e.mobs.size >= woaRbd.maxMobs) return;
+            let u = i.getComponent("minecraft:health");
+            u && e.mobs.set(s, { e: i, type: c, dim: r, loc: woaRbdPos(i), rot: i.getRotation(), hp: u.currentValue });
+        });
+}
+function woaRbdWipe() {
+    (woaRbdFrames.length = 0), (woaRbdLog.length = 0), woaRbdBorn.clear(), woaRbdDead.clear(), woaRbdMade.clear();
+}
+function woaRbdRecord(e) {
+    let t = [],
+        n = new Set();
+    for (let r of a(() => re.getAllPlayers()) ?? [])
+        a(() => woaRbdCan(r, e) && woaRbdAttrOf(r, "minecraft:health") > 0) && (t.push(r), n.add(r.id));
+    for (let r of t)
+        woaRbdArmed.has(r.id) ||
+            ge(45, () => {
+                r.isValid &&
+                    woaRbdCan(r, Be.currentTick) &&
+                    (T(r, "seal", x(B("checkMark"), " \xA7e", p("woa.rbd.armed"))), a(() => r.playSound("note.pling")));
+            });
+    woaRbdArmed.clear();
+    for (let r of n) woaRbdArmed.add(r);
+    if (!t.length) {
+        woaRbdOn && woaRbdWipe(), (woaRbdOn = !1);
+        return;
+    }
+    woaRbdOn = !0;
+    let o = {
+        tick: e,
+        time: a(() => re.getTimeOfDay()),
+        heavy: e % woaRbd.heavyEvery === 0,
+        players: new Map(),
+        mobs: new Map(),
+        items: new Map(),
+    };
+    for (let r of t) woaRbdScan(o, r, o.heavy);
+    for (woaRbdFrames.push(o); woaRbdFrames.length > woaRbd.keep; ) woaRbdFrames.shift();
+    let i = woaRbdFrames[0].tick;
+    for (; woaRbdLog.length && woaRbdLog[0].tick < i; ) woaRbdLog.shift();
+    for (let [r, s] of woaRbdBorn) s.tick < i && woaRbdBorn.delete(r);
+    for (let [r, s] of woaRbdDead) s.tick < i && woaRbdDead.delete(r);
+}
+function woaRbdTarget(e, t) {
+    let n;
+    for (let r of woaRbdFrames) {
+        if (!r.heavy || !r.players.get(e.id)?.heavy) continue;
+        let o = t - r.tick;
+        if (o < woaRbd.minSpan) break;
+        if (o >= woaRbd.span) n = r;
+        else {
+            n ??= r;
+            break;
+        }
+    }
+    return n;
+}
+function woaRbdAir() {
+    return (woaRbdAirPerm ??= woaPerm.resolve("minecraft:air"));
+}
+function woaRbdItemsOf(e) {
+    let t = a(() => e.getComponent("minecraft:inventory")?.container);
+    if (!t) return;
+    let n = [];
+    for (let r = 0; r < t.size; r++) n.push(a(() => t.getItem(r)));
+    return n;
+}
+function woaRbdNote(e, t, n, r) {
+    if (!woaRbdOn || woaRbdBusy || woaRbdLog.length >= woaRbd.maxLog) return;
+    let o = e.location;
+    woaRbdLog.push({ tick: Be.currentTick, dim: e.dimension, x: o.x, y: o.y, z: o.z, perm: t, items: n, only: r });
+}
+function woaRbdNoteBlock(e, t) {
+    !woaRbdOn ||
+        woaRbdBusy ||
+        a(() => {
+            let n = e.permutation,
+                r = e.typeId,
+                o =
+                    a(() => n.getState("upper_block_bit")) !== void 0
+                        ? [a(() => e.above()), a(() => e.below())]
+                        : a(() => n.getState("head_piece_bit")) !== void 0
+                          ? [a(() => e.north()), a(() => e.south()), a(() => e.east()), a(() => e.west())]
+                          : [];
+            woaRbdNote(e, t ? woaRbdAir() : n, t ? void 0 : woaRbdItemsOf(e));
+            for (let i of o) i && i.typeId === r && woaRbdNote(i, t ? woaRbdAir() : i.permutation);
+        });
+}
+function woaRbdBlast(e) {
+    if (!woaRbdOn || woaRbdBusy || e.cancel) return;
+    for (let t of a(() => e.getImpactedBlocks()) ?? []) a(() => woaRbdNote(t, t.permutation, woaRbdItemsOf(t)));
+}
+function woaRbdOpened(e) {
+    if (!woaRbdOn || woaRbdBusy) return;
+    let t = woaRbdItemsOf(e.block);
+    t && a(() => woaRbdNote(e.block, void 0, t, !0));
+}
+function woaRbdSpawned(e) {
+    let t = e.entity;
+    if (woaRbdBusy) {
+        let n = a(() => t.id);
+        a(() => t.typeId === "minecraft:item" || t.typeId === "minecraft:xp_orb") &&
+            Be.run(() =>
+                a(() => {
+                    if (woaRbdMade.has(n) || !t.isValid) return;
+                    for (let r of woaRbdRuns.values())
+                        if (woaRbdIn(r, t.dimension, t.location)) {
+                            t.remove();
+                            return;
+                        }
+                })
+            );
+        return;
+    }
+    !woaRbdOn ||
+        (e.cause !== "Spawned" && e.cause !== "Born") ||
+        a(() => {
+            let n = t.typeId;
+            n === "minecraft:player" || n === woaSeal.chain || woaRbdBorn.set(t.id, { e: t, tick: Be.currentTick });
+        });
+}
+function woaRbdDied(e) {
+    !woaRbdOn ||
+        woaRbdBusy ||
+        a(() => {
+            let t = e.typeId;
+            if (woaRbd.skip.has(t)) return;
+            let n = a(() => e.getComponent("minecraft:tameable"));
+            woaRbdDead.set(e.id, {
+                tick: Be.currentTick,
+                type: t,
+                dim: e.dimension,
+                loc: woaRbdPos(e),
+                name: e.nameTag,
+                owner: n?.isTamed ? n.tamedToPlayerId : void 0,
+            });
+        });
+}
+function woaRbdTotem(e) {
+    let t = a(() => e.getComponent("minecraft:equippable"));
+    return (
+        a(() => t.getEquipment(Lm.Offhand)?.typeId) === woaRbd.totem ||
+        a(() => t.getEquipment(Lm.Mainhand)?.typeId) === woaRbd.totem
+    );
+}
+function woaRbdShield(e) {
+    if (!woaRbdHeld.size && !woaRbdSafe.size) return !1;
+    if (Qh.has(a(() => e.damageSource.cause))) return !1;
+    let t = a(() => e.hurtEntity.id),
+        n = a(() => e.damageSource.damagingEntity?.id);
+    if (woaRbdHeld.has(t) || (n && woaRbdHeld.has(n))) return (e.cancel = !0), !0;
+    for (let o of woaRbdRuns.values()) if (o.tracks.has(t) || woaRbdMade.has(t)) return (e.cancel = !0), !0;
+    let r = woaRbdSafe.get(t);
+    if (r !== void 0) {
+        if (Be.currentTick < r) return (e.cancel = !0), !0;
+        woaRbdSafe.delete(t);
+    }
+    return !1;
+}
+function woaRbdHit(e, t) {
+    if (e.cancel || !(e.damage > 0)) return;
+    let n = Be.currentTick,
+        r = t.id;
+    if (woaRbdProbe.has(r)) {
+        e.cancel = !0;
+        return;
+    }
+    if (!woaRbdCan(t, n) || Qh.has(a(() => e.damageSource.cause))) return;
+    let o = woaRbdAttrOf(t, "minecraft:health");
+    if (!(o > 0) || e.damage < o || !woaRbdTarget(t, n) || woaRbdTotem(t)) return;
+    let i = o >= 2 ? o - 1 : o / 2;
+    woaRbdProbe.set(r, { hp: o, cap: i, raw: e.damage, dealt: void 0 }),
+        (e.damage = i),
+        Be.run(() => {
+            a(() => woaRbdJudge(t, r)), woaRbdProbe.delete(r);
+        });
+}
+function woaRbdDealt(e) {
+    if (!woaRbdProbe.size) return;
+    let t = woaRbdProbe.get(a(() => e.hurtEntity.id));
+    t && t.dealt === void 0 && (t.dealt = e.damage);
+}
+function woaRbdJudge(e, t) {
+    let n = woaRbdProbe.get(t);
+    if ((woaRbdProbe.delete(t), !n || !e.isValid)) return;
+    let r = e.getComponent("minecraft:health"),
+        o = r?.currentValue;
+    if (!(o > 0)) return;
+    let i = Math.max(0, n.hp - o),
+        s = a(() => e.getEffect("absorption")),
+        c = s && typeof n.dealt == "number" ? Math.max(i, n.dealt) : i,
+        d = n.raw * Math.min(4, c / n.cap),
+        u = Math.max(0, d - c);
+    if (s) {
+        let m = Math.max(0, 4 * (s.amplifier + 1) - (c - i));
+        u > m && a(() => e.removeEffect("absorption")), (u = Math.max(0, u - m));
+    }
+    if (o - u > 0.001) {
+        u > 0.001 && r.setCurrentValue(o - u);
+        return;
+    }
+    a(() => woaRbdStart(e, Be.currentTick)) || a(() => e.kill());
+}
+function woaRbdHold(e, t, n) {
+    t ? woaRbdHeld.add(e.id) : woaRbdHeld.delete(e.id);
+    if (!e.isValid || (!t && woaSealLocked.has(e.id))) return;
+    a(() => e.inputPermissions.setPermissionCategory(woaInput.Movement, !t)),
+        (n || !t) && a(() => e.inputPermissions.setPermissionCategory(woaInput.Camera, !t)),
+        a(() => e.setDynamicProperty(woaRbd.lockProp, t ? !0 : void 0));
+}
+function woaRbdView(e, t, n, r, o, i) {
+    let s = ((a(() => e.host.getRotation())?.y ?? 0) * Math.PI) / 180,
+        c = -Math.sin(s),
+        d = Math.cos(s),
+        u = { x: t.x - c * 0.9, y: t.y + 0.35, z: t.z - d * 0.9 },
+        m = { x: c * n - d * r, y: o, z: d * n + c * r },
+        b = Math.hypot(m.x, m.y, m.z) || 1,
+        y = { x: m.x / b, y: m.y / b, z: m.z / b },
+        K = { x: u.x, y: u.y + 0.45, z: u.z },
+        U = a(() => e.dim.getBlockFromRay(K, y, { maxDistance: i, includePassableBlocks: !1, includeLiquidBlocks: !1 })),
+        oe = i;
+    if (U) {
+        let fa = U.block.location,
+            fb = U.faceLocation;
+        oe = Math.max(0.9, Math.hypot(fa.x + fb.x - K.x, fa.y + fb.y - K.y, fa.z + fb.z - K.z) - 0.45);
+    }
+    return { location: { x: K.x + y.x * oe, y: K.y + y.y * oe, z: K.z + y.z * oe }, facingLocation: u };
+}
+function woaRbdCamera(e, t) {
+    let n = e.host,
+        r = t
+            ? { ...woaRbdView(e, e.pin ?? e.center, 0.12, 0.2, 1, 7.5), easeOptions: { easeTime: (woaRbd.playTicks + 8) / 20, easeType: "InOutSine" } }
+            : woaRbdView(e, e.center, 0.55, 0.65, 1, 4.2);
+    a(() => n.camera.setCamera("minecraft:free", r));
+}
+function woaRbdStart(e, t) {
+    let n = woaRbdTarget(e, t);
+    if (!n || woaRbdRuns.has(e.id)) return !1;
+    let r = n.players.get(e.id),
+        o = e.dimension,
+        i = {
+            host: e,
+            id: e.id,
+            dim: o,
+            dimId: o.id,
+            center: woaRbdPos(e),
+            home: r,
+            homeDimId: a(() => r.dim.id),
+            back: n,
+            start: t,
+            frames: [],
+            tracks: new Map(),
+            who: new Map(),
+            seg: -1,
+            done: !1,
+        },
+        s = { tick: t, time: a(() => re.getTimeOfDay()), players: new Map(), mobs: new Map(), items: new Map() };
+    woaRbdScan(s, e, !1);
+    i.frames = [s, ...woaRbdFrames.filter((u) => u.tick > n.tick && u.tick < t).reverse(), n];
+    for (let u of i.frames)
+        for (let [m, b] of u.mobs) i.tracks.has(m) || (woaRbdIn(i, b.dim, b.loc) && i.tracks.set(m, { e: b.e, type: b.type, seg: -1 }));
+    for (let [u, m] of woaRbdDead) {
+        let b = i.tracks.get(u);
+        b && m.tick > n.tick && (b.dead = m);
+    }
+    for (let [u, m] of n.players) {
+        if (u === e.id || !m.heavy || !woaRbdIn(i, m.dim, m.loc) || woaRbdHeld.has(u) || woaSealed(u)) continue;
+        let b = m.e;
+        if (!a(() => b.isValid)) continue;
+        let y = a(() => b.getGameMode());
+        y === "Creative" || y === "Spectator" || i.who.set(u, { e: b, snap: m, seg: -1 });
+    }
+    let c = woaRbd.fallTicks + woaRbd.playTicks + woaRbd.endTicks;
+    kc(e), woaRbdCdSet(e, t, woaRbd.cooldown), woaRbdArmed.delete(e.id);
+    let d = ee(e);
+    (d.lastKey = void 0), (d.hudKey = void 0), (d.graceUntil = 0), (d.firstSpin = void 0), (d.landing = void 0), (d.lastTurn = void 0);
+    woaRbdRuns.set(e.id, i), (woaRbdBusy = !0), woaRbdHold(e, !0, !0);
+    for (let u of i.who.values()) woaRbdHold(u.e, !0, !1);
+    for (let u of i.tracks.values()) a(() => u.e.isValid && u.e.addEffect("slowness", c, { amplifier: 255, showParticles: !1 }));
+    a(() => Qt(e, "rbd")),
+        a(() => sd(e)),
+        a(() => woaRbdAttrOf(e, "minecraft:health") < 1 && woaRbdAttr(e, "minecraft:health", 1)),
+        a(() => e.extinguishFire(!1)),
+        a(() => e.playAnimation(woaRbd.fall, { controller: woaRbd.controller, blendOutTime: 0.1 })),
+        a(() => ce(e, "rewind")),
+        a(() => woaRbdCamera(i, !1)),
+        a(() => {
+            z(o, w.undying, Ye(e)),
+                z(o, "xvoid.seal.open", i.center, 0.7, 0.8),
+                v(o, I.seal, Re(e, 0.08)),
+                v(o, I.octagram, Re(e, 0.08)),
+                v(o, I.gather, pe(e)),
+                v(o, I.ripple, Re(e, 0.08)),
+                T(e, "seal", x("\xA7l\xA7e", p("woa.rbd.start")));
+        });
+    return !0;
+}
+function woaRbdMove(e, t, n, r) {
+    a(() => e.teleport(n, r ? { dimension: t, rotation: r, keepVelocity: !1 } : { dimension: t, keepVelocity: !1 }));
+}
+function woaRbdUndo(e, t, n) {
+    let r = 0;
+    for (; woaRbdLog.length && r < n; ) {
+        let o = woaRbdLog[woaRbdLog.length - 1];
+        if (o.tick <= t) break;
+        if ((woaRbdLog.pop(), !woaRbdIn(e, o.dim, o))) continue;
+        r++,
+            a(() => {
+                let i = o.dim.getBlock(o);
+                if (!i) return;
+                o.only || i.setPermutation(o.perm);
+                let s = o.items && i.getComponent("minecraft:inventory")?.container;
+                if (s && s.size >= o.items.length) for (let c = 0; c < o.items.length; c++) s.setItem(c, o.items[c]);
+            });
+    }
+}
+function woaRbdCull(e, t) {
+    for (let [n, r] of woaRbdBorn)
+        r.tick <= t ||
+            (woaRbdBorn.delete(n),
+            a(() => {
+                let o = r.e;
+                o.isValid && woaRbdIn(e, o.dimension, o.location) && o.remove();
+            }));
+}
+function woaRbdRaise(e, t, n) {
+    for (let r of e.tracks.values()) {
+        let o = r.dead;
+        if (!o || r.raised || o.tick < t) continue;
+        r.raised = !0;
+        let i = a(() => o.dim.spawnEntity(o.type, o.loc));
+        if (!i) continue;
+        (r.e = i), (r.seg = -1), woaRbdMade.add(i.id), o.name && a(() => (i.nameTag = o.name));
+        if (o.owner) {
+            let s = (a(() => re.getAllPlayers()) ?? []).find((c) => c.id === o.owner);
+            s && a(() => i.getComponent("minecraft:tameable")?.tame(s));
+        }
+        n > 0 && a(() => i.addEffect("slowness", n, { amplifier: 255, showParticles: !1 })), v(o.dim, I.rise, o.loc);
+    }
+}
+function woaRbdPlay(e, t, n) {
+    let r = e.frames,
+        o = r[0].tick,
+        i = o - t * (o - e.back.tick),
+        s = 0;
+    for (; s < r.length - 2 && r[s + 1].tick > i; ) s++;
+    let c = r[s],
+        d = r[s + 1],
+        u = c.tick === d.tick ? 1 : Math.max(0, Math.min(1, (c.tick - i) / (c.tick - d.tick))),
+        m = woaRbd.fallTicks + woaRbd.playTicks + woaRbd.endTicks - (n - e.start);
+    a(() => woaRbdUndo(e, i, woaRbd.undoPerTick)), a(() => woaRbdCull(e, i)), a(() => woaRbdRaise(e, i, m));
+    for (let [b, y] of e.tracks) {
+        let K = d.mobs.get(b),
+            U = y.e;
+        if (!K || !a(() => U.isValid)) continue;
+        let oe = c.mobs.get(b) ?? K;
+        if (y.seg === s && woaRbdNear(oe.loc, K.loc, 0.02)) continue;
+        (y.seg = s), woaRbdMove(U, K.dim, woaRbdMix(oe.loc, K.loc, u), u < 0.5 ? oe.rot : K.rot);
+    }
+    for (let [b, y] of e.who) {
+        let K = d.players.get(b),
+            U = y.e;
+        if (!K || !a(() => U.isValid) || !(woaRbdAttrOf(U, "minecraft:health") > 0)) continue;
+        let oe = c.players.get(b) ?? K;
+        if (y.seg === s && woaRbdNear(oe.loc, K.loc, 0.02)) continue;
+        (y.seg = s), woaRbdMove(U, K.dim, woaRbdMix(oe.loc, K.loc, u), u < 0.5 ? oe.rot : K.rot);
+    }
+    if (typeof c.time == "number" && typeof d.time == "number" && c.time !== d.time && Math.abs(c.time - d.time) < 600)
+        a(() => re.setTimeOfDay(Math.max(0, Math.round(c.time + (d.time - c.time) * u))));
+    let fa = n - e.start - woaRbd.fallTicks;
+    fa % 4 === 0 && z(e.dim, "xvoid.seal.tick", e.pin ?? e.center, 0.7 + 0.9 * t, 0.9);
+    fa % 12 === 0 && (v(e.dim, I.ripple, e.pin ?? e.center), a(() => v(e.dim, I.dharma, Ye(e.host))));
+}
+function woaRbdMark(e) {
+    let t = (a(() => e.getComponent("minecraft:enchantable")?.getEnchantments()) ?? []).map((n) => `${n.type?.id ?? n.type}:${n.level}`).sort();
+    return `${e.nameTag ?? ""}|${e.lockMode ?? ""}|${e.keepOnDeath ? 1 : 0}|${t.join(",")}|${(a(() => e.getLore()) ?? []).join("\n")}`;
+}
+function woaRbdSame(e, t) {
+    return woaRbdMark(e) === woaRbdMark(t);
+}
+function woaRbdItem(e) {
+    return e && ro(e.typeId) ? oo(e, Q) : e;
+}
+function woaRbdApply(e, t) {
+    let n = t.heavy;
+    woaRbdMove(e, t.dim, t.loc, t.rot), a(() => e.extinguishFire(!1));
+    if (!n) return;
+    a(() => woaRbdAttr(e, "minecraft:health", n.hp)),
+        a(() => woaRbdAttr(e, "minecraft:player.hunger", n.food)),
+        a(() => woaRbdAttr(e, "minecraft:player.saturation", n.sat)),
+        a(() => woaRbdAttr(e, "minecraft:player.exhaustion", n.exh)),
+        a(() => {
+            for (let r of e.getEffects()) a(() => e.removeEffect(r.typeId));
+            for (let r of n.fx)
+                a(() =>
+                    e.addEffect(r.id, r.dur > 0 && r.dur <= 2e7 ? r.dur : 2e7, {
+                        amplifier: r.amp,
+                        showParticles: r.dur > 0 && r.dur < 1e6,
+                    })
+                );
+        }),
+        a(() => (e.resetLevel(), n.level > 0 && e.addLevels(n.level), n.xp > 0 && e.addExperience(n.xp))),
+        a(() => {
+            let r = e.getComponent("minecraft:inventory")?.container;
+            if (r) for (let o = 0; o < r.size && o < n.items.length; o++) r.setItem(o, woaRbdItem(n.items[o]));
+        }),
+        a(() => {
+            let r = e.getComponent("minecraft:equippable");
+            for (let o of woaRbd.gear) {
+                let i = woaRbdItem(n.gear[o]);
+                if (o === Lm.Head) {
+                    let s = r.getEquipment(o);
+                    if (s && be.has(s.typeId)) {
+                        if (!i || !be.has(i.typeId)) {
+                            if (R(e.id) && woaRbdHeld.has(e.id) && woaRbdRuns.has(e.id)) continue;
+                        } else {
+                            if (woaRbdSame(s, i)) continue;
+                            s.typeId !== i.typeId && (i = oo(i, s.typeId));
+                        }
+                    }
+                }
+                r.setEquipment(o, i);
+            }
+        }),
+        a(() => {
+            let r = e.getComponent("minecraft:cursor_inventory");
+            r?.item && r.clear();
+            let o = n.cursor && e.getComponent("minecraft:inventory")?.container?.addItem(woaRbdItem(n.cursor));
+            o && e.dimension.spawnItem(o, e.location);
+        }),
+        typeof n.slot == "number" && a(() => (e.selectedSlotIndex = n.slot));
+}
+function woaRbdGive(e, t, n) {
+    if (!a(() => e.isValid)) return;
+    if (!(woaRbdAttrOf(e, "minecraft:health") > 0)) {
+        woaRbdPending.set(e.id, t);
+        return;
+    }
+    woaRbdApply(e, t),
+        a(() => e.camera.fade({ fadeColor: woaRbd.flash, fadeTime: { fadeInTime: 0, holdTime: 0.1, fadeOutTime: 0.5 } })),
+        n && T(e, "seal", x("\xA7e", p("woa.rbd.other", n)));
+}
+function woaRbdRespawn(e) {
+    let t = woaRbdPending.get(e.id);
+    t && (woaRbdPending.delete(e.id), ge(5, () => e.isValid && woaRbdApply(e, t)));
+}
+function woaRbdRestore(e, t) {
+    e.done = !0;
+    let n = e.back,
+        r = e.host,
+        o = a(() => r.name) ?? "";
+    a(() => woaRbdUndo(e, n.tick, 1e9)), a(() => woaRbdCull(e, n.tick)), a(() => woaRbdRaise(e, n.tick, woaRbd.endTicks));
+    for (let [i, s] of e.tracks)
+        a(() => {
+            let c = n.mobs.get(i),
+                d = s.e;
+            if (!c || !d.isValid) return;
+            woaRbdMove(d, c.dim, c.loc, c.rot), c.hp > 0 && woaRbdAttr(d, "minecraft:health", c.hp);
+        });
+    for (let i of n.items.values())
+        a(() => {
+            if (!woaRbdIn(e, i.dim, i.loc)) return;
+            if (a(() => i.e.isValid && i.e.getComponent("minecraft:item")?.itemStack?.amount === i.stack.amount)) return;
+            a(() => i.e.isValid && i.e.remove());
+            let s = i.dim.spawnItem(woaRbdItem(i.stack), i.loc);
+            woaRbdMade.add(s.id), a(() => s.clearVelocity());
+        });
+    typeof n.time == "number" && a(() => re.setTimeOfDay(n.time));
+    for (let i of e.who.values()) a(() => woaRbdGive(i.e, i.snap, o));
+    v(e.dim, I.dust, e.pin ?? e.center),
+        a(() => woaRbdApply(r, e.home)),
+        woaRbdSafe.set(e.id, t + woaRbd.endTicks + woaRbd.safeTicks),
+        a(() => r.camera.clear()),
+        a(() => r.playAnimation(woaRbd.rise, { controller: woaRbd.controller, blendOutTime: 0.15 }));
+    let i = e.home.loc,
+        s = e.home.dim,
+        c = { x: i.x, y: i.y + 0.9, z: i.z },
+        d = { x: i.x, y: i.y + 0.08, z: i.z };
+    z(s, w.adapted, c), z(s, "xvoid.teleport", c, 0.8, 0.9);
+    for (let u of [I.flash, I.burst, I.positiveRays]) v(s, u, c);
+    for (let u of [I.ringWave, I.groundFlash, I.rise]) v(s, u, d);
+    T(r, "seal", x(B("checkMark"), " \xA7e", p("woa.rbd.done", `${Math.round((e.start - n.tick) / 20)}`)));
+}
+function woaRbdEnd(e, t) {
+    woaRbdRuns.delete(e.id), woaRbdHold(e.host, !1);
+    for (let n of e.who.values()) woaRbdHold(n.e, !1);
+    e.done ||
+        (a(() => e.host.camera.clear()),
+        a(() => e.host.playAnimation(woaRbd.rise, { controller: woaRbd.controller, blendOutTime: 0.15 })));
+    woaRbdRuns.size || ((woaRbdBusy = !1), woaRbdWipe());
+}
+function woaRbdRun(e, t) {
+    let n = t - e.start,
+        r = woaRbd,
+        o = r.fallTicks + r.playTicks,
+        i = e.host;
+    if (!a(() => i.isValid) || !(woaRbdAttrOf(i, "minecraft:health") > 0) || n > o + r.endTicks + 20) return woaRbdEnd(e, t);
+    if (!e.done) {
+        n === r.pinAfter && ((e.pin = woaRbdPos(i)), woaRbdCamera(e, !0));
+        e.pin && !woaRbdNear(i.location, e.pin, 0.3) && woaRbdMove(i, e.dim, e.pin);
+        n >= r.fallTicks && n < o && a(() => woaRbdPlay(e, (n - r.fallTicks + 1) / r.playTicks, t));
+        n === o - r.fadeLead &&
+            a(() =>
+                i.camera.fade({
+                    fadeColor: r.flash,
+                    fadeTime: { fadeInTime: r.fadeLead / 20, holdTime: 0.2, fadeOutTime: 0.7 },
+                })
+            );
+        n >= o && woaRbdRestore(e, t);
+    }
+    n >= o + r.endTicks && woaRbdEnd(e, t);
+}
+function woaRbdForget(e) {
+    let t = woaRbdRuns.get(e);
+    t && woaRbdEnd(t, Be.currentTick);
+    for (let n of woaRbdRuns.values()) n.who.delete(e);
+    woaRbdHeld.delete(e), woaRbdCd.delete(e), woaRbdProbe.delete(e), woaRbdSafe.delete(e), woaRbdPending.delete(e), woaRbdArmed.delete(e);
+}
+function woaRbdStop(e) {
+    let t = a(() => (e.source ?? e.player).id);
+    t && woaRbdHeld.has(t) && (e.cancel = !0);
+}
+function woaRbdTick() {
+    let e = Be.currentTick;
+    for (let t of [...woaRbdRuns.values()]) a(() => woaRbdRun(t, e)), e - t.start > 200 && woaRbdRuns.has(t.id) && a(() => woaRbdEnd(t, e));
+    woaRbdRuns.size || e % woaRbd.every !== 0 || a(() => woaRbdRecord(e));
+    if (e % 20 === 0)
+        for (let t of a(() => re.getAllPlayers()) ?? []) {
+            woaRbdHeld.has(t.id) ||
+                (a(() => t.getDynamicProperty(woaRbd.lockProp)) && (woaRbdHold(t, !1), a(() => t.camera.clear())));
+            let n = woaRbdCdOf(t, e);
+            n > 0 &&
+                (e >= n
+                    ? (woaRbdCdSet(t, e, 0),
+                      R(t.id) && (T(t, "seal", x("\xA7a", p("woa.rbd.ready"))), a(() => t.playSound("note.pling"))))
+                    : e % woaRbd.saveEvery === 0 && a(() => t.setDynamicProperty(woaRbd.prop, n - e)));
+        }
+}
+var woaHelm = { skip: new Set(["mending", "unbreaking", "binding", "vanishing"]) };
+function woaHelmIs(e) {
+    if (!e || be.has(e.typeId)) return !1;
+    let t = a(() => e.getComponent("minecraft:enchantable"));
+    return !!t && ((a(() => t.slots) ?? []).includes("ArmorHead") || /_helmet$/.test(e.typeId));
+}
+function woaHelmId(e) {
+    return String(e.type?.id ?? e.type).replace("minecraft:", "");
+}
+function woaHelmMerge(e, t) {
+    let n = a(() => t.getComponent("minecraft:enchantable")?.getEnchantments()) ?? [],
+        r = e.getComponent("minecraft:enchantable"),
+        o = 0;
+    if (!r) return 0;
+    for (let i of n) {
+        if (woaHelm.skip.has(woaHelmId(i))) continue;
+        let s = a(() => r.getEnchantment(i.type));
+        if (s) {
+            let c = s.level === i.level ? Math.min(i.type.maxLevel ?? i.level, i.level + 1) : Math.max(s.level, i.level);
+            c > s.level && a(() => (r.removeEnchantment(i.type), r.addEnchantment({ type: i.type, level: c }), !0)) && o++;
+        } else a(() => r.canAddEnchantment(i) && (r.addEnchantment(i), !0)) && o++;
+    }
+    return o;
+}
+function woaHelmUse(e) {
+    let t = k(e.source),
+        n = e.itemStack;
+    if (!t || e.cancel || !R(t.id) || !woaHelmIs(n)) return;
+    if (!(a(() => n.getComponent("minecraft:enchantable")?.getEnchantments()) ?? []).length) return;
+    (e.cancel = !0), Be.run(() => a(() => woaHelmDo(t, n.typeId)));
+}
+function woaHelmDo(e, t) {
+    let n = hs(e),
+        r = e.getComponent("minecraft:inventory")?.container,
+        o = e.selectedSlotIndex,
+        i = r?.getItem(o);
+    if (!n || !i || i.typeId !== t || !woaHelmIs(i)) return;
+    let s = n.item,
+        c = woaHelmMerge(s, i);
+    if (!c) {
+        T(e, "armor", x(B("cross"), " \xA7c", p("woa.helm.none"))), a(() => e.playSound("note.bass"));
+        return;
+    }
+    n.equipment.setEquipment(Lm.Head, s),
+        r.setItem(o, void 0),
+        z(e.dimension, "random.anvil_use", e.location, 1.1, 0.8),
+        v(e.dimension, I.halo, Ye(e)),
+        v(e.dimension, I.twinkle, Ye(e)),
+        T(e, "armor", x(B("checkMark"), " \xA7e", p("woa.helm.merged", `${c}`)));
+}
+function woaRbdInit() {
+    N(re.beforeEvents.playerBreakBlock, "rbd.break", (e) => {
+        woaRbdHeld.has(e.player.id) ? (e.cancel = !0) : e.cancel || woaRbdNoteBlock(e.block, !1);
+    }),
+        N(re.afterEvents.playerPlaceBlock, "rbd.place", (e) => woaRbdNoteBlock(e.block, !0)),
+        N(re.beforeEvents.explosion, "rbd.explosion", woaRbdBlast),
+        re.afterEvents.blockContainerOpened && N(re.afterEvents.blockContainerOpened, "rbd.container", woaRbdOpened),
+        N(re.afterEvents.entityHurt, "rbd.hurtAfter", woaRbdDealt),
+        N(re.beforeEvents.itemUse, "rbd.itemUse", (e) => {
+            woaRbdStop(e), e.cancel || woaHelmUse(e);
+        }),
+        N(re.beforeEvents.playerInteractWithBlock, "rbd.useBlock", woaRbdStop),
+        N(re.beforeEvents.playerInteractWithEntity, "rbd.useEntity", woaRbdStop),
+        Pr("rbd.tick", 1, woaRbdTick);
+}
+woaRbdInit();
 function $b(e) {
     Ot.add(e.id), Ec(e), z(e.dimension, w.equip, e.location), T(e, "equip", S.equip), woaSwordHint(e);
 }
@@ -8515,7 +9266,7 @@ N(
     "combat.entityHurt",
     (e) =>
         j("entityHurt", () => {
-            if (e.cancel || e.damage <= 0 || woaSealHurt(e)) return;
+            if (e.cancel || e.damage <= 0 || woaSealHurt(e) || woaRbdShield(e)) return;
             let t = e.hurtEntity,
                 n = e.damage,
                 r = k(t);
@@ -8523,7 +9274,7 @@ N(
             let o = k(e.damageSource.damagingEntity);
             o && o.id !== t.id && Pb(e, o, t, n),
                 !(e.cancel || !r || !R(r.id) || woaSealed(r.id)) &&
-                    (e.damage !== n && void 0, Fd(e, r), e.cancel || sm(e, r), e.cancel || Ju(e, r, n));
+                    (e.damage !== n && void 0, Fd(e, r), e.cancel || sm(e, r), e.cancel || Ju(e, r, n), e.cancel || woaRbdHit(e, r));
         })
 );
 function Pb(e, t, n, r) {
@@ -8541,6 +9292,7 @@ N(re.afterEvents.entityDie, "adaptation.entityDie", (e) => {
     let t = e.deadEntity,
         n = k(t);
     woaWounds.size && woaWounds.delete(a(() => t.id));
+    n || woaRbdDied(t);
     let woaKeep = !!Gt("keepOnDeath");
     n && woaKeep && woaDied.add(n.id),
         n && pr("starter.traceKitAtDeath", () => Im(n)),
@@ -8549,11 +9301,13 @@ N(re.afterEvents.entityDie, "adaptation.entityDie", (e) => {
 N(re.afterEvents.playerSpawn, "starter.playerSpawn", (e) => {
     let t = e.player,
         woaId = t.id;
+    e.initialSpawn || woaRbdRespawn(t);
     e.initialSpawn ? woaDied.delete(woaId) : le("death.keepWindow", 20, () => woaDied.delete(woaId)),
         le("starter.ensureKit", lt.delayTicks, () => (Ei(t), woaConfigFirst(t)));
 });
 N(re.afterEvents.entitySpawn, "main.entitySpawn", (e) => {
-    pr("wheel.sanitizeDrop", () => Ss(e.entity)),
+    pr("rbd.spawn", () => woaRbdSpawned(e)),
+        pr("wheel.sanitizeDrop", () => Ss(e.entity)),
         pr(
             "boundItems.removeDropped",
             () => Pf(e.entity)
@@ -8581,6 +9335,7 @@ N(re.beforeEvents.playerLeave, "main.playerLeave", (e) => {
     let t = e.player.id;
     q("main.forgetPlayer", () => {
         woaSealForget(t),
+            woaRbdForget(t),
             wc(t),
             si(t),
             Do(t),

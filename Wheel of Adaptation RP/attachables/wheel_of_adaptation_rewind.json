@@ -1,0 +1,83 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "xvoid:wheel_of_adaptation_rewind",
+      "materials": {
+        "default": "entity_alphatest",
+        "enchanted": "entity_alphatest_glint",
+        "glow": "entity_beam_additive",
+        "lit": "entity_emissive"
+      },
+      "textures": {
+        "default": "textures/entity/xvoid/wheel_of_adaptation",
+        "enchanted": "textures/misc/enchanted_item_glint",
+        "glow": "textures/entity/xvoid/wheel_of_adaptation_glow",
+        "lit_0": "textures/entity/xvoid/wheel_of_adaptation_lit_0",
+        "lit_1": "textures/entity/xvoid/wheel_of_adaptation_lit_1",
+        "lit_2": "textures/entity/xvoid/wheel_of_adaptation_lit_2",
+        "lit_3": "textures/entity/xvoid/wheel_of_adaptation_lit_3",
+        "lit_4": "textures/entity/xvoid/wheel_of_adaptation_lit_4",
+        "lit_5": "textures/entity/xvoid/wheel_of_adaptation_lit_5",
+        "lit_6": "textures/entity/xvoid/wheel_of_adaptation_lit_6",
+        "lit_7": "textures/entity/xvoid/wheel_of_adaptation_lit_7"
+      },
+      "geometry": {
+        "default": "geometry.xvoid.wheel_of_adaptation",
+        "glow": "geometry.xvoid.wheel_of_adaptation_glow"
+      },
+      "animations": {
+        "hide_first_person": "animation.xvoid.wheel.hide_first_person",
+        "idle": "animation.mahoraga_wheel.idle",
+        "rewind": "animation.xvoid.wheel.rewind",
+        "glow_fx": "animation.xvoid.wheel.rewind_mote",
+        "fx_spin": "animation.xvoid.wheel.rewind_spin",
+        "fx_halo": "animation.xvoid.wheel.rewind_halo",
+        "fx_arcs": "animation.xvoid.wheel.rewind_arcs",
+        "fx_crackle": "animation.xvoid.wheel.rewind_crackle",
+        "fx_gather": "animation.xvoid.wheel.rewind_gather"
+      },
+      "scripts": {
+        "pre_animation": [
+          "v.glow_time = (v.glow_time ?? 0) + q.delta_time;",
+          "v.glow = v.glow_time < 0.8 ? 0.2 + v.glow_time / 0.8 * 0.55 : (v.glow_time < 4.1 ? 0.88 + 0.12 * math.sin(v.glow_time * 720) : math.max(0, (4.7 - v.glow_time) / 0.6));"
+        ],
+        "animate": [
+          "idle",
+          {
+            "hide_first_person": "c.is_first_person"
+          },
+          "rewind",
+          "glow_fx",
+          {
+            "fx_spin": "!c.is_first_person"
+          },
+          {
+            "fx_halo": "!c.is_first_person"
+          },
+          {
+            "fx_arcs": "!c.is_first_person"
+          },
+          {
+            "fx_crackle": "!c.is_first_person"
+          },
+          {
+            "fx_gather": "!c.is_first_person"
+          }
+        ]
+      },
+      "render_controllers": [
+        "controller.render.xvoid_wheel_lit",
+        "controller.render.xvoid_wheel_glow"
+      ],
+      "particle_effects": {
+        "mote": "xvoid:wheel_mote",
+        "gather": "xvoid:w_adapt_gather",
+        "spin": "xvoid:w_wheel_spin",
+        "halo": "xvoid:w_adapt_halo",
+        "arcs": "xvoid:w_fx_arcs_gold",
+        "crackle": "xvoid:w_wheel_crackle"
+      }
+    }
+  }
+}
