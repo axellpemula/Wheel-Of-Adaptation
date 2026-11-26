@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "xvoid:wheel_of_adaptation"
+    },
+    "tags": ["crafting_table"],
+    "pattern": [
+      "ACA",
+      "GTG",
+      "CGC"
+    ],
+    "key": {
+      "A": { "item": "minecraft:golden_apple" },
+      "C": { "item": "minecraft:clock" },
+      "G": { "item": "minecraft:gold_ingot" },
+      "T": { "item": "minecraft:totem_of_undying" }
+    },
+    "unlock": [
+      { "item": "minecraft:totem_of_undying" },
+      { "item": "minecraft:clock" }
+    ],
+    "result": {
+      "item": "xvoid:wheel_of_adaptation"
+    }
+  }
+}
