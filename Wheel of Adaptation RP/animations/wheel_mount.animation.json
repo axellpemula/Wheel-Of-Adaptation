@@ -1,0 +1,173 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.xvoid.wheel.hide_first_person": {
+      "loop": true,
+      "bones": {
+        "wheel": {
+          "scale": 0
+        }
+      }
+    },
+    "animation.xvoid.wheel.glow_fx": {
+      "animation_length": 3.8,
+      "particle_effects": {
+        "0.0": {
+          "effect": "mote",
+          "locator": "glow"
+        }
+      }
+    },
+    "animation.xvoid.wheel.turn_spin": {
+      "animation_length": 1.0,
+      "particle_effects": {
+        "0.0": {
+          "effect": "spin",
+          "locator": "glow"
+        }
+      }
+    },
+    "animation.xvoid.wheel.turn_halo": {
+      "animation_length": 1.0,
+      "particle_effects": {
+        "0.0": {
+          "effect": "halo",
+          "locator": "glow"
+        }
+      }
+    },
+    "animation.xvoid.wheel.turn_crackle": {
+      "animation_length": 1.0,
+      "particle_effects": {
+        "0.0": {
+          "effect": "crackle",
+          "locator": "glow"
+        }
+      }
+    },
+    "animation.xvoid.wheel.turn_arcs": {
+      "animation_length": 1.0,
+      "particle_effects": {
+        "0.0": {
+          "effect": "arcs",
+          "locator": "glow"
+        }
+      }
+    },
+    "animation.xvoid.wheel.turn_twinkle": {
+      "animation_length": 1.0,
+      "particle_effects": {
+        "0.0": {
+          "effect": "twinkle",
+          "locator": "glow"
+        }
+      }
+    },
+    "animation.xvoid.wheel.full_charge": {
+      "animation_length": 3.0,
+      "particle_effects": {
+        "0.0": {
+          "effect": "charge",
+          "locator": "glow"
+        },
+        "0.65": {
+          "effect": "charge",
+          "locator": "glow"
+        },
+        "1.25": {
+          "effect": "charge",
+          "locator": "glow"
+        },
+        "1.8": {
+          "effect": "charge",
+          "locator": "glow"
+        }
+      }
+    },
+    "animation.xvoid.wheel.full_gather": {
+      "animation_length": 3.0,
+      "particle_effects": {
+        "0.0": {
+          "effect": "gather",
+          "locator": "glow"
+        },
+        "0.65": {
+          "effect": "gather",
+          "locator": "glow"
+        },
+        "1.25": {
+          "effect": "gather",
+          "locator": "glow"
+        }
+      }
+    },
+    "animation.xvoid.wheel.full_spin": {
+      "animation_length": 3.0,
+      "particle_effects": {
+        "0.65": {
+          "effect": "spin",
+          "locator": "glow"
+        },
+        "1.25": {
+          "effect": "spin",
+          "locator": "glow"
+        },
+        "1.8": {
+          "effect": "spin",
+          "locator": "glow"
+        }
+      }
+    },
+    "animation.xvoid.wheel.full_halo": {
+      "animation_length": 3.0,
+      "particle_effects": {
+        "0.65": {
+          "effect": "halo",
+          "locator": "glow"
+        },
+        "1.25": {
+          "effect": "halo",
+          "locator": "glow"
+        },
+        "1.8": {
+          "effect": "halo",
+          "locator": "glow"
+        }
+      }
+    },
+    "animation.xvoid.wheel.full_arcs": {
+      "animation_length": 3.0,
+      "particle_effects": {
+        "0.65": {
+          "effect": "arcs",
+          "locator": "glow"
+        },
+        "1.25": {
+          "effect": "arcs",
+          "locator": "glow"
+        },
+        "1.8": {
+          "effect": "arcs",
+          "locator": "glow"
+        }
+      }
+    },
+    "animation.xvoid.wheel.full_crackle": {
+      "animation_length": 3.0,
+      "particle_effects": {
+        "0.65": {
+          "effect": "crackle",
+          "locator": "glow"
+        },
+        "1.25": {
+          "effect": "crackle",
+          "locator": "glow"
+        },
+        "1.8": {
+          "effect": "crackle",
+          "locator": "glow"
+        }
+      }
+    }
+  }
+}

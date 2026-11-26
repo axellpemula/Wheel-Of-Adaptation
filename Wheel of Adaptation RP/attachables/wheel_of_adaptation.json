@@ -1,0 +1,34 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "xvoid:wheel_of_adaptation",
+      "materials": {
+        "default": "entity_alphatest",
+        "enchanted": "entity_alphatest_glint"
+      },
+      "textures": {
+        "default": "textures/entity/xvoid/wheel_of_adaptation",
+        "enchanted": "textures/misc/enchanted_item_glint"
+      },
+      "geometry": {
+        "default": "geometry.xvoid.wheel_of_adaptation"
+      },
+      "animations": {
+        "hide_first_person": "animation.xvoid.wheel.hide_first_person",
+        "idle": "animation.mahoraga_wheel.idle"
+      },
+      "scripts": {
+        "animate": [
+          "idle",
+          {
+            "hide_first_person": "c.is_first_person"
+          }
+        ]
+      },
+      "render_controllers": [
+        "controller.render.item_default"
+      ]
+    }
+  }
+}

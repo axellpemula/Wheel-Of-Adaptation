@@ -1,0 +1,122 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.xvoid.sword.hide_arm": {
+      "loop": true,
+      "bones": {
+        "fp_arm": {
+          "scale": 0
+        }
+      }
+    },
+    "animation.xvoid.sword.first_person": {
+      "loop": true,
+      "bones": {
+        "rightArm": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "position": [
+            -3,
+            5,
+            -2
+          ]
+        }
+      }
+    },
+    "animation.xvoid.sword.blade_extend": {
+      "animation_length": 0.3,
+      "bones": {
+        "blade": {
+          "scale": {
+            "0.0": [
+              0,
+              0,
+              0
+            ],
+            "0.3": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    },
+    "animation.xvoid.barehand.no_blade": {
+      "loop": true,
+      "bones": {
+        "blade": {
+          "scale": 0
+        }
+      }
+    },
+    "animation.xvoid.barehand.blade_retract": {
+      "loop": "hold_on_last_frame",
+      "animation_length": 0.3,
+      "bones": {
+        "blade": {
+          "scale": {
+            "0.0": [
+              1,
+              1,
+              1
+            ],
+            "0.3": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      }
+    },
+    "animation.xvoid.sword.aura_in": {
+      "loop": "hold_on_last_frame",
+      "animation_length": 0.15,
+      "bones": {
+        "aura": {
+          "scale": {
+            "0.0": [
+              0,
+              0,
+              0
+            ],
+            "0.1": [
+              1.1,
+              1.1,
+              1.1
+            ],
+            "0.15": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    },
+    "animation.xvoid.sword.aura_out": {
+      "loop": "hold_on_last_frame",
+      "animation_length": 0.25,
+      "bones": {
+        "aura": {
+          "scale": {
+            "0.0": [
+              1,
+              1,
+              1
+            ],
+            "0.25": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      }
+    }
+  }
+}
