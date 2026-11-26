@@ -1,0 +1,313 @@
+{
+  "format_version": "1.20.20",
+  "sound_definitions": {
+    "xvoid.wheel.spin": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/wheel_spin",
+          "volume": 0.65
+        }
+      ]
+    },
+    "xvoid.wheel.first": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/wheel_first",
+          "volume": 0.8
+        }
+      ]
+    },
+    "xvoid.wheel.fast": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/wheel_fast",
+          "volume": 0.9
+        }
+      ]
+    },
+    "xvoid.wheel.adapted": {
+      "category": "player",
+      "min_distance": 6.0,
+      "max_distance": 48.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/wheel_adapted",
+          "volume": 0.8
+        }
+      ]
+    },
+    "xvoid.wheel.nullify": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 24.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/wheel_nullify",
+          "volume": 0.7
+        }
+      ]
+    },
+    "xvoid.wheel.undying": {
+      "category": "player",
+      "min_distance": 6.0,
+      "max_distance": 48.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/wheel_undying",
+          "volume": 0.65
+        }
+      ]
+    },
+    "xvoid.wheel.heal": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 16.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/heal",
+          "volume": 0.65
+        }
+      ]
+    },
+    "xvoid.blade.extend": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 16.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/blade_extend",
+          "volume": 1.0
+        }
+      ]
+    },
+    "xvoid.blade.retract": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 16.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/blade_retract",
+          "volume": 1.0
+        }
+      ]
+    },
+    "xvoid.guard.block": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 16.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/guard_block",
+          "volume": 0.7
+        }
+      ]
+    },
+    "xvoid.guard.catch": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 16.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/guard_catch",
+          "volume": 1.0
+        }
+      ]
+    },
+    "xvoid.sword.slash": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/sword_slash",
+          "volume": 0.5
+        }
+      ]
+    },
+    "xvoid.sword.slash_hit": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 24.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/slash_hit",
+          "volume": 0.95
+        }
+      ]
+    },
+    "xvoid.sword.stab": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 24.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/sword_stab",
+          "volume": 0.8
+        }
+      ]
+    },
+    "xvoid.sword.purify": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/purify",
+          "volume": 0.7
+        }
+      ]
+    },
+    "xvoid.sword.restore": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/restore",
+          "volume": 0.75
+        }
+      ]
+    },
+    "xvoid.dash": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 16.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/dash",
+          "volume": 0.55
+        }
+      ]
+    },
+    "xvoid.punch": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 16.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/barehand_punch",
+          "volume": 0.6
+        }
+      ]
+    },
+    "xvoid.teleport": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 24.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/teleport",
+          "volume": 0.6
+        }
+      ]
+    },
+    "xvoid.kick_hit": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 24.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/kick_hit",
+          "volume": 0.6
+        }
+      ]
+    },
+    "xvoid.air_blast_charge": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 16.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/air_blast_charge",
+          "volume": 1.0
+        }
+      ]
+    },
+    "xvoid.air_blast_fire": {
+      "category": "player",
+      "min_distance": 4.0,
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/air_blast_fire",
+          "volume": 1.0
+        }
+      ]
+       },
+    "xvoid.seal.tick": {
+      "category": "player",
+      "min_distance": 6.0,
+      "max_distance": 48.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_tick",
+          "volume": 0.9
+        }
+      ]
+    },
+    "xvoid.seal.open": {
+      "category": "player",
+      "min_distance": 24.0,
+      "max_distance": 96.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_open",
+          "volume": 1.0
+        }
+      ]
+    },
+    "xvoid.seal.chain": {
+      "category": "player",
+      "min_distance": 8.0,
+      "max_distance": 48.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_chain",
+          "volume": 1.0
+        }
+      ]
+    },
+    "xvoid.seal.thunder": {
+      "category": "player",
+      "min_distance": 24.0,
+      "max_distance": 96.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_thunder",
+          "volume": 1.0
+        }
+      ]
+    },
+    "xvoid.seal.repel": {
+      "category": "player",
+      "min_distance": 6.0,
+      "max_distance": 32.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_repel",
+          "volume": 0.8
+        }
+      ]
+    },
+    "xvoid.seal.close": {
+      "category": "player",
+      "min_distance": 24.0,
+      "max_distance": 96.0,
+      "sounds": [
+        {
+          "name": "sounds/xvoid/seal_close",
+          "volume": 1.0
+        }
+      ]
+    }
+  }
+}

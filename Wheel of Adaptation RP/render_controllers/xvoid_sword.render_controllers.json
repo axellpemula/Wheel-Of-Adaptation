@@ -1,0 +1,52 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.xvoid.sword": {
+      "geometry": "Geometry.default",
+      "materials": [
+        {
+          "*": "variable.is_enchanted ? Material.enchanted : Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.default",
+        "Texture.enchanted"
+      ],
+      "part_visibility": [
+        {
+          "aura": false
+        }
+      ]
+    },
+    "controller.render.xvoid.sword_aura": {
+      "arrays": {
+        "textures": {
+          "Array.aura": [
+            "Texture.aura_0",
+            "Texture.aura_1",
+            "Texture.aura_2",
+            "Texture.aura_3",
+            "Texture.aura_4",
+            "Texture.aura_5",
+            "Texture.aura_6",
+            "Texture.aura_7"
+          ]
+        }
+      },
+      "geometry": "Geometry.default",
+      "materials": [
+        {
+          "*": "Material.aura"
+        }
+      ],
+      "textures": [
+        "Array.aura[math.mod(math.floor((v.aura_time ?? 0) * 10), 8)]"
+      ],
+      "part_visibility": [
+        {
+          "fp_arm": false
+        }
+      ]
+    }
+  }
+}

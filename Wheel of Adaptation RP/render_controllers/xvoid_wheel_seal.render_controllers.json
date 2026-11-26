@@ -1,0 +1,37 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.xvoid_wheel_seal_lit": {
+      "geometry": "Geometry.seal_lit",
+      "materials": [
+        {
+          "*": "Material.lit"
+        }
+      ],
+      "textures": [
+        "Texture.lit"
+      ]
+    },
+    "controller.render.xvoid_wheel_seal_glow": {
+      "geometry": "Geometry.seal_glow",
+      "materials": [
+        {
+          "*": "Material.glow"
+        }
+      ],
+      "textures": [
+        "Texture.glow"
+      ],
+      "uv_anim": {
+        "offset": [
+          0.0,
+          0.875
+        ],
+        "scale": [
+          1.0,
+          0.125
+        ]
+      }
+    }
+  }
+}
